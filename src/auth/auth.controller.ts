@@ -20,6 +20,7 @@ import { LoginDto } from './dto/login.dto';
 import {
   AuthSuccessResponseDto,
   AuthErrorResponseDto,
+  AuthMeResponseDto,
 } from './dto/auth-response.dto';
 import { RfidLoginDto } from '../users/dto/rfid-registration.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -296,5 +297,32 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     await this.authService.login(user, response, true);
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'Get current user',
+    description: 'Returns the current user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Current user',
+  })
+  async me(@CurrentUser() user: User): Promise<AuthMeResponseDto> {
+    return {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      rfidId: user.rfidId,
+      imageUrl: user.imageUrl,
+      courses: user.course,
+      currentFacilityId: user.currentFacilityId,
+      username: user.username,
+      roles: user.roles,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      signupMethod: user.signupMethod,
+    };
   }
 }

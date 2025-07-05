@@ -2,7 +2,7 @@
   <head>
     <meta charset='utf-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-    <title>Welcome to {{organizationName}}</title>
+    <title>Welcome to CS Guild</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
@@ -21,8 +21,8 @@
           Roboto,
           sans-serif;
         line-height: 1.6;
-        color: #1f2937;
-        background-color: #f8fafc;
+        color: #ffffff;
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
         padding: 20px;
         min-height: 100vh;
       }
@@ -30,30 +30,47 @@
       .container {
         max-width: 800px;
         margin: 0 auto;
-        background: #ffffff;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
         border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        border: 1px solid #e5e7eb;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(139, 92, 246, 0.2);
       }
 
       .header {
-        background: #ffffff;
+        background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
         padding: 32px 40px 24px;
-        border-bottom: 1px solid #e5e7eb;
         position: relative;
+        overflow: hidden;
       }
 
-      .header::after {
+      .header::before {
         content: '';
         position: absolute;
-        bottom: 0;
+        top: 0;
         left: 0;
         right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, #1e40af, #3b82f6, #06b6d4, #1e40af);
-        background-size: 300% 100%;
-        animation: welcomeShift 3s ease infinite;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.1) 50%,
+          transparent 100%
+        );
+        transform: translateX(-100%);
+        animation: shine 3s ease-in-out infinite;
+      }
+
+      @keyframes shine {
+        0% {
+          transform: translateX(-100%);
+        }
+        50% {
+          transform: translateX(100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
       }
 
       @keyframes welcomeShift {
@@ -67,25 +84,36 @@
       }
 
       .logo {
-        font-size: 24px;
+        font-size: 28px;
         font-weight: 700;
-        color: #1f2937;
+        color: #ffffff;
         margin-bottom: 8px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 12px;
+        font-family: 'JetBrains Mono', monospace;
       }
 
       .logo::before {
-        content: '🚀';
-        font-size: 20px;
+        content: '</>';
+        font-size: 24px;
+        background: linear-gradient(45deg, #f472b6, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
 
       .header h1 {
-        color: #4b5563;
+        color: rgba(255, 255, 255, 0.9);
         font-size: 18px;
         font-weight: 400;
         margin: 0;
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .header h1::before {
+        content: '// ';
+        color: rgba(255, 255, 255, 0.6);
       }
 
       .content {
@@ -93,10 +121,14 @@
       }
 
       .welcome-hero {
-        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-        border: 1px solid #3b82f6;
-        border-radius: 12px;
-        padding: 40px;
+        background: linear-gradient(
+          135deg,
+          rgba(236, 72, 153, 0.15) 0%,
+          rgba(139, 92, 246, 0.15) 100%
+        );
+        border: 1px solid rgba(236, 72, 153, 0.3);
+        border-radius: 16px;
+        padding: 48px;
         margin-bottom: 32px;
         text-align: center;
         position: relative;
@@ -110,14 +142,14 @@
         left: 0;
         right: 0;
         height: 3px;
-        background: linear-gradient(90deg, #1e40af, #3b82f6, #06b6d4, #1e40af);
+        background: linear-gradient(90deg, #ec4899, #8b5cf6, #a855f7, #ec4899);
         background-size: 300% 100%;
         animation: welcomeShift 3s ease infinite;
       }
 
       .welcome-icon {
-        font-size: 72px;
-        margin-bottom: 20px;
+        font-size: 80px;
+        margin-bottom: 24px;
         display: block;
         animation: celebrate 3s ease infinite;
       }
@@ -139,41 +171,60 @@
       }
 
       .welcome-title {
-        font-size: 28px;
+        font-size: 32px;
         font-weight: 700;
-        color: #1e40af;
-        margin-bottom: 12px;
+        background: linear-gradient(45deg, #ec4899, #8b5cf6, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 16px;
         line-height: 1.2;
       }
 
       .welcome-subtitle {
-        font-size: 18px;
-        color: #2563eb;
+        font-size: 20px;
+        color: rgba(236, 72, 153, 0.9);
         font-weight: 500;
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .welcome-subtitle::before {
+        content: 'console.log("';
+        color: rgba(139, 92, 246, 0.7);
+      }
+
+      .welcome-subtitle::after {
+        content: '");';
+        color: rgba(139, 92, 246, 0.7);
       }
 
       .greeting {
         font-size: 18px;
         font-weight: 500;
-        color: #1f2937;
+        color: #ffffff;
         margin-bottom: 24px;
       }
 
       .description {
         font-size: 16px;
-        color: #4b5563;
+        color: rgba(255, 255, 255, 0.8);
         margin-bottom: 32px;
         line-height: 1.7;
       }
 
       .account-info {
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        border: 1px solid #cbd5e1;
-        border-radius: 12px;
+        background: linear-gradient(
+          135deg,
+          rgba(31, 41, 55, 0.6) 0%,
+          rgba(55, 65, 81, 0.6) 100%
+        );
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 16px;
         padding: 32px;
         margin: 32px 0;
         position: relative;
         overflow: hidden;
+        backdrop-filter: blur(10px);
       }
 
       .account-info::before {
@@ -183,7 +234,7 @@
         left: 0;
         right: 0;
         height: 3px;
-        background: linear-gradient(90deg, #1e40af, #3b82f6, #06b6d4, #1e40af);
+        background: linear-gradient(90deg, #ec4899, #8b5cf6, #a855f7, #ec4899);
         background-size: 300% 100%;
         animation: accountShift 4s ease infinite;
       }
@@ -198,277 +249,306 @@
         }
       }
 
-      .account-header {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 24px;
-      }
-
-      .account-icon {
-        font-size: 32px;
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(135deg, #1e40af, #3b82f6);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 600;
-      }
-
-      .account-title {
+      .account-info h3 {
         font-size: 20px;
         font-weight: 600;
-        color: #1e40af;
+        color: #ffffff;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
 
-      .account-details {
+      .account-info h3::before {
+        content: '👤';
+        font-size: 18px;
+      }
+
+      .info-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
       }
 
-      .account-field {
-        background: white;
-        padding: 16px;
+      .info-item {
+        background: rgba(31, 41, 55, 0.5);
+        border: 1px solid rgba(139, 92, 246, 0.2);
         border-radius: 8px;
-        border: 1px solid #e5e7eb;
+        padding: 16px;
       }
 
-      .account-label {
+      .info-label {
         font-size: 12px;
         font-weight: 500;
-        color: #6b7280;
+        color: rgba(236, 72, 153, 0.8);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 4px;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+        font-family: 'JetBrains Mono', monospace;
       }
 
-      .account-value {
+      .info-value {
         font-size: 16px;
         font-weight: 600;
-        color: #1f2937;
-        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        color: #ffffff;
+        word-break: break-all;
       }
 
-      .login-button {
-        display: inline-block;
-        padding: 16px 32px;
-        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-        color: white;
-        text-decoration: none;
-        border-radius: 12px;
+      .features-section {
+        background: linear-gradient(
+          135deg,
+          rgba(139, 92, 246, 0.1) 0%,
+          rgba(168, 85, 247, 0.1) 100%
+        );
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: 16px;
+        padding: 32px;
+        margin: 32px 0;
+      }
+
+      .features-section h3 {
+        font-size: 20px;
         font-weight: 600;
-        font-size: 16px;
-        margin: 32px auto;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(30, 64, 175, 0.2);
+        color: #ffffff;
+        margin-bottom: 24px;
         text-align: center;
-        display: block;
-        width: fit-content;
-      }
-
-      .login-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
       }
 
       .features-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 20px;
-        margin: 32px 0;
       }
 
       .feature-card {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        border: 1px solid #e2e8f0;
+        background: rgba(31, 41, 55, 0.3);
+        border: 1px solid rgba(236, 72, 153, 0.2);
         border-radius: 12px;
-        padding: 24px;
+        padding: 20px;
         text-align: center;
         transition: all 0.3s ease;
       }
 
       .feature-card:hover {
+        border-color: rgba(236, 72, 153, 0.5);
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
       }
 
       .feature-icon {
-        font-size: 36px;
-        margin-bottom: 16px;
+        font-size: 32px;
+        margin-bottom: 12px;
         display: block;
       }
 
       .feature-title {
         font-size: 16px;
         font-weight: 600;
-        color: #1f2937;
+        color: #ffffff;
         margin-bottom: 8px;
       }
 
-      .feature-description {
+      .feature-desc {
         font-size: 14px;
-        color: #6b7280;
+        color: rgba(255, 255, 255, 0.7);
         line-height: 1.5;
       }
 
-      .next-steps {
-        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-        border-left: 4px solid #0284c7;
-        padding: 24px;
+      .cta-section {
+        background: linear-gradient(
+          135deg,
+          #ec4899 0%,
+          #8b5cf6 50%,
+          #a855f7 100%
+        );
+        border-radius: 16px;
+        padding: 32px;
+        text-align: center;
         margin: 32px 0;
+        color: #ffffff;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          45deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.1) 50%,
+          transparent 70%
+        );
+        transform: translateX(-100%);
+        animation: ctaShine 4s ease-in-out infinite;
+      }
+
+      @keyframes ctaShine {
+        0% {
+          transform: translateX(-100%);
+        }
+        50% {
+          transform: translateX(100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      .cta-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
+
+      .cta-desc {
+        font-size: 16px;
+        opacity: 0.9;
+        margin-bottom: 24px;
+      }
+
+      .cta-button {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        padding: 12px 32px;
         border-radius: 8px;
-      }
-
-      .next-steps h3 {
-        font-size: 18px;
+        text-decoration: none;
         font-weight: 600;
-        color: #0c4a6e;
-        margin-bottom: 16px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
       }
 
-      .next-steps h3::before {
-        content: '🎯';
-      }
-
-      .next-steps ul {
-        list-style: none;
-        padding: 0;
-      }
-
-      .next-steps li {
-        padding: 8px 0;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-size: 15px;
-        color: #0c4a6e;
-      }
-
-      .next-steps li::before {
-        content: '→';
-        color: #0284c7;
-        font-weight: 600;
-        width: 20px;
-        height: 20px;
-        background: #cff9fe;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
+      .cta-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
       }
 
       .footer {
-        background: #f8fafc;
+        background: linear-gradient(
+          135deg,
+          rgba(31, 41, 55, 0.8) 0%,
+          rgba(17, 24, 39, 0.8) 100%
+        );
         padding: 32px 40px;
         text-align: center;
-        border-top: 1px solid #e5e7eb;
+        border-top: 1px solid rgba(139, 92, 246, 0.2);
       }
 
       .footer-brand {
-        font-size: 16px;
-        font-weight: 600;
-        color: #1f2937;
+        font-size: 18px;
+        font-weight: 700;
+        color: #ffffff;
         margin-bottom: 8px;
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .footer-brand::before {
+        content: '// ';
+        color: rgba(236, 72, 153, 0.8);
       }
 
       .footer-tagline {
         font-size: 14px;
-        color: #6b7280;
-        margin-bottom: 16px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 20px;
       }
 
-      .support-link {
-        color: #3b82f6;
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .footer-link {
+        color: rgba(236, 72, 153, 0.8);
         text-decoration: none;
+        font-size: 14px;
         font-weight: 500;
-        transition: color 0.2s ease;
+        transition: color 0.3s ease;
       }
 
-      .support-link:hover {
-        color: #1e40af;
+      .footer-link:hover {
+        color: #ec4899;
+      }
+
+      .footer-note {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .stats-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+        margin: 32px 0;
+      }
+
+      .stat-card {
+        background: linear-gradient(
+          135deg,
+          rgba(236, 72, 153, 0.1) 0%,
+          rgba(139, 92, 246, 0.1) 100%
+        );
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .stat-number {
+        font-size: 24px;
+        font-weight: 700;
+        background: linear-gradient(45deg, #ec4899, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 8px;
+      }
+
+      .stat-label {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 500;
       }
 
       @media (max-width: 768px) {
-        body {
-          padding: 10px;
-        }
-
         .container {
+          margin: 10px;
           border-radius: 12px;
-          max-width: 100%;
-        }
-
-        .header {
-          padding: 24px 20px 20px;
         }
 
         .content {
-          padding: 24px 20px;
+          padding: 24px;
         }
 
-        .footer {
-          padding: 24px 20px;
-        }
-
-        .account-details {
-          grid-template-columns: 1fr;
-        }
-
-        .account-header {
-          flex-direction: column;
-          text-align: center;
-        }
-
-        .features-grid {
-          grid-template-columns: 1fr;
+        .welcome-hero {
+          padding: 32px 20px;
         }
 
         .welcome-title {
           font-size: 24px;
         }
 
-        .logo {
-          font-size: 20px;
+        .info-grid {
+          grid-template-columns: 1fr;
         }
 
-        .header h1 {
-          font-size: 16px;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .welcome-hero {
-          padding: 24px 16px;
+        .features-grid {
+          grid-template-columns: 1fr;
         }
 
-        .welcome-icon {
-          font-size: 56px;
-        }
-      }
-
-      @media (min-width: 1024px) {
-        .container {
-          max-width: 900px;
-        }
-
-        .content {
-          padding: 48px 60px;
-        }
-
-        .header {
-          padding: 40px 60px 32px;
-        }
-
-        .footer {
-          padding: 40px 60px;
+        .footer-links {
+          flex-direction: column;
+          gap: 12px;
         }
       }
     </style>
@@ -476,101 +556,138 @@
   <body>
     <div class='container'>
       <div class='header'>
-        <div class='logo'>{{organizationName}}</div>
-        <h1>Welcome to Our Community</h1>
+        <div class='logo'>CS Guild</div>
+        <h1>Where Code Meets Community</h1>
       </div>
 
       <div class='content'>
         <div class='welcome-hero'>
-          <div class='welcome-icon'>🎉</div>
-          <div class='welcome-title'>Welcome, {{firstName}}!</div>
-          <div class='welcome-subtitle'>Your journey into the future of
-            technology begins now</div>
+          <span class='welcome-icon'>🚀</span>
+          <h2 class='welcome-title'>Welcome to the Guild!</h2>
+          <p class='welcome-subtitle'>Your coding journey starts here</p>
         </div>
 
-        <div class='greeting'>Hello {{firstName}},</div>
+        <p class='greeting'>Hey {{firstName}},</p>
 
-        <div class='description'>
-          Congratulations! Your
+        <p class='description'>
+          Welcome to
           {{organizationName}}
-          account has been successfully created and verified. You're now part of
-          our vibrant community of innovators, creators, and tech enthusiasts.
-        </div>
+          – the ultimate community for Computer Science students and developers!
+          You've just joined our passionate community of learners who are
+          transforming their coding skills and building amazing careers
+          together.
+        </p>
 
         <div class='account-info'>
-          <div class='account-header'>
-            <div class='account-icon'>👤</div>
-            <div class='account-title'>Your Account Details</div>
-          </div>
-
-          <div class='account-details'>
-            <div class='account-field'>
-              <div class='account-label'>Username</div>
-              <div class='account-value'>{{username}}</div>
+          <h3>Your Account Details</h3>
+          <div class='info-grid'>
+            <div class='info-item'>
+              <div class='info-label'>Name</div>
+              <div class='info-value'>{{firstName}}</div>
             </div>
-            <div class='account-field'>
-              <div class='account-label'>Email</div>
-              <div class='account-value'>Verified ✓</div>
+            <div class='info-item'>
+              <div class='info-label'>Username</div>
+              <div class='info-value'>{{username}}</div>
             </div>
           </div>
         </div>
 
-        <a href='{{loginUrl}}' class='login-button'>
-          🚀 Access Your Dashboard
-        </a>
-
-        <div class='features-grid'>
-          <div class='feature-card'>
-            <div class='feature-icon'>💻</div>
-            <div class='feature-title'>Learning Resources</div>
-            <div class='feature-description'>Access cutting-edge tutorials,
-              courses, and documentation</div>
+        <div class='stats-section'>
+          <div class='stat-card'>
+            <div class='stat-number'>10K+</div>
+            <div class='stat-label'>Active Members</div>
           </div>
-
-          <div class='feature-card'>
-            <div class='feature-icon'>🤝</div>
-            <div class='feature-title'>Community</div>
-            <div class='feature-description'>Connect with fellow developers and
-              tech enthusiasts</div>
+          <div class='stat-card'>
+            <div class='stat-number'>500+</div>
+            <div class='stat-label'>Projects Built</div>
           </div>
-
-          <div class='feature-card'>
-            <div class='feature-icon'>🎯</div>
-            <div class='feature-title'>Projects</div>
-            <div class='feature-description'>Participate in hackathons,
-              competitions, and collaborative projects</div>
+          <div class='stat-card'>
+            <div class='stat-number'>24/7</div>
+            <div class='stat-label'>Community Support</div>
           </div>
-
-          <div class='feature-card'>
-            <div class='feature-icon'>📊</div>
-            <div class='feature-title'>Analytics</div>
-            <div class='feature-description'>Track your progress and
-              achievements</div>
+          <div class='stat-card'>
+            <div class='stat-number'>50+</div>
+            <div class='stat-label'>Study Groups</div>
           </div>
         </div>
 
-        <div class='next-steps'>
-          <h3>Next Steps</h3>
-          <ul>
-            <li>Complete your profile setup</li>
-            <li>Join relevant communities and channels</li>
-            <li>Explore our learning resources</li>
-            <li>Participate in upcoming events</li>
-            <li>Connect with other members</li>
-          </ul>
+        <div class='features-section'>
+          <h3>What's waiting for you in {{organizationName}}:</h3>
+          <div class='features-grid'>
+            <div class='feature-card'>
+              <span class='feature-icon'>💻</span>
+              <div class='feature-title'>Interactive Code Labs</div>
+              <div class='feature-desc'>Master algorithms and data structures
+                through hands-on challenges</div>
+            </div>
+            <div class='feature-card'>
+              <span class='feature-icon'>👥</span>
+              <div class='feature-title'>Peer Learning Groups</div>
+              <div class='feature-desc'>Study with students from top
+                universities working on similar goals</div>
+            </div>
+            <div class='feature-card'>
+              <span class='feature-icon'>🏆</span>
+              <div class='feature-title'>Hackathons & Competitions</div>
+              <div class='feature-desc'>Build your portfolio with weekend
+                hackathons and coding competitions</div>
+            </div>
+            <div class='feature-card'>
+              <span class='feature-icon'>🎓</span>
+              <div class='feature-title'>Industry Workshops</div>
+              <div class='feature-desc'>Learn from engineers at Google, Meta,
+                and top startups</div>
+            </div>
+            <div class='feature-card'>
+              <span class='feature-icon'>🚀</span>
+              <div class='feature-title'>Career Acceleration</div>
+              <div class='feature-desc'>Get mentorship and guidance for
+                internships and job placements</div>
+            </div>
+            <div class='feature-card'>
+              <span class='feature-icon'>💬</span>
+              <div class='feature-title'>24/7 Community Support</div>
+              <div class='feature-desc'>Always-active community ready to help
+                with any coding challenge</div>
+            </div>
+          </div>
         </div>
+
+        <div class='cta-section'>
+          <h3 class='cta-title'>Ready to level up your coding journey?</h3>
+          <p class='cta-desc'>
+            Join our community, attend your first workshop, and start building
+            projects with fellow members.
+          </p>
+          <a href='{{loginUrl}}' class='cta-button'>Get Started</a>
+        </div>
+
+        <p class='description'>
+          <strong>Quick tip:</strong>
+          Join our community for real-time discussions, study sessions, and
+          networking opportunities. Check your dashboard for upcoming events and
+          connect with study groups in your area of interest.
+        </p>
+
+        <p class='description'>
+          If you have any questions or need help getting started, don't hesitate
+          to reach out to our support team at
+          {{supportEmail}}
+          or check out our comprehensive getting started guide.
+        </p>
       </div>
 
       <div class='footer'>
-        <div class='footer-brand'>The {{organizationName}} Team</div>
-        <div class='footer-tagline'>Building tomorrow's technology today</div>
-        <div>
-          Questions? We're here to help at
-          <a
-            href='mailto:{{supportEmail}}'
-            class='support-link'
-          >{{supportEmail}}</a>
+        <div class='footer-brand'>Built with ❤️ by {{organizationName}}</div>
+        <p class='footer-tagline'>Empowering the next generation of developers</p>
+
+        <div class='footer-links'>
+          <a href='{{loginUrl}}' class='footer-link'>Get Started</a>
         </div>
+
+        <p class='footer-note'>
+          console.log("Welcome to your coding future! 🚀");
+        </p>
       </div>
     </div>
   </body>

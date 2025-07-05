@@ -6,6 +6,7 @@ import {
   UseGuards,
   Param,
   UnauthorizedException,
+  Patch,
 } from '@nestjs/common';
 import { CreateUserRequest } from './dto/create-user.request';
 import { UsersService } from './users.service';
@@ -41,6 +42,7 @@ import {
 import { LoggerService } from '../common/logger/logger.service';
 import { Roles } from 'src/auth/roles/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { UpdateUserRequest } from './dto/update-user.request';
 
 @ApiTags('Users')
 @Controller('users')
@@ -320,6 +322,7 @@ export class UsersController {
       emailVerified: u.emailVerified,
       hasRefreshToken: !!u.refreshToken,
       hasRfidCard: !!u.rfidId,
+      rfidId: u.rfidId,
       roles: u.roles,
       signupMethod: u.signupMethod as any,
       createdAt: u.createdAt,
@@ -383,10 +386,46 @@ export class UsersController {
       emailVerified: user.emailVerified,
       hasRefreshToken: !!user.refreshToken,
       hasRfidCard: !!user.rfidId,
+      rfidId: user.rfidId,
       roles: user.roles,
       signupMethod: user.signupMethod as any,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+    };
+  }
+
+  @Patch('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'Update user',
+    description: 'Updates a user',
+  })
+  @ApiBody({ type: UpdateUserRequest })
+  async updateUser(
+    @Body() request: UpdateUserRequest,
+    @CurrentUser() user: User,
+  ): Promise<UserResponseDto> {
+    const updatedUser = await this.usersService.updateUserProfile(
+      { id: user.id },
+      request,
+    );
+    return {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      username: updatedUser.username,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      birthdate: updatedUser.birthdate,
+      course: updatedUser.course,
+      imageUrl: updatedUser.imageUrl,
+      emailVerified: updatedUser.emailVerified,
+      hasRefreshToken: !!updatedUser.refreshToken,
+      hasRfidCard: !!updatedUser.rfidId,
+      rfidId: updatedUser.rfidId,
+      roles: updatedUser.roles,
+      signupMethod: updatedUser.signupMethod as any,
+      createdAt: updatedUser.createdAt,
+      updatedAt: updatedUser.updatedAt,
     };
   }
 }

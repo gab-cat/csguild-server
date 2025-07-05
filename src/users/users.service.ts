@@ -10,6 +10,7 @@ import { CreateUserRequest, SignupMethod } from './dto/create-user.request';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { EmailService } from '../common/email/email.service';
 import { Role, User } from '../../generated/prisma';
+import { UpdateUserRequest } from './dto/update-user.request';
 
 @Injectable()
 export class UsersService {
@@ -246,6 +247,21 @@ export class UsersService {
       );
     }
 
+    return user;
+  }
+
+  async updateUserProfile(
+    where: { id?: string; email?: string; username?: string },
+    data: UpdateUserRequest,
+  ): Promise<User | null> {
+    const { birthdate, ...rest } = data;
+    const user = await this.prisma.user.update({
+      where: { id: where.id },
+      data: {
+        ...rest,
+        birthdate: birthdate ? new Date(birthdate) : null,
+      },
+    });
     return user;
   }
 

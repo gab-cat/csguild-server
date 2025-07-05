@@ -75,6 +75,13 @@ export class UserResponseDto {
   hasRfidCard: boolean;
 
   @ApiProperty({
+    description: 'RFID card ID',
+    example: 'RF001234567',
+    required: false,
+  })
+  rfidId?: string;
+
+  @ApiProperty({
     description: 'User roles in the system',
     example: ['STUDENT'],
     enum: Role,

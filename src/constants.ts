@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export const SERVER = {
-  PORT: 3000,
+  PORT: process.env.PORT ? parseInt(process.env.PORT) : 3000,
   API_DOCS_PATH: 'api-docs',
 } as const;
 

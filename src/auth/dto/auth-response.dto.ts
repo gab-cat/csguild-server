@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { SignupMethod } from 'generated/prisma/client';
 
 export class AuthSuccessResponseDto {
   @ApiProperty({
@@ -32,4 +33,78 @@ export class AuthErrorResponseDto {
     example: 'Unauthorized',
   })
   error: string;
+}
+
+export class AuthMeResponseDto {
+  @ApiProperty({
+    description: 'User',
+    example: 'John',
+  })
+  firstName: string;
+
+  @ApiProperty({
+    description: 'Last name',
+    example: 'Doe',
+  })
+  lastName: string;
+
+  @ApiProperty({
+    description: 'Email',
+    example: 'john.doe@example.com',
+  })
+  email: string;
+
+  @ApiProperty({
+    description: 'RFID',
+    example: '1234567890',
+  })
+  rfidId: string;
+
+  @ApiProperty({
+    description: 'Image URL',
+    example: 'https://example.com/image.jpg',
+  })
+  imageUrl: string;
+
+  @ApiProperty({
+    description: 'Courses',
+    example: 'Bachelor of Science in Computer Science',
+  })
+  courses: string;
+
+  @ApiProperty({
+    description: 'Current facility ID',
+    example: '1234567890',
+  })
+  currentFacilityId: string;
+
+  @ApiProperty({
+    description: 'Username',
+    example: 'john.doe',
+  })
+  username: string;
+
+  @ApiProperty({
+    description: 'Role',
+    example: ['admin', 'user'],
+  })
+  roles: string[];
+
+  @ApiProperty({
+    description: 'Created at',
+    example: '2021-01-01',
+  })
+  createdAt: Date;
+
+  @ApiProperty({
+    description: 'Updated at',
+    example: '2021-01-01',
+  })
+  updatedAt: Date;
+
+  @ApiProperty({
+    description: 'Signup method',
+    example: 'EMAIL',
+  })
+  signupMethod: SignupMethod;
 }
