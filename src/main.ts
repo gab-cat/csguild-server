@@ -20,6 +20,7 @@ async function bootstrap() {
   // Serve static files from public directory
   app.useStaticAssets(join(__dirname, '..', 'public'));
 
+  app.setGlobalPrefix('api');
   // Global HTTP logging interceptor
   app.useGlobalInterceptors(app.get(HttpLoggingInterceptor));
 

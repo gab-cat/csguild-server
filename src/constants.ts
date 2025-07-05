@@ -132,6 +132,7 @@ export function configureSwagger(app: INestApplication): void {
     .setDescription(API_INFO.DESCRIPTION)
     .setVersion(API_INFO.VERSION)
     .addTag('App', 'Application endpoints')
+    .addTag('Facilities', 'Facilities endpoints')
     .addTag(
       SWAGGER_TAGS.AUTHENTICATION.name,
       SWAGGER_TAGS.AUTHENTICATION.description,
