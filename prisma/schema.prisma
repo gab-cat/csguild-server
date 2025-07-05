@@ -7,6 +7,7 @@
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -15,18 +16,87 @@ datasource db {
 }
 
 model User {
-  id           String  @id @default(cuid())
-  email        String  @unique
-  password     String
-  roles        Role[]
-  refreshToken String? @db.Text
+  id                     String         @id @default(cuid())
+  email                  String         @unique
+  username               String         @unique
+  password               String?
+  firstName              String?
+  lastName               String?
+  birthdate              DateTime?
+  course                 String?
+  emailVerified          Boolean        @default(false)
+  emailVerificationCode  String?
+  rfidId                 String?        @unique
+  roles                  Role[]
+  refreshToken           String?        @db.Text
+  imageUrl               String?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  signupMethod           SignupMethod?  @default(EMAIL)
+  currentFacilityId      String?
+
+  // Relations
+  facilityUsages         FacilityUsage[]
+  currentFacility        Facility?      @relation(fields: [currentFacilityId], references: [id])
+
 
   @@map("users")
   @@index([email])
+  @@index([username])
+  @@index([rfidId])
+}
+
+enum SignupMethod {
+  GOOGLE
+  EMAIL
+  FACEBOOK
+  APPLE
 }
 
 enum Role {
+  STUDENT
   USER
   STAFF
   ADMIN
+}
+
+model Facility {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  location    String?
+  capacity    Int?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  facilityUsages FacilityUsage[]
+  users         User[]
+
+  @@map("facilities")
+  @@index([name])
+  @@index([isActive])
+}
+
+model FacilityUsage {
+  id         String    @id @default(cuid())
+  userId     String
+  facilityId String
+  timeIn     DateTime  @default(now())
+  timeOut    DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Relations
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@map("facility_usages")
+  @@index([userId])
+  @@index([facilityId])
+  @@index([timeIn])
+  @@index([isActive])
+  @@unique([userId, facilityId, isActive])
 }
