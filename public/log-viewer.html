@@ -1,0 +1,1143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log Viewer - NestJS Auth Template</title>
+    <style>
+      :root {
+        --bg-primary: #0a0a0a;
+        --bg-secondary: #111111;
+        --bg-tertiary: #1a1a1a;
+        --bg-hover: #222222;
+        --border-color: #333333;
+        --text-primary: #ffffff;
+        --text-secondary: #888888;
+        --text-muted: #555555;
+        --accent-color: #00ff88;
+        --accent-hover: #00cc6a;
+        --error-color: #ff3366;
+        --warning-color: #ffaa00;
+        --info-color: #00aaff;
+        --debug-color: #aa88ff;
+        --radius: 8px;
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          'Inter',
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        height: 100vh;
+        overflow: hidden;
+        font-size: 14px;
+      }
+
+      .header {
+        background: var(--bg-secondary);
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-color);
+        backdrop-filter: blur(10px);
+      }
+
+      .header h1 {
+        color: var(--accent-color);
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        margin-bottom: 4px;
+      }
+
+      .header p {
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-weight: 400;
+      }
+
+      .tab-container {
+        display: flex;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-color);
+        padding: 0 24px;
+      }
+
+      .tab {
+        padding: 12px 20px;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        position: relative;
+        border-radius: var(--radius) var(--radius) 0 0;
+        margin-right: 4px;
+      }
+
+      .tab:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+      }
+
+      .tab.active {
+        background: var(--bg-primary);
+        color: var(--accent-color);
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--accent-color);
+      }
+
+      .tab-content {
+        flex: 1;
+        height: calc(100vh - 120px);
+        overflow: hidden;
+      }
+
+      .log-panel {
+        display: none;
+        height: 100%;
+        flex-direction: column;
+      }
+
+      .log-panel.active {
+        display: flex;
+      }
+
+      .log-controls {
+        padding: 16px 24px;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .control-group {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .control-group label {
+        color: var(--text-secondary);
+        font-size: 12px;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+
+      .filter-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-right: auto;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        background: transparent;
+        outline: none;
+      }
+
+      .btn:focus {
+        box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+      }
+
+      .btn-primary {
+        background: var(--accent-color);
+        color: var(--bg-primary);
+        border-color: var(--accent-color);
+      }
+
+      .btn-primary:hover {
+        background: var(--accent-hover);
+        border-color: var(--accent-hover);
+        transform: translateY(-1px);
+      }
+
+      .btn-secondary {
+        color: var(--text-primary);
+        background: var(--bg-tertiary);
+      }
+
+      .btn-secondary:hover {
+        background: var(--bg-hover);
+        transform: translateY(-1px);
+      }
+
+      .filter-input,
+      .filter-select {
+        padding: 6px 12px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        color: var(--text-primary);
+        font-size: 12px;
+        outline: none;
+        min-width: 120px;
+      }
+
+      .filter-input:focus,
+      .filter-select:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+      }
+
+      .filter-input::placeholder {
+        color: var(--text-muted);
+      }
+
+      .filter-select option {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+      }
+
+      .clear-filters {
+        padding: 4px 8px;
+        font-size: 11px;
+        background: var(--bg-hover);
+        border: 1px solid var(--border-color);
+      }
+
+      .clear-filters:hover {
+        background: var(--error-color);
+        border-color: var(--error-color);
+        color: white;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        background: var(--bg-tertiary);
+        border-radius: var(--radius);
+        border: 1px solid var(--border-color);
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--error-color);
+        animation: pulse 2s infinite;
+      }
+
+      .status-dot.connected {
+        background: var(--accent-color);
+        animation: none;
+      }
+
+      .status-text {
+        color: var(--text-secondary);
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .filter-stats {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-left: 8px;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+
+      .log-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px 24px;
+        font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', monospace;
+        font-size: 12px;
+        line-height: 1.6;
+        background: var(--bg-primary);
+      }
+
+      .log-container::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .log-container::-webkit-scrollbar-track {
+        background: var(--bg-secondary);
+      }
+
+      .log-container::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 3px;
+      }
+
+      .log-container::-webkit-scrollbar-thumb:hover {
+        background: var(--text-muted);
+      }
+
+      .log-entry {
+        margin-bottom: 6px;
+        padding: 10px 14px;
+        border-radius: var(--radius);
+        border-left: 3px solid transparent;
+        background: rgba(255, 255, 255, 0.02);
+        transition: all 0.2s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .log-entry:hover {
+        background: rgba(255, 255, 255, 0.04);
+        transform: translateX(2px);
+      }
+
+      .log-entry.hidden {
+        display: none;
+      }
+
+      .log-entry.error {
+        border-left-color: var(--error-color);
+        background: rgba(255, 51, 102, 0.05);
+      }
+
+      .log-entry.warn {
+        border-left-color: var(--warning-color);
+        background: rgba(255, 170, 0, 0.05);
+      }
+
+      .log-entry.info {
+        border-left-color: var(--info-color);
+        background: rgba(0, 170, 255, 0.05);
+      }
+
+      .log-entry.debug {
+        border-left-color: var(--debug-color);
+        background: rgba(170, 136, 255, 0.05);
+      }
+
+      .log-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+
+      .log-timestamp {
+        color: var(--text-secondary);
+        font-size: 11px;
+        font-weight: 400;
+      }
+
+      .log-level {
+        font-weight: 600;
+        text-transform: uppercase;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 10px;
+        letter-spacing: 0.5px;
+      }
+
+      .log-level.error {
+        background: var(--error-color);
+        color: white;
+      }
+
+      .log-level.warn {
+        background: var(--warning-color);
+        color: var(--bg-primary);
+      }
+
+      .log-level.info {
+        background: var(--info-color);
+        color: white;
+      }
+
+      .log-level.debug {
+        background: var(--debug-color);
+        color: white;
+      }
+
+      .log-service {
+        color: var(--accent-color);
+        font-weight: 500;
+        background: rgba(0, 255, 136, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 10px;
+      }
+
+      .log-method {
+        color: var(--info-color);
+        font-weight: 600;
+        background: rgba(0, 170, 255, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 10px;
+      }
+
+      .log-status {
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 10px;
+      }
+
+      .log-status.status-2xx {
+        background: var(--accent-color);
+        color: var(--bg-primary);
+      }
+
+      .log-status.status-3xx {
+        background: var(--info-color);
+        color: white;
+      }
+
+      .log-status.status-4xx {
+        background: var(--warning-color);
+        color: var(--bg-primary);
+      }
+
+      .log-status.status-5xx {
+        background: var(--error-color);
+        color: white;
+      }
+
+      .log-message {
+        color: var(--text-primary);
+        font-weight: 400;
+        flex: 1;
+      }
+
+      .log-context {
+        color: var(--text-secondary);
+        font-size: 11px;
+        margin-top: 6px;
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        white-space: pre-wrap;
+        font-family: inherit;
+      }
+
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--text-muted);
+        text-align: center;
+        padding: 40px;
+      }
+
+      .empty-state svg {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 16px;
+        opacity: 0.3;
+      }
+
+      .empty-state h3 {
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: var(--text-secondary);
+      }
+
+      .empty-state p {
+        font-size: 13px;
+        max-width: 300px;
+        line-height: 1.4;
+      }
+
+      /* Animations */
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .log-entry {
+        animation: slideIn 0.3s ease;
+      }
+
+      /* Loading state */
+      .loading {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border: 2px solid var(--border-color);
+        border-radius: 50%;
+        border-top-color: var(--accent-color);
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Responsive design */
+      @media (max-width: 768px) {
+        .filter-controls {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .control-group {
+          justify-content: space-between;
+        }
+
+        .filter-input,
+        .filter-select {
+          min-width: auto;
+          flex: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🚀 Log Viewer</h1>
+      <p>Real-time monitoring for your application</p>
+    </div>
+
+    <div class="tab-container">
+      <button class="tab active" onclick="switchTab('service')">
+        Service Logs
+      </button>
+      <button class="tab" onclick="switchTab('route')">Route Logs</button>
+    </div>
+
+    <div class="tab-content">
+      <div id="service-panel" class="log-panel active">
+        <div class="log-controls">
+          <div class="filter-controls">
+            <div class="control-group">
+              <label>Service:</label>
+              <input
+                type="text"
+                class="filter-input"
+                id="service-filter-service"
+                placeholder="Filter by service..."
+                onkeyup="applyFilters('service')"
+              />
+            </div>
+            <div class="control-group">
+              <label>Level:</label>
+              <select
+                class="filter-select"
+                id="level-filter-service"
+                onchange="applyFilters('service')"
+              >
+                <option value="">All Levels</option>
+                <option value="error">Error</option>
+                <option value="warn">Warning</option>
+                <option value="info">Info</option>
+                <option value="debug">Debug</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Message:</label>
+              <input
+                type="text"
+                class="filter-input"
+                id="message-filter-service"
+                placeholder="Search messages..."
+                onkeyup="applyFilters('service')"
+              />
+            </div>
+            <button class="btn clear-filters" onclick="clearFilters('service')">
+              Clear
+            </button>
+            <span class="filter-stats" id="filter-stats-service"></span>
+          </div>
+
+          <div class="control-group">
+            <button class="btn btn-primary" onclick="clearLogs('service')">
+              Clear Logs
+            </button>
+            <button
+              class="btn btn-secondary"
+              onclick="toggleAutoScroll('service')"
+            >
+              <span id="autoscroll-service">Auto Scroll: ON</span>
+            </button>
+          </div>
+
+          <div class="status">
+            <div id="status-dot" class="status-dot"></div>
+            <span id="connection-status" class="status-text"
+              >Connecting...</span
+            >
+          </div>
+        </div>
+        <div id="service-logs" class="log-container">
+          <div class="empty-state">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M9 4l3 3-3 3m4 0h4M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            <h3>No service logs yet</h3>
+            <p>
+              Service logs will appear here when your application generates them
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div id="route-panel" class="log-panel">
+        <div class="log-controls">
+          <div class="filter-controls">
+            <div class="control-group">
+              <label>Method:</label>
+              <select
+                class="filter-select"
+                id="method-filter-route"
+                onchange="applyFilters('route')"
+              >
+                <option value="">All Methods</option>
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+                <option value="PATCH">PATCH</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Status:</label>
+              <select
+                class="filter-select"
+                id="status-filter-route"
+                onchange="applyFilters('route')"
+              >
+                <option value="">All Status</option>
+                <option value="2xx">2xx Success</option>
+                <option value="3xx">3xx Redirect</option>
+                <option value="4xx">4xx Client Error</option>
+                <option value="5xx">5xx Server Error</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Path:</label>
+              <input
+                type="text"
+                class="filter-input"
+                id="path-filter-route"
+                placeholder="Filter by path..."
+                onkeyup="applyFilters('route')"
+              />
+            </div>
+            <div class="control-group">
+              <label>Message:</label>
+              <input
+                type="text"
+                class="filter-input"
+                id="message-filter-route"
+                placeholder="Search messages..."
+                onkeyup="applyFilters('route')"
+              />
+            </div>
+            <button class="btn clear-filters" onclick="clearFilters('route')">
+              Clear
+            </button>
+            <span class="filter-stats" id="filter-stats-route"></span>
+          </div>
+
+          <div class="control-group">
+            <button class="btn btn-primary" onclick="clearLogs('route')">
+              Clear Logs
+            </button>
+            <button
+              class="btn btn-secondary"
+              onclick="toggleAutoScroll('route')"
+            >
+              <span id="autoscroll-route">Auto Scroll: ON</span>
+            </button>
+          </div>
+
+          <div class="status">
+            <div id="status-dot-route" class="status-dot"></div>
+            <span id="connection-status-route" class="status-text"
+              >Connecting...</span
+            >
+          </div>
+        </div>
+        <div id="route-logs" class="log-container">
+          <div class="empty-state">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v2zm16 0a1 1 0 011 1v8a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h14z"
+              />
+              <path d="M8 12h8m-8 4h6" />
+            </svg>
+            <h3>No route logs yet</h3>
+            <p>
+              HTTP request/response logs will appear here when routes are
+              accessed
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      let socket;
+      let autoScroll = { service: true, route: true };
+      let currentTab = 'service';
+      let authAttempts = 0;
+      const maxAuthAttempts = 3;
+      let allLogs = { service: [], route: [] };
+
+      function connectSocket() {
+        // Get auth credentials if available
+        const authCredentials = getStoredAuth();
+
+        const socketOptions = {};
+        if (authCredentials) {
+          socketOptions.extraHeaders = {
+            Authorization: `Basic ${btoa(`${authCredentials.username}:${authCredentials.password}`)}`,
+          };
+        }
+
+        socket = io(socketOptions);
+
+        socket.on('connect', () => {
+          console.log('Connected to WebSocket server');
+          updateConnectionStatus(true);
+          authAttempts = 0; // Reset auth attempts on successful connection
+        });
+
+        socket.on('disconnect', () => {
+          console.log('Disconnected from WebSocket server');
+          updateConnectionStatus(false);
+        });
+
+        socket.on('connect_error', (error) => {
+          console.error('Connection error:', error);
+          updateConnectionStatus(false);
+        });
+
+        socket.on('auth-required', (data) => {
+          console.log('Authentication required:', data);
+          updateConnectionStatus(false, 'Authentication Required');
+
+          if (authAttempts < maxAuthAttempts) {
+            authAttempts++;
+            promptForAuth(data.message);
+          } else {
+            showAuthError(
+              'Maximum authentication attempts exceeded. Please refresh the page.',
+            );
+          }
+        });
+
+        socket.on('initial-logs', (logs) => {
+          console.log('Received initial logs:', logs.length);
+          logs.forEach((log) => {
+            allLogs[log.category].push(log);
+            addLogEntry(log);
+          });
+          updateFilterStats();
+        });
+
+        socket.on('log', (log) => {
+          console.log('Received new log:', log);
+          allLogs[log.category].push(log);
+          addLogEntry(log);
+          updateFilterStats();
+        });
+      }
+
+      function promptForAuth(
+        message = 'Authentication required to access log viewer',
+      ) {
+        const username = prompt(
+          `${message}\n\nPlease enter your username/email:`,
+        );
+        if (!username) {
+          showAuthError('Authentication cancelled');
+          return;
+        }
+
+        const password = prompt('Please enter your password:');
+        if (!password) {
+          showAuthError('Authentication cancelled');
+          return;
+        }
+
+        // Store credentials temporarily
+        storeAuth(username, password);
+
+        // Reconnect with credentials
+        if (socket) {
+          socket.disconnect();
+        }
+        connectSocket();
+      }
+
+      function storeAuth(username, password) {
+        // Store in sessionStorage for this tab only
+        sessionStorage.setItem(
+          'logViewer_auth',
+          JSON.stringify({ username, password }),
+        );
+      }
+
+      function getStoredAuth() {
+        const stored = sessionStorage.getItem('logViewer_auth');
+        return stored ? JSON.parse(stored) : null;
+      }
+
+      function clearStoredAuth() {
+        sessionStorage.removeItem('logViewer_auth');
+      }
+
+      function showAuthError(message) {
+        // Show error in both panels
+        ['service', 'route'].forEach((category) => {
+          const container = document.getElementById(category + '-logs');
+          container.innerHTML = `
+            <div class="empty-state">
+              <svg fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11V12z"/>
+              </svg>
+              <h3>Authentication Error</h3>
+              <p>${message}</p>
+              <button class="btn btn-primary" onclick="retryAuth()" style="margin-top: 16px;">
+                Retry Authentication
+              </button>
+            </div>
+          `;
+        });
+
+        updateConnectionStatus(false, 'Authentication Failed');
+      }
+
+      function retryAuth() {
+        authAttempts = 0;
+        clearStoredAuth();
+        connectSocket();
+      }
+
+      function updateConnectionStatus(connected, customMessage = null) {
+        const elements = [
+          { dot: 'status-dot', text: 'connection-status' },
+          { dot: 'status-dot-route', text: 'connection-status-route' },
+        ];
+
+        elements.forEach(({ dot, text }) => {
+          const statusDot = document.getElementById(dot);
+          const statusText = document.getElementById(text);
+
+          if (connected) {
+            statusDot.classList.add('connected');
+            statusText.textContent = 'Connected';
+          } else {
+            statusDot.classList.remove('connected');
+            statusText.textContent = customMessage || 'Disconnected';
+          }
+        });
+      }
+
+      function addLogEntry(log) {
+        const container = document.getElementById(log.category + '-logs');
+        const emptyState = container.querySelector('.empty-state');
+
+        if (emptyState) {
+          emptyState.remove();
+        }
+
+        const logEntry = document.createElement('div');
+        logEntry.className = `log-entry ${log.level.toLowerCase()}`;
+        logEntry.dataset.level = log.level.toLowerCase();
+        logEntry.dataset.service = log.service || '';
+        logEntry.dataset.message = log.message.toLowerCase();
+
+        // Extract method and status for route logs
+        if (log.category === 'route') {
+          const methodMatch = log.message.match(/← (\w+) /);
+          const statusMatch = log.message.match(/ (\d{3})/);
+          const pathMatch = log.message.match(/← \w+ ([^ ]+)/);
+
+          if (methodMatch) {
+            logEntry.dataset.method = methodMatch[1];
+          }
+          if (statusMatch) {
+            const status = parseInt(statusMatch[1]);
+            logEntry.dataset.status = status;
+            logEntry.dataset.statusClass = getStatusClass(status);
+          }
+          if (pathMatch) {
+            logEntry.dataset.path = pathMatch[1].toLowerCase();
+          }
+        }
+
+        const contextStr = log.context
+          ? JSON.stringify(log.context, null, 2)
+          : '';
+        const serviceStr = log.service ? `[${log.service}]` : '';
+
+        let extraInfo = '';
+        if (log.category === 'route') {
+          const methodMatch = log.message.match(/← (\w+) /);
+          const statusMatch = log.message.match(/ (\d{3})/);
+
+          if (methodMatch) {
+            extraInfo += `<span class="log-method">${methodMatch[1]}</span>`;
+          }
+          if (statusMatch) {
+            const status = parseInt(statusMatch[1]);
+            const statusClass = getStatusClass(status);
+            extraInfo += `<span class="log-status ${statusClass}">${status}</span>`;
+          }
+        }
+
+        const logHtml = `
+          <div class="log-header">
+            <span class="log-timestamp">${log.timestamp}</span>
+            <span class="log-level ${log.level.toLowerCase()}">${log.level}</span>
+            ${serviceStr ? `<span class="log-service">${serviceStr}</span>` : ''}
+            ${extraInfo}
+            <span class="log-message">${log.message}</span>
+          </div>
+          ${contextStr ? `<div class="log-context">${contextStr}</div>` : ''}
+        `;
+
+        logEntry.innerHTML = logHtml;
+        container.appendChild(logEntry);
+
+        // Auto scroll if enabled
+        if (autoScroll[log.category]) {
+          container.scrollTop = container.scrollHeight;
+        }
+
+        // Limit log entries to prevent memory issues
+        const entries = container.querySelectorAll('.log-entry');
+        if (entries.length > 1000) {
+          entries[0].remove();
+          // Also remove from allLogs array
+          if (allLogs[log.category].length > 1000) {
+            allLogs[log.category] = allLogs[log.category].slice(-1000);
+          }
+        }
+
+        // Apply current filters
+        applyFilters(log.category);
+      }
+
+      function getStatusClass(status) {
+        if (status >= 200 && status < 300) return 'status-2xx';
+        if (status >= 300 && status < 400) return 'status-3xx';
+        if (status >= 400 && status < 500) return 'status-4xx';
+        if (status >= 500) return 'status-5xx';
+        return '';
+      }
+
+      function applyFilters(category) {
+        const container = document.getElementById(category + '-logs');
+        const entries = container.querySelectorAll('.log-entry');
+
+        let visibleCount = 0;
+        const totalCount = entries.length;
+
+        entries.forEach((entry) => {
+          let shouldShow = true;
+
+          if (category === 'service') {
+            const serviceFilter = document
+              .getElementById('service-filter-service')
+              .value.toLowerCase();
+            const levelFilter = document.getElementById(
+              'level-filter-service',
+            ).value;
+            const messageFilter = document
+              .getElementById('message-filter-service')
+              .value.toLowerCase();
+
+            if (
+              serviceFilter &&
+              !entry.dataset.service.toLowerCase().includes(serviceFilter)
+            ) {
+              shouldShow = false;
+            }
+            if (levelFilter && entry.dataset.level !== levelFilter) {
+              shouldShow = false;
+            }
+            if (
+              messageFilter &&
+              !entry.dataset.message.includes(messageFilter)
+            ) {
+              shouldShow = false;
+            }
+          } else if (category === 'route') {
+            const methodFilter = document.getElementById(
+              'method-filter-route',
+            ).value;
+            const statusFilter = document.getElementById(
+              'status-filter-route',
+            ).value;
+            const pathFilter = document
+              .getElementById('path-filter-route')
+              .value.toLowerCase();
+            const messageFilter = document
+              .getElementById('message-filter-route')
+              .value.toLowerCase();
+
+            if (methodFilter && entry.dataset.method !== methodFilter) {
+              shouldShow = false;
+            }
+            if (statusFilter) {
+              const entryStatusClass = entry.dataset.statusClass;
+              if (statusFilter === '2xx' && entryStatusClass !== 'status-2xx')
+                shouldShow = false;
+              if (statusFilter === '3xx' && entryStatusClass !== 'status-3xx')
+                shouldShow = false;
+              if (statusFilter === '4xx' && entryStatusClass !== 'status-4xx')
+                shouldShow = false;
+              if (statusFilter === '5xx' && entryStatusClass !== 'status-5xx')
+                shouldShow = false;
+            }
+            if (
+              pathFilter &&
+              (!entry.dataset.path || !entry.dataset.path.includes(pathFilter))
+            ) {
+              shouldShow = false;
+            }
+            if (
+              messageFilter &&
+              !entry.dataset.message.includes(messageFilter)
+            ) {
+              shouldShow = false;
+            }
+          }
+
+          if (shouldShow) {
+            entry.classList.remove('hidden');
+            visibleCount++;
+          } else {
+            entry.classList.add('hidden');
+          }
+        });
+
+        // Update stats
+        const statsElement = document.getElementById(
+          `filter-stats-${category}`,
+        );
+        if (statsElement) {
+          statsElement.textContent = `${visibleCount} of ${totalCount} logs`;
+        }
+      }
+
+      function clearFilters(category) {
+        if (category === 'service') {
+          document.getElementById('service-filter-service').value = '';
+          document.getElementById('level-filter-service').value = '';
+          document.getElementById('message-filter-service').value = '';
+        } else if (category === 'route') {
+          document.getElementById('method-filter-route').value = '';
+          document.getElementById('status-filter-route').value = '';
+          document.getElementById('path-filter-route').value = '';
+          document.getElementById('message-filter-route').value = '';
+        }
+        applyFilters(category);
+      }
+
+      function updateFilterStats() {
+        ['service', 'route'].forEach((category) => {
+          applyFilters(category);
+        });
+      }
+
+      function switchTab(tab) {
+        // Update tab buttons
+        document
+          .querySelectorAll('.tab')
+          .forEach((t) => t.classList.remove('active'));
+        const tabElement = document.querySelector(
+          `[onclick="switchTab('${tab}')"]`,
+        );
+        if (tabElement) tabElement.classList.add('active');
+
+        // Update panels
+        document
+          .querySelectorAll('.log-panel')
+          .forEach((p) => p.classList.remove('active'));
+        document.getElementById(tab + '-panel').classList.add('active');
+
+        currentTab = tab;
+        updateFilterStats();
+      }
+
+      function clearLogs(category) {
+        const container = document.getElementById(category + '-logs');
+        allLogs[category] = [];
+
+        const emptyStateHtml =
+          category === 'service'
+            ? `<div class="empty-state">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 4l3 3-3 3m4 0h4M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <h3>No service logs yet</h3>
+                <p>Service logs will appear here when your application generates them</p>
+              </div>`
+            : `<div class="empty-state">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v2zm16 0a1 1 0 011 1v8a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h14z"/>
+                  <path d="M8 12h8m-8 4h6"/>
+                </svg>
+                <h3>No route logs yet</h3>
+                <p>HTTP request/response logs will appear here when routes are accessed</p>
+              </div>`;
+
+        container.innerHTML = emptyStateHtml;
+        updateFilterStats();
+      }
+
+      function toggleAutoScroll(category) {
+        autoScroll[category] = !autoScroll[category];
+        const span = document.getElementById('autoscroll-' + category);
+        span.textContent = `Auto Scroll: ${autoScroll[category] ? 'ON' : 'OFF'}`;
+      }
+
+      // Initialize
+      connectSocket();
+    </script>
+  </body>
+</html>
