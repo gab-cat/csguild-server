@@ -2,7 +2,7 @@ FROM oven/bun:alpine AS base
 
 FROM base AS deps
 WORKDIR /app
-
+RUN apk add --no-cache libc6-compat openssl
 COPY package.json bun.lock .
 
 RUN bun install
@@ -14,7 +14,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 
 COPY . .
-RUN bunx prisma generate --no-engine
+RUN bunx prisma generate
 
 RUN bun run build
 

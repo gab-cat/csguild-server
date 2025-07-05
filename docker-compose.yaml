@@ -8,7 +8,7 @@ services:
       - '3000:3000'
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://username:password@postgres:5432/auth_template
+      - DATABASE_URL=postgresql://username:password@postgres:5432/csguild
     depends_on:
       - postgres
     env_file:
@@ -18,12 +18,10 @@ services:
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
-    ports:
-      - '5432:5432'
     environment:
       POSTGRES_USER: username
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: auth_template
+      POSTGRES_DB: csguild
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
