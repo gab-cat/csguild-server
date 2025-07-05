@@ -16,6 +16,13 @@ export class AuthService {
   ) {}
 
   async login(user: User, response: Response, redirect = false) {
+    // Check if email is verified for regular login
+    if (!user.emailVerified) {
+      throw new UnauthorizedException(
+        'Please verify your email address before logging in. Check your email for verification instructions.',
+      );
+    }
+
     const expiresAccessToken = new Date();
     expiresAccessToken.setMilliseconds(
       expiresAccessToken.getTime() +
@@ -92,7 +99,7 @@ export class AuthService {
     }
   }
 
-  async veryifyUserRefreshToken(refreshToken: string, userId: string) {
+  async verifyUserRefreshToken(refreshToken: string, userId: string) {
     try {
       const user = await this.usersService.getUser({ id: userId });
       const authenticated = await compare(
@@ -106,5 +113,88 @@ export class AuthService {
     } catch (err) {
       throw new UnauthorizedException('Refresh token is not valid.');
     }
+  }
+
+  async loginWithRfid(rfidId: string, response: Response) {
+    try {
+      const user = await this.usersService.loginWithRfid(rfidId);
+
+      // Create session for RFID login (same as regular login but skip email verification check)
+      const expiresAccessToken = new Date();
+      expiresAccessToken.setMilliseconds(
+        expiresAccessToken.getTime() +
+          parseInt(
+            this.configService.getOrThrow<string>(
+              'JWT_ACCESS_TOKEN_EXPIRATION_MS',
+            ),
+          ),
+      );
+
+      const expiresRefreshToken = new Date();
+      expiresRefreshToken.setMilliseconds(
+        expiresRefreshToken.getTime() +
+          parseInt(
+            this.configService.getOrThrow<string>(
+              'JWT_REFRESH_TOKEN_EXPIRATION_MS',
+            ),
+          ),
+      );
+
+      const tokenPayload: TokenPayload = {
+        userId: user.id,
+        roles: user.roles,
+      };
+      const accessToken = this.jwtService.sign(tokenPayload, {
+        secret: this.configService.getOrThrow('JWT_ACCESS_TOKEN_SECRET'),
+        expiresIn: `${this.configService.getOrThrow(
+          'JWT_ACCESS_TOKEN_EXPIRATION_MS',
+        )}ms`,
+      });
+      const refreshToken = this.jwtService.sign(
+        { userId: tokenPayload.userId },
+        {
+          secret: this.configService.getOrThrow('JWT_REFRESH_TOKEN_SECRET'),
+          expiresIn: `${this.configService.getOrThrow(
+            'JWT_REFRESH_TOKEN_EXPIRATION_MS',
+          )}ms`,
+        },
+      );
+
+      await this.usersService.updateUser(
+        { id: user.id },
+        { refreshToken: await hash(refreshToken, 10) },
+      );
+
+      response.cookie('Authentication', accessToken, {
+        httpOnly: true,
+        secure: this.configService.get('NODE_ENV') === 'production',
+        expires: expiresAccessToken,
+      });
+      response.cookie('Refresh', refreshToken, {
+        httpOnly: true,
+        secure: this.configService.get('NODE_ENV') === 'production',
+        expires: expiresRefreshToken,
+      });
+
+      return user;
+    } catch (err) {
+      throw new UnauthorizedException(
+        'RFID authentication failed. Please ensure your RFID card is registered and your email is verified.',
+      );
+    }
+  }
+
+  async logout(response: Response, user: User) {
+    void this.usersService.updateUser({ id: user.id }, { refreshToken: null });
+    response.cookie('Authentication', '', {
+      httpOnly: true,
+      secure: this.configService.get('NODE_ENV') === 'production',
+      expires: new Date(),
+    });
+    response.cookie('Refresh', '', {
+      httpOnly: true,
+      secure: this.configService.get('NODE_ENV') === 'production',
+      expires: new Date(),
+    });
   }
 }

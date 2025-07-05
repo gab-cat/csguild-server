@@ -21,5 +21,6 @@ import { FailedLoginThrottleGuard } from './guards/failed-login-throttle.guard';
     GoogleStrategy,
     FailedLoginThrottleGuard,
   ],
+  exports: [AuthService],
 })
 export class AuthModule {}

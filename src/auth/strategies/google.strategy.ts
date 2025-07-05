@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-google-oauth20';
 import { UsersService } from '../../users/users.service';
+import { SignupMethod } from '../../users/dto/create-user.request';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
@@ -19,9 +20,27 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(_accessToken: string, _refreshToken: string, profile: any) {
+    const email = profile.emails?.[0]?.value;
+    const firstName = profile.name?.givenName || '';
+    const lastName = profile.name?.familyName || '';
+    const imageUrl = profile.photos?.[0]?.value || '';
+
+    if (!email) {
+      throw new Error('Email not provided by Google OAuth');
+    }
+
     return this.usersService.getOrCreateUser({
-      email: profile.emails[0]?.value,
-      password: '',
+      email,
+      username: '', // Will be auto-generated in getOrCreateUser
+      password: '', // Will be auto-generated for OAuth users
+      firstName,
+      lastName,
+      imageUrl,
+      signupMethod: SignupMethod.GOOGLE,
+      // Optional fields - set to empty initially as requested
+      birthdate: undefined,
+      course: '',
+      rfidId: undefined,
     });
   }
 }
