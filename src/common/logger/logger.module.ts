@@ -3,19 +3,13 @@ import { JwtService } from '@nestjs/jwt';
 import { LoggerService } from './logger.service';
 import { HttpLoggingInterceptor } from './http-logging.interceptor';
 import { LogGateway } from './logger.gateway';
-import { UsersService } from '../../users/users.service';
-import { AuthService } from '../../auth/auth.service';
+import { UsersModule } from '../../users/users.module';
+import { AuthModule } from '../../auth/auth.module';
 
 @Global()
 @Module({
-  providers: [
-    LoggerService,
-    HttpLoggingInterceptor,
-    LogGateway,
-    JwtService,
-    UsersService,
-    AuthService,
-  ],
+  imports: [UsersModule, AuthModule],
+  providers: [LoggerService, HttpLoggingInterceptor, LogGateway, JwtService],
   exports: [LoggerService, HttpLoggingInterceptor, LogGateway],
 })
 export class LoggerModule {}

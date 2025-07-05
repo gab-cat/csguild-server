@@ -1,0 +1,324 @@
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Email Verification - {{organizationName}}</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          'Inter',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        line-height: 1.6;
+        color: #1f2937;
+        background-color: #f8fafc;
+        padding: 20px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+      }
+
+      .header {
+        background: #ffffff;
+        padding: 32px 40px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        position: relative;
+      }
+
+      .header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #3b82f6, #06b6d4, #8b5cf6, #3b82f6);
+        background-size: 300% 100%;
+        animation: gradientShift 3s ease infinite;
+      }
+
+      @keyframes gradientShift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .logo::before {
+        content: '🛡️';
+        font-size: 20px;
+      }
+
+      .header h1 {
+        color: #4b5563;
+        font-size: 18px;
+        font-weight: 400;
+        margin: 0;
+      }
+
+      .content {
+        padding: 40px;
+      }
+
+      .greeting {
+        font-size: 18px;
+        font-weight: 500;
+        color: #1f2937;
+        margin-bottom: 24px;
+      }
+
+      .description {
+        font-size: 16px;
+        color: #4b5563;
+        margin-bottom: 32px;
+        line-height: 1.7;
+      }
+
+      .verification-section {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 32px;
+        text-align: center;
+        margin: 32px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .verification-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #3b82f6, #06b6d4, #8b5cf6, #3b82f6);
+        background-size: 300% 100%;
+        animation: gradientShift 3s ease infinite;
+      }
+
+      .verification-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 16px;
+      }
+
+      .verification-code {
+        font-size: 36px;
+        font-weight: 600;
+        color: #1e40af;
+        letter-spacing: 8px;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        background: linear-gradient(45deg, #1e40af, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 16px;
+      }
+
+      .expiry-notice {
+        font-size: 14px;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .expiry-notice::before {
+        content: '⏰';
+      }
+
+      .security-note {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-left: 4px solid #f59e0b;
+        padding: 20px;
+        margin: 24px 0;
+        border-radius: 8px;
+        font-size: 15px;
+        color: #92400e;
+      }
+
+      .security-note::before {
+        content: '⚠️';
+        margin-right: 8px;
+      }
+
+      .footer {
+        background: #f8fafc;
+        padding: 32px 40px;
+        text-align: center;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .footer-brand {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 8px;
+      }
+
+      .footer-tagline {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 16px;
+      }
+
+      .support-link {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+      }
+
+      .support-link:hover {
+        color: #1e40af;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+
+        .container {
+          border-radius: 12px;
+          max-width: 100%;
+        }
+
+        .header {
+          padding: 24px 20px 20px;
+        }
+
+        .content {
+          padding: 24px 20px;
+        }
+
+        .footer {
+          padding: 24px 20px;
+        }
+
+        .verification-code {
+          font-size: 28px;
+          letter-spacing: 4px;
+        }
+
+        .logo {
+          font-size: 20px;
+        }
+
+        .header h1 {
+          font-size: 16px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .verification-code {
+          font-size: 24px;
+          letter-spacing: 2px;
+        }
+
+        .verification-section {
+          padding: 24px 16px;
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .container {
+          max-width: 900px;
+        }
+
+        .content {
+          padding: 48px 60px;
+        }
+
+        .header {
+          padding: 40px 60px 32px;
+        }
+
+        .footer {
+          padding: 40px 60px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <div class='header'>
+        <div class='logo'>{{organizationName}}</div>
+        <h1>Verify Your Email Address</h1>
+      </div>
+
+      <div class='content'>
+        <div class='greeting'>Hello {{firstName}},</div>
+
+        <div class='description'>
+          Welcome to
+          {{organizationName}}! We're excited to have you join our tech
+          community. To complete your registration and secure your account,
+          please verify your email address using the code below.
+        </div>
+
+        <div class='verification-section'>
+          <div class='verification-label'>Verification Code</div>
+          <div class='verification-code'>{{verificationCode}}</div>
+          <div class='expiry-notice'>Expires in 24 hours</div>
+        </div>
+
+        <div class='security-note'>
+          <strong>Security Notice:</strong>
+          This verification code will expire in 24 hours for your security. If
+          you didn't create an account with
+          {{organizationName}}, please ignore this email.
+        </div>
+      </div>
+
+      <div class='footer'>
+        <div class='footer-brand'>The {{organizationName}} Team</div>
+        <div class='footer-tagline'>Empowering the next generation of tech
+          innovators</div>
+        <div>
+          Need help? Contact us at
+          <a
+            href='mailto:{{supportEmail}}'
+            class='support-link'
+          >{{supportEmail}}</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

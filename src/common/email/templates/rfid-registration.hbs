@@ -1,0 +1,526 @@
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>RFID Registration Successful - {{organizationName}}</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          'Inter',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        line-height: 1.6;
+        color: #1f2937;
+        background-color: #f8fafc;
+        padding: 20px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+      }
+
+      .header {
+        background: #ffffff;
+        padding: 32px 40px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        position: relative;
+      }
+
+      .header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #059669, #10b981, #34d399, #059669);
+        background-size: 300% 100%;
+        animation: successShift 3s ease infinite;
+      }
+
+      @keyframes successShift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .logo::before {
+        content: '📡';
+        font-size: 20px;
+      }
+
+      .header h1 {
+        color: #4b5563;
+        font-size: 18px;
+        font-weight: 400;
+        margin: 0;
+      }
+
+      .content {
+        padding: 40px;
+      }
+
+      .success-banner {
+        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        border: 1px solid #10b981;
+        border-radius: 12px;
+        padding: 32px;
+        margin-bottom: 32px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .success-banner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #059669, #10b981, #34d399, #059669);
+        background-size: 300% 100%;
+        animation: successShift 3s ease infinite;
+      }
+
+      .success-icon {
+        font-size: 64px;
+        margin-bottom: 16px;
+        display: block;
+        animation: bounce 2s ease infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-10px);
+        }
+        60% {
+          transform: translateY(-5px);
+        }
+      }
+
+      .success-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #065f46;
+        margin-bottom: 8px;
+      }
+
+      .success-description {
+        font-size: 16px;
+        color: #059669;
+      }
+
+      .greeting {
+        font-size: 18px;
+        font-weight: 500;
+        color: #1f2937;
+        margin-bottom: 24px;
+      }
+
+      .description {
+        font-size: 16px;
+        color: #4b5563;
+        margin-bottom: 32px;
+        line-height: 1.7;
+      }
+
+      .rfid-card {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border: 1px solid #bbf7d0;
+        border-radius: 12px;
+        padding: 32px;
+        margin: 32px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .rfid-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #059669, #10b981, #34d399, #059669);
+        background-size: 300% 100%;
+        animation: rfidShift 4s ease infinite;
+      }
+
+      @keyframes rfidShift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      .rfid-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .rfid-icon {
+        font-size: 32px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #059669, #10b981);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+      }
+
+      .rfid-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #065f46;
+      }
+
+      .rfid-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .rfid-field {
+        background: white;
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+      }
+
+      .rfid-label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+      }
+
+      .rfid-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+      }
+
+      .rfid-id {
+        font-size: 20px;
+        color: #059669;
+        letter-spacing: 2px;
+      }
+
+      .status-active {
+        color: #10b981;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .status-active::before {
+        content: '●';
+        color: #10b981;
+        animation: pulse 2s ease infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .features-list {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 12px;
+        padding: 24px;
+        margin: 24px 0;
+      }
+
+      .features-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .features-title::before {
+        content: '⚡';
+      }
+
+      .features-list ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .features-list li {
+        padding: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 15px;
+        color: #4b5563;
+      }
+
+      .features-list li::before {
+        content: '✓';
+        color: #10b981;
+        font-weight: 600;
+        width: 20px;
+        height: 20px;
+        background: #ecfdf5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+      }
+
+      .security-notice {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-left: 4px solid #f59e0b;
+        padding: 20px;
+        margin: 24px 0;
+        border-radius: 8px;
+        font-size: 15px;
+        color: #92400e;
+      }
+
+      .security-notice::before {
+        content: '🔐';
+        margin-right: 8px;
+        font-size: 18px;
+      }
+
+      .footer {
+        background: #f8fafc;
+        padding: 32px 40px;
+        text-align: center;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .footer-brand {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 8px;
+      }
+
+      .footer-tagline {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 16px;
+      }
+
+      .support-link {
+        color: #059669;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+      }
+
+      .support-link:hover {
+        color: #047857;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+
+        .container {
+          border-radius: 12px;
+          max-width: 100%;
+        }
+
+        .header {
+          padding: 24px 20px 20px;
+        }
+
+        .content {
+          padding: 24px 20px;
+        }
+
+        .footer {
+          padding: 24px 20px;
+        }
+
+        .rfid-info {
+          grid-template-columns: 1fr;
+        }
+
+        .rfid-header {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .logo {
+          font-size: 20px;
+        }
+
+        .header h1 {
+          font-size: 16px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .rfid-card {
+          padding: 24px 16px;
+        }
+
+        .success-banner {
+          padding: 24px 16px;
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .container {
+          max-width: 900px;
+        }
+
+        .content {
+          padding: 48px 60px;
+        }
+
+        .header {
+          padding: 40px 60px 32px;
+        }
+
+        .footer {
+          padding: 40px 60px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <div class='header'>
+        <div class='logo'>{{organizationName}}</div>
+        <h1>RFID Registration Complete</h1>
+      </div>
+
+      <div class='content'>
+        <div class='success-banner'>
+          <div class='success-icon'>🎉</div>
+          <div class='success-title'>Registration Successful!</div>
+          <div class='success-description'>Your RFID card has been activated and
+            is ready to use</div>
+        </div>
+
+        <div class='greeting'>Hello {{firstName}},</div>
+
+        <div class='description'>
+          Excellent! Your RFID card has been successfully registered and linked
+          to your
+          {{organizationName}}
+          account. You now have access to all our tech-enabled features and
+          facilities.
+        </div>
+
+        <div class='rfid-card'>
+          <div class='rfid-header'>
+            <div class='rfid-icon'>📡</div>
+            <div class='rfid-title'>RFID Card Information</div>
+          </div>
+
+          <div class='rfid-info'>
+            <div class='rfid-field'>
+              <div class='rfid-label'>Card ID</div>
+              <div class='rfid-value rfid-id'>{{rfidId}}</div>
+            </div>
+            <div class='rfid-field'>
+              <div class='rfid-label'>Status</div>
+              <div class='rfid-value status-active'>Active</div>
+            </div>
+          </div>
+        </div>
+
+        <div class='features-list'>
+          <div class='features-title'>What you can do with your RFID card:</div>
+          <ul>
+            <li>Access CSGUILD facilities and labs</li>
+            <li>Quick login to your account</li>
+            <li>Automated attendance tracking</li>
+            <li>Participate in RFID-enabled events</li>
+            <li>Access exclusive member areas</li>
+            <li>Seamless integration with our tech ecosystem</li>
+          </ul>
+        </div>
+
+        <div class='security-notice'>
+          <strong>Security Reminder:</strong>
+          Please keep your RFID card safe and secure. If you lose your card or
+          suspect unauthorized use, report it immediately to our support team
+          for deactivation and replacement.
+        </div>
+      </div>
+
+      <div class='footer'>
+        <div class='footer-brand'>The {{organizationName}} Team</div>
+        <div class='footer-tagline'>Connecting you to the future of technology</div>
+        <div>
+          Questions about your RFID card? Contact us at
+          <a
+            href='mailto:{{supportEmail}}'
+            class='support-link'
+          >{{supportEmail}}</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

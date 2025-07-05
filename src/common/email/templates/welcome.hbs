@@ -1,0 +1,577 @@
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Welcome to {{organizationName}}</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          'Inter',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        line-height: 1.6;
+        color: #1f2937;
+        background-color: #f8fafc;
+        padding: 20px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+      }
+
+      .header {
+        background: #ffffff;
+        padding: 32px 40px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        position: relative;
+      }
+
+      .header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #1e40af, #3b82f6, #06b6d4, #1e40af);
+        background-size: 300% 100%;
+        animation: welcomeShift 3s ease infinite;
+      }
+
+      @keyframes welcomeShift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .logo::before {
+        content: '🚀';
+        font-size: 20px;
+      }
+
+      .header h1 {
+        color: #4b5563;
+        font-size: 18px;
+        font-weight: 400;
+        margin: 0;
+      }
+
+      .content {
+        padding: 40px;
+      }
+
+      .welcome-hero {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border: 1px solid #3b82f6;
+        border-radius: 12px;
+        padding: 40px;
+        margin-bottom: 32px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .welcome-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #1e40af, #3b82f6, #06b6d4, #1e40af);
+        background-size: 300% 100%;
+        animation: welcomeShift 3s ease infinite;
+      }
+
+      .welcome-icon {
+        font-size: 72px;
+        margin-bottom: 20px;
+        display: block;
+        animation: celebrate 3s ease infinite;
+      }
+
+      @keyframes celebrate {
+        0%,
+        100% {
+          transform: scale(1) rotate(0deg);
+        }
+        25% {
+          transform: scale(1.1) rotate(-5deg);
+        }
+        50% {
+          transform: scale(1.05) rotate(0deg);
+        }
+        75% {
+          transform: scale(1.1) rotate(5deg);
+        }
+      }
+
+      .welcome-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1e40af;
+        margin-bottom: 12px;
+        line-height: 1.2;
+      }
+
+      .welcome-subtitle {
+        font-size: 18px;
+        color: #2563eb;
+        font-weight: 500;
+      }
+
+      .greeting {
+        font-size: 18px;
+        font-weight: 500;
+        color: #1f2937;
+        margin-bottom: 24px;
+      }
+
+      .description {
+        font-size: 16px;
+        color: #4b5563;
+        margin-bottom: 32px;
+        line-height: 1.7;
+      }
+
+      .account-info {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 32px;
+        margin: 32px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .account-info::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #1e40af, #3b82f6, #06b6d4, #1e40af);
+        background-size: 300% 100%;
+        animation: accountShift 4s ease infinite;
+      }
+
+      @keyframes accountShift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      .account-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .account-icon {
+        font-size: 32px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #1e40af, #3b82f6);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+      }
+
+      .account-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1e40af;
+      }
+
+      .account-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .account-field {
+        background: white;
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+      }
+
+      .account-label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+      }
+
+      .account-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+      }
+
+      .login-button {
+        display: inline-block;
+        padding: 16px 32px;
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        margin: 32px auto;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(30, 64, 175, 0.2);
+        text-align: center;
+        display: block;
+        width: fit-content;
+      }
+
+      .login-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 32px 0;
+      }
+
+      .feature-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 24px;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .feature-icon {
+        font-size: 36px;
+        margin-bottom: 16px;
+        display: block;
+      }
+
+      .feature-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 8px;
+      }
+
+      .feature-description {
+        font-size: 14px;
+        color: #6b7280;
+        line-height: 1.5;
+      }
+
+      .next-steps {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border-left: 4px solid #0284c7;
+        padding: 24px;
+        margin: 32px 0;
+        border-radius: 8px;
+      }
+
+      .next-steps h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #0c4a6e;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .next-steps h3::before {
+        content: '🎯';
+      }
+
+      .next-steps ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .next-steps li {
+        padding: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 15px;
+        color: #0c4a6e;
+      }
+
+      .next-steps li::before {
+        content: '→';
+        color: #0284c7;
+        font-weight: 600;
+        width: 20px;
+        height: 20px;
+        background: #cff9fe;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+      }
+
+      .footer {
+        background: #f8fafc;
+        padding: 32px 40px;
+        text-align: center;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .footer-brand {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 8px;
+      }
+
+      .footer-tagline {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 16px;
+      }
+
+      .support-link {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+      }
+
+      .support-link:hover {
+        color: #1e40af;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+
+        .container {
+          border-radius: 12px;
+          max-width: 100%;
+        }
+
+        .header {
+          padding: 24px 20px 20px;
+        }
+
+        .content {
+          padding: 24px 20px;
+        }
+
+        .footer {
+          padding: 24px 20px;
+        }
+
+        .account-details {
+          grid-template-columns: 1fr;
+        }
+
+        .account-header {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .features-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .welcome-title {
+          font-size: 24px;
+        }
+
+        .logo {
+          font-size: 20px;
+        }
+
+        .header h1 {
+          font-size: 16px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .welcome-hero {
+          padding: 24px 16px;
+        }
+
+        .welcome-icon {
+          font-size: 56px;
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .container {
+          max-width: 900px;
+        }
+
+        .content {
+          padding: 48px 60px;
+        }
+
+        .header {
+          padding: 40px 60px 32px;
+        }
+
+        .footer {
+          padding: 40px 60px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <div class='header'>
+        <div class='logo'>{{organizationName}}</div>
+        <h1>Welcome to Our Community</h1>
+      </div>
+
+      <div class='content'>
+        <div class='welcome-hero'>
+          <div class='welcome-icon'>🎉</div>
+          <div class='welcome-title'>Welcome, {{firstName}}!</div>
+          <div class='welcome-subtitle'>Your journey into the future of
+            technology begins now</div>
+        </div>
+
+        <div class='greeting'>Hello {{firstName}},</div>
+
+        <div class='description'>
+          Congratulations! Your
+          {{organizationName}}
+          account has been successfully created and verified. You're now part of
+          our vibrant community of innovators, creators, and tech enthusiasts.
+        </div>
+
+        <div class='account-info'>
+          <div class='account-header'>
+            <div class='account-icon'>👤</div>
+            <div class='account-title'>Your Account Details</div>
+          </div>
+
+          <div class='account-details'>
+            <div class='account-field'>
+              <div class='account-label'>Username</div>
+              <div class='account-value'>{{username}}</div>
+            </div>
+            <div class='account-field'>
+              <div class='account-label'>Email</div>
+              <div class='account-value'>Verified ✓</div>
+            </div>
+          </div>
+        </div>
+
+        <a href='{{loginUrl}}' class='login-button'>
+          🚀 Access Your Dashboard
+        </a>
+
+        <div class='features-grid'>
+          <div class='feature-card'>
+            <div class='feature-icon'>💻</div>
+            <div class='feature-title'>Learning Resources</div>
+            <div class='feature-description'>Access cutting-edge tutorials,
+              courses, and documentation</div>
+          </div>
+
+          <div class='feature-card'>
+            <div class='feature-icon'>🤝</div>
+            <div class='feature-title'>Community</div>
+            <div class='feature-description'>Connect with fellow developers and
+              tech enthusiasts</div>
+          </div>
+
+          <div class='feature-card'>
+            <div class='feature-icon'>🎯</div>
+            <div class='feature-title'>Projects</div>
+            <div class='feature-description'>Participate in hackathons,
+              competitions, and collaborative projects</div>
+          </div>
+
+          <div class='feature-card'>
+            <div class='feature-icon'>📊</div>
+            <div class='feature-title'>Analytics</div>
+            <div class='feature-description'>Track your progress and
+              achievements</div>
+          </div>
+        </div>
+
+        <div class='next-steps'>
+          <h3>Next Steps</h3>
+          <ul>
+            <li>Complete your profile setup</li>
+            <li>Join relevant communities and channels</li>
+            <li>Explore our learning resources</li>
+            <li>Participate in upcoming events</li>
+            <li>Connect with other members</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class='footer'>
+        <div class='footer-brand'>The {{organizationName}} Team</div>
+        <div class='footer-tagline'>Building tomorrow's technology today</div>
+        <div>
+          Questions? We're here to help at
+          <a
+            href='mailto:{{supportEmail}}'
+            class='support-link'
+          >{{supportEmail}}</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
