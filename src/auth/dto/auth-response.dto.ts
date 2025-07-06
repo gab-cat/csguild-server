@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { SignupMethod } from 'generated/prisma/client';
+import { SignupMethod } from 'src/users/dto/create-user.request';
 
 export class AuthSuccessResponseDto {
   @ApiProperty({
