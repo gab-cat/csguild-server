@@ -98,5 +98,5 @@ model FacilityUsage {
   @@index([facilityId])
   @@index([timeIn])
   @@index([isActive])
-  @@unique([userId, facilityId, isActive])
+  @@index([userId, facilityId, isActive])
 }

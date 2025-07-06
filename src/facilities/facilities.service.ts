@@ -254,6 +254,21 @@ export class FacilitiesService {
       }
     }
 
+    // Double-check that user doesn't have an active session in this facility
+    const existingActiveSession = await this.prisma.facilityUsage.findFirst({
+      where: {
+        userId,
+        facilityId,
+        isActive: true,
+      },
+    });
+
+    if (existingActiveSession) {
+      throw new ConflictException(
+        'User already has an active session in this facility',
+      );
+    }
+
     // Create new usage session and update user's current facility
     const [facilityUsage] = await this.prisma.$transaction([
       this.prisma.facilityUsage.create({
@@ -296,6 +311,9 @@ export class FacilitiesService {
         userId,
         facilityId,
         isActive: true,
+      },
+      orderBy: {
+        timeIn: 'desc', // Get the most recent active session
       },
     });
 
@@ -501,5 +519,55 @@ export class FacilitiesService {
     }
 
     return `${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''}`;
+  }
+
+  /**
+   * Clean up orphaned sessions (sessions that are marked as active but user's currentFacilityId is null)
+   * This is a utility method for data consistency
+   */
+  async cleanupOrphanedSessions(): Promise<number> {
+    const orphanedSessions = await this.prisma.facilityUsage.findMany({
+      where: {
+        isActive: true,
+        user: {
+          currentFacilityId: null,
+        },
+      },
+      include: {
+        user: true,
+        facility: true,
+      },
+    });
+
+    if (orphanedSessions.length === 0) {
+      return 0;
+    }
+
+    // Clean up orphaned sessions
+    const cleanupPromises = orphanedSessions.map(async (session) => {
+      await this.prisma.facilityUsage.update({
+        where: { id: session.id },
+        data: {
+          timeOut: new Date(),
+          isActive: false,
+        },
+      });
+
+      this.logger.warn(
+        `Cleaned up orphaned session for user ${session.user.username} in facility ${session.facility.name}`,
+        session.user,
+        'FacilitiesService',
+      );
+    });
+
+    await Promise.all(cleanupPromises);
+
+    this.logger.info(
+      `Cleaned up ${orphanedSessions.length} orphaned sessions`,
+      null,
+      'FacilitiesService',
+    );
+
+    return orphanedSessions.length;
   }
 }
