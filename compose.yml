@@ -1,0 +1,24 @@
+services:
+  server:
+    image: gabcat/csguild-server:latest
+    container_name: csguild-server
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    networks:
+      - system
+
+  client:
+    image: gabcat/csguild-client:latest
+    container_name: csguild-client
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - system
+
+networks:
+  system:
+    external: true
