@@ -24,6 +24,7 @@ import {
 } from './dto/auth-response.dto';
 import { RfidLoginDto } from '../users/dto/rfid-registration.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { SignupMethod } from 'src/users/dto/create-user.request';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -322,7 +323,7 @@ export class AuthController {
       roles: user.roles,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-      signupMethod: user.signupMethod,
+      signupMethod: user.signupMethod as SignupMethod,
     };
   }
 }
