@@ -26,7 +26,11 @@ async function bootstrap() {
 
   // Helmet for security headers - completely skip for /logs route
   app.use((req, res, next) => {
-    if (req.path === '/logs') {
+    if (
+      req.path === '/api/logs' ||
+      req.path === '/api/health' ||
+      req.path === '/api-docs'
+    ) {
       // Skip helmet entirely for log viewer to allow inline event handlers
       return next();
     } else {
