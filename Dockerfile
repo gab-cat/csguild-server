@@ -31,6 +31,6 @@ COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/generated ./generated
 
 
-EXPOSE 3000
+EXPOSE 3001
 
 CMD ["bun", "--bun", "dist/main.js"]
