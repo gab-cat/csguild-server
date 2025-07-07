@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './common/prisma/prisma.module';
@@ -8,6 +9,7 @@ import { EmailModule } from './common/email/email.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { FacilitiesModule } from './facilities/facilities.module';
+import { CronModule } from './cron/cron.module';
 import { LogsController } from './common/logger/logger.controller';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { RATE_LIMITING } from './constants';
@@ -24,12 +26,14 @@ import { RATE_LIMITING } from './constants';
         limit: RATE_LIMITING.THROTTLE.LOGIN_ATTEMPTS.LIMIT,
       },
     ]),
+    ScheduleModule.forRoot(),
     PrismaModule,
     LoggerModule,
     EmailModule,
     AuthModule,
     UsersModule,
     FacilitiesModule,
+    CronModule,
   ],
   controllers: [AppController, LogsController],
   providers: [AppService],

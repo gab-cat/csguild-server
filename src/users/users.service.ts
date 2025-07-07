@@ -284,4 +284,46 @@ export class UsersService {
     }
     return password;
   }
+
+  async timeoutAllActiveUsers(): Promise<{
+    message: string;
+    totalTimedOut: number;
+  }> {
+    const result = await this.prisma.$transaction(async (tx) => {
+      // Execute both operations in parallel within the transaction
+      const [sessions, users] = await Promise.all([
+        tx.facilityUsage.updateMany({
+          where: {
+            isActive: true,
+          },
+          data: {
+            isActive: false,
+            timeOut: new Date(),
+          },
+        }),
+        tx.user.updateMany({
+          where: {
+            currentFacilityId: {
+              not: null,
+            },
+          },
+          data: {
+            currentFacilityId: null,
+          },
+        }),
+      ]);
+
+      return {
+        sessionsCount: sessions.count,
+        usersCount: users.count,
+      };
+    });
+
+    return {
+      message:
+        `Successfully timed out ${result.sessionsCount} sessions and ` +
+        `cleared ${result.usersCount} user facilities`,
+      totalTimedOut: result.sessionsCount,
+    };
+  }
 }
