@@ -70,7 +70,7 @@ export class AuthMeResponseDto {
     description: 'Courses',
     example: 'Bachelor of Science in Computer Science',
   })
-  courses: string;
+  course: string;
 
   @ApiProperty({
     description: 'Current facility ID',

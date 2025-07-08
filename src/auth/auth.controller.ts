@@ -317,7 +317,7 @@ export class AuthController {
       email: user.email,
       rfidId: user.rfidId,
       imageUrl: user.imageUrl,
-      courses: user.course,
+      course: user.course,
       currentFacilityId: user.currentFacilityId,
       username: user.username,
       roles: user.roles,
