@@ -70,7 +70,7 @@ export class UsersService {
       });
 
       // Send verification email
-      await this.emailService.sendEmailVerification({
+      this.emailService.sendEmailVerification({
         email: user.email,
         firstName: user.firstName,
         verificationCode,
