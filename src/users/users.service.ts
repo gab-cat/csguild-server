@@ -98,14 +98,13 @@ export class UsersService {
   }
 
   async updateUser(
-    where: { id?: string; email?: string; username?: string },
-    data: UpdateUserRequest | Prisma.UserUpdateInput,
+    where: Prisma.UserWhereUniqueInput,
+    data: Prisma.UserUpdateInput,
   ): Promise<User | null> {
-    await this.prisma.user.updateMany({
+    return await this.prisma.user.update({
       where,
       data,
     });
-    return this.prisma.user.findFirst({ where });
   }
 
   async getOrCreateUser(data: CreateUserRequest): Promise<User> {
@@ -119,7 +118,7 @@ export class UsersService {
           { email: data.email },
           { imageUrl: data.imageUrl },
         );
-        return updatedUser;
+        return updatedUser ?? user;
       }
       return user;
     }
@@ -128,13 +127,7 @@ export class UsersService {
     const username =
       data.username || this.generateUsernameFromEmail(data.email);
 
-    void this.emailService.sendWelcomeEmail({
-      email: data.email,
-      firstName: data.firstName,
-      username: data.username,
-    });
-
-    return this.prisma.user.create({
+    const newUser = await this.prisma.user.create({
       data: {
         email: data.email,
         username,
@@ -154,6 +147,17 @@ export class UsersService {
         signupMethod: data.signupMethod ?? SignupMethod.EMAIL,
       },
     });
+    try {
+      await this.emailService.sendWelcomeEmail({
+        email: newUser.email,
+        firstName: newUser.firstName,
+        username: newUser.username,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+
+    return newUser;
   }
 
   async sendEmailVerification(email: string): Promise<void> {
