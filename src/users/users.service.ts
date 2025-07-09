@@ -9,7 +9,7 @@ import { hash } from 'bcryptjs';
 import { CreateUserRequest, SignupMethod } from './dto/create-user.request';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { EmailService } from '../common/email/email.service';
-import { Role, User } from '../../generated/prisma';
+import { Role, User, Prisma } from '../../generated/prisma';
 import { UpdateUserRequest } from './dto/update-user.request';
 
 @Injectable()
@@ -98,26 +98,28 @@ export class UsersService {
   }
 
   async updateUser(
-    where: { id?: string; email?: string; username?: string },
-    data: {
-      refreshToken?: string | null;
-      emailVerified?: boolean;
-      emailVerificationCode?: string | null;
-      rfidId?: string | null;
-    },
+    where: Prisma.UserWhereUniqueInput,
+    data: Prisma.UserUpdateInput,
   ): Promise<User | null> {
-    await this.prisma.user.updateMany({
+    return await this.prisma.user.update({
       where,
       data,
     });
-    return this.prisma.user.findFirst({ where });
   }
 
   async getOrCreateUser(data: CreateUserRequest): Promise<User> {
     const user = await this.prisma.user.findFirst({
       where: { email: data.email },
     });
+
     if (user) {
+      if (user.imageUrl === null) {
+        const updatedUser = await this.updateUser(
+          { email: data.email },
+          { imageUrl: data.imageUrl },
+        );
+        return updatedUser ?? user;
+      }
       return user;
     }
 
@@ -125,7 +127,7 @@ export class UsersService {
     const username =
       data.username || this.generateUsernameFromEmail(data.email);
 
-    return this.prisma.user.create({
+    const newUser = await this.prisma.user.create({
       data: {
         email: data.email,
         username,
@@ -145,6 +147,17 @@ export class UsersService {
         signupMethod: data.signupMethod ?? SignupMethod.EMAIL,
       },
     });
+    try {
+      await this.emailService.sendWelcomeEmail({
+        email: newUser.email,
+        firstName: newUser.firstName,
+        username: newUser.username,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+
+    return newUser;
   }
 
   async sendEmailVerification(email: string): Promise<void> {
