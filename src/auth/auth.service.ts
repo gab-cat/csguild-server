@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { compare, hash } from 'bcryptjs';
@@ -18,8 +22,8 @@ export class AuthService {
   async login(user: User, response: Response, redirect = false) {
     // Check if email is verified for regular login
     if (!user.emailVerified) {
-      throw new UnauthorizedException(
-        'Please verify your email address before logging in. Check your email for verification instructions.',
+      throw new ConflictException(
+        'UNVERIFIED EMAIL: Please verify your email address before logging in.',
       );
     }
 

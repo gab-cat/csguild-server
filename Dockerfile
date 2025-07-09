@@ -3,7 +3,7 @@ FROM oven/bun:alpine AS base
 FROM base AS deps
 WORKDIR /app
 RUN apk add --no-cache libc6-compat openssl
-COPY package.json bun.lock .
+COPY package.json bun.lock ./
 
 RUN bun install
 
