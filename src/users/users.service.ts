@@ -9,7 +9,7 @@ import { hash } from 'bcryptjs';
 import { CreateUserRequest, SignupMethod } from './dto/create-user.request';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { EmailService } from '../common/email/email.service';
-import { Role, User } from '../../generated/prisma';
+import { Role, User, Prisma } from '../../generated/prisma';
 import { UpdateUserRequest } from './dto/update-user.request';
 
 @Injectable()
@@ -99,12 +99,7 @@ export class UsersService {
 
   async updateUser(
     where: { id?: string; email?: string; username?: string },
-    data: {
-      refreshToken?: string | null;
-      emailVerified?: boolean;
-      emailVerificationCode?: string | null;
-      rfidId?: string | null;
-    },
+    data: UpdateUserRequest | Prisma.UserUpdateInput,
   ): Promise<User | null> {
     await this.prisma.user.updateMany({
       where,
@@ -117,13 +112,27 @@ export class UsersService {
     const user = await this.prisma.user.findFirst({
       where: { email: data.email },
     });
+
     if (user) {
+      if (user.imageUrl === null) {
+        const updatedUser = await this.updateUser(
+          { email: data.email },
+          { imageUrl: data.imageUrl },
+        );
+        return updatedUser;
+      }
       return user;
     }
 
     // For OAuth users, auto-verify email and generate username if not provided
     const username =
       data.username || this.generateUsernameFromEmail(data.email);
+
+    void this.emailService.sendWelcomeEmail({
+      email: data.email,
+      firstName: data.firstName,
+      username: data.username,
+    });
 
     return this.prisma.user.create({
       data: {
