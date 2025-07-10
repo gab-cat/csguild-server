@@ -26,6 +26,8 @@ model User {
   course                 String?
   emailVerified          Boolean        @default(false)
   emailVerificationCode  String?
+  passwordResetToken     String?
+  passwordResetExpiresAt DateTime?
   rfidId                 String?        @unique
   roles                  Role[]
   refreshToken           String?        @db.Text

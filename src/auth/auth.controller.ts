@@ -17,6 +17,8 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import {
   AuthSuccessResponseDto,
   AuthErrorResponseDto,
@@ -324,6 +326,124 @@ export class AuthController {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       signupMethod: user.signupMethod as SignupMethod,
+    };
+  }
+
+  @Post('forgot-password')
+  @ApiOperation({
+    summary: 'Request password reset',
+    description: `
+      Initiates a password reset flow by sending a reset token via email.
+      
+      ## How it works:
+      1. Validates that the email exists in the system
+      2. Generates a secure random token (32 bytes, hex encoded)
+      3. Hashes the token before storing in database
+      4. Sets expiration time (1 hour from request)
+      5. Sends email with unhashed token to user
+      6. Returns success response regardless of email existence (security)
+      
+      ## Security Features:
+      - Tokens are securely hashed in database
+      - 1-hour expiration time
+      - Rate limiting recommended (implement separately)
+      - No information leakage about email existence
+      - Old tokens are overwritten
+      
+      ## Email Content:
+      - Reset code for manual entry
+      - Direct link to reset password page
+      - Clear expiration information
+      - Security warnings and instructions
+    `,
+  })
+  @ApiBody({ type: ForgotPasswordDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Password reset email sent (if email exists)',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example:
+            'Password reset email sent if the email exists in our system',
+        },
+        statusCode: { type: 'number', example: 200 },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid email format',
+  })
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    await this.authService.forgotPassword(forgotPasswordDto.email);
+    return {
+      message: 'Password reset email sent if the email exists in our system',
+      statusCode: 201,
+    };
+  }
+
+  @Post('reset-password')
+  @ApiOperation({
+    summary: 'Reset password with token',
+    description: `
+      Resets user password using a valid reset token.
+      
+      ## How it works:
+      1. Validates the reset token format and presence
+      2. Searches for user with matching hashed token
+      3. Checks token expiration (must be within 1 hour)
+      4. Validates new password meets requirements
+      5. Hashes the new password
+      6. Updates user password and clears reset token
+      7. Invalidates all refresh tokens (forces re-login)
+      
+      ## Security Features:
+      - Token comparison uses secure hashing
+      - Automatic token expiration
+      - Password strength validation
+      - Session invalidation after reset
+      - One-time use tokens
+      
+      ## Password Requirements:
+      - Minimum 8 characters
+      - Additional strength requirements recommended
+      
+      ## After Reset:
+      - User must log in again with new password
+      - All existing sessions are invalidated
+      - Reset token is permanently deleted
+    `,
+  })
+  @ApiBody({ type: ResetPasswordDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset successful',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example:
+            'Password reset successful. Please log in with your new password.',
+        },
+        statusCode: { type: 'number', example: 200 },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid or expired token, or invalid password format',
+  })
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    await this.authService.resetPassword(
+      resetPasswordDto.token,
+      resetPasswordDto.newPassword,
+    );
+    return {
+      message:
+        'Password reset successful. Please log in with your new password.',
+      statusCode: 200,
     };
   }
 }

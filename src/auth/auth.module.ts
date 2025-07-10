@@ -9,9 +9,10 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { FailedLoginThrottleGuard } from './guards/failed-login-throttle.guard';
+import { EmailModule } from '../common/email/email.module';
 
 @Module({
-  imports: [UsersModule, PassportModule, JwtModule],
+  imports: [UsersModule, PassportModule, JwtModule, EmailModule],
   controllers: [AuthController],
   providers: [
     AuthService,

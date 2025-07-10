@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -10,6 +11,8 @@ import { UsersService } from '../users/users.service';
 import { Response } from 'express';
 import { TokenPayload } from './token-payload.interface';
 import { User } from 'generated/prisma/client';
+import { EmailService } from '../common/email/email.service';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +20,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly emailService: EmailService,
   ) {}
 
   async login(user: User, response: Response, redirect = false) {
@@ -200,5 +204,93 @@ export class AuthService {
       secure: this.configService.get('NODE_ENV') === 'production',
       expires: new Date(),
     });
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    try {
+      // Check if user exists with this email
+      const user = await this.usersService.getUser({ email });
+
+      // Generate secure random token
+      const resetToken = randomBytes(32).toString('hex');
+
+      // Hash the token before storing it
+      const hashedToken = await hash(resetToken, 10);
+
+      // Set expiration time (1 hour from now)
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 1);
+
+      // Store hashed token and expiration in database
+      await this.usersService.updateUser(
+        { id: user.id },
+        {
+          passwordResetToken: hashedToken,
+          passwordResetExpiresAt: expiresAt,
+        },
+      );
+
+      // Send email with unhashed token as URL parameter
+      await this.emailService.sendPasswordReset({
+        email: user.email,
+        firstName: user.firstName || 'User',
+        resetToken: resetToken,
+      });
+    } catch (error) {
+      // For security reasons, we don't reveal whether the email exists or not
+      // We silently succeed even if the user doesn't exist
+      console.log('Password reset requested for non-existent email:', email);
+    }
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    try {
+      // Find user with a valid (non-expired) reset token
+      const users = await this.usersService.getUsers();
+      let targetUser: User | null = null;
+
+      // Check each user's hashed token against the provided token
+      for (const user of users) {
+        if (
+          user.passwordResetToken &&
+          user.passwordResetExpiresAt &&
+          user.passwordResetExpiresAt > new Date()
+        ) {
+          const isValidToken = await compare(token, user.passwordResetToken);
+          if (isValidToken) {
+            targetUser = user;
+            break;
+          }
+        }
+      }
+
+      if (!targetUser) {
+        throw new BadRequestException(
+          'Invalid or expired password reset token.',
+        );
+      }
+
+      // Hash the new password
+      const hashedPassword = await hash(newPassword, 10);
+
+      // Update user's password and clear reset token
+      await this.usersService.updateUser(
+        { id: targetUser.id },
+        {
+          password: hashedPassword,
+          passwordResetToken: null,
+          passwordResetExpiresAt: null,
+          // Also clear refresh token to force re-login
+          refreshToken: null,
+        },
+      );
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException(
+        'Failed to reset password. Please try again.',
+      );
+    }
   }
 }
