@@ -17,7 +17,7 @@ interface SendWelcomeEmailParams {
 interface SendPasswordResetParams {
   email: string;
   firstName: string;
-  resetCode: string;
+  resetToken: string;
 }
 
 @Injectable()
@@ -72,7 +72,7 @@ export class EmailService {
   }
 
   async sendPasswordReset(params: SendPasswordResetParams): Promise<void> {
-    const { email, firstName, resetCode } = params;
+    const { email, firstName, resetToken } = params;
 
     await this.mailerService.sendMail({
       to: email,
@@ -80,9 +80,11 @@ export class EmailService {
       template: 'password-reset',
       context: {
         firstName,
-        resetCode,
         organizationName: 'CSGUILD',
-        resetUrl: `${this.configService.get('FRONTEND_URL', 'http://localhost:3000')}/reset-password`,
+        resetUrl: `${this.configService.get(
+          'FRONTEND_URL',
+          'http://localhost:3000',
+        )}/reset-password?token=${encodeURIComponent(resetToken)}`,
         supportEmail: this.configService.get(
           'SUPPORT_EMAIL',
           'support@csguild.org',
