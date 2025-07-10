@@ -268,7 +268,7 @@ The system includes a comprehensive email service with:
 - **Email Types**:
   - Email verification with 6-digit codes
   - Welcome emails for new students
-  - Password reset notifications
+  - Password reset with secure token-based links (1-hour expiration)
   - RFID registration confirmations
 
 ### Email Templates
@@ -331,8 +331,9 @@ Comprehensive strategy implementation details:
 3. **Login**: `POST /auth/login` with verified credentials
 4. **Access Protected Routes**: Automatic cookie-based auth
 5. **Token Refresh**: `POST /auth/refresh` when token expires
-6. **Google OAuth**: `GET /auth/google` for social login with auto-registration
-7. **RFID Authentication**: `POST /auth/rfid-login` for card-based access
+6. **Password Reset**: `POST /auth/forgot-password` → email link → `POST /auth/reset-password`
+7. **Google OAuth**: `GET /auth/google` for social login with auto-registration
+8. **RFID Authentication**: `POST /auth/rfid-login` for card-based access
 
 ## Project Structure
 
@@ -440,8 +441,10 @@ bun run test:cov
 3. Verify email via `POST /users/verify-email`
 4. Login via `POST /auth/login`
 5. Test protected routes with cookies
-6. Register RFID card via `POST /users/register-rfid`
-7. Test RFID login via `POST /auth/rfid-login`
+6. Test password reset via `POST /auth/forgot-password`
+7. Check email for reset link and test `POST /auth/reset-password`
+8. Register RFID card via `POST /users/register-rfid`
+9. Test RFID login via `POST /auth/rfid-login`
 
 ### 3. Email Service Testing
 
@@ -539,13 +542,14 @@ bun run test:cov
 
 - Automated email verification
 - Welcome emails for new students
-- Password reset functionality
+- **Password reset functionality with secure token-based links**
 - RFID registration confirmations
 - Professional HTML email templates
 
 ### Security Features
 
 - Email verification required for login
+- **Secure password reset with token-based links and 1-hour expiration**
 - RFID-based authentication
 - JWT token management
 - Secure password hashing
@@ -577,6 +581,8 @@ This system has been customized from a generic NestJS authentication template to
 | `POST` | `/auth/rfid-login`      | Login with RFID card      | None           | `{ rfidId: string }`                  | `200` - `{ message: "RFID login successful", statusCode: 200, student: { id, email, username, firstName, lastName, course, imageUrl } }` | Quick authentication for terminals. Returns student info.                                  |
 | `POST` | `/auth/refresh`         | Refresh access token      | Refresh Cookie | None                                  | `201` - `{ message: "Tokens refreshed successfully", statusCode: 201 }`                                                                  | Uses refresh token from cookie. Updates both tokens.                                       |
 | `POST` | `/auth/logout`          | Logout user               | JWT Cookie     | None                                  | `200` - `{ message: "Logout successful", statusCode: 200 }`                                                                              | Clears tokens and cookies. Invalidates refresh token.                                      |
+| `POST` | `/auth/forgot-password` | Request password reset    | None           | `{ email: string }`                   | `200` - `{ message: "Password reset email sent if the email exists in our system", statusCode: 200 }`                                   | Sends reset link via email. No information leakage about email existence. 1-hour expiration. |
+| `POST` | `/auth/reset-password`  | Reset password with token | None           | `{ token: string, newPassword: string }` | `200` - `{ message: "Password reset successful. Please log in with your new password.", statusCode: 200 }`                               | One-time use token. Invalidates all sessions. Minimum 8 characters for new password.       |
 | `GET`  | `/auth/google`          | Initiate Google OAuth     | None           | None                                  | `302` - HTTP redirect to Google OAuth consent screen                                                                                     | Redirects to Google consent screen.                                                        |
 | `GET`  | `/auth/google/callback` | Google OAuth callback     | None           | None                                  | `302` - HTTP redirect to frontend with authentication cookies set                                                                        | Handles OAuth callback. Auto-registers users.                                              |
 
@@ -782,6 +788,45 @@ This system has been customized from a generic NestJS authentication template to
   "message": "Email verified successfully",
   "statusCode": 200,
   "details": "Welcome to CSGUILD! You can now access all features."
+}
+```
+
+#### Forgot Password (`POST /auth/forgot-password`)
+
+**Request:**
+
+```json
+{
+  "email": "john.doe@example.com"
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Password reset email sent if the email exists in our system",
+  "statusCode": 200
+}
+```
+
+#### Reset Password (`POST /auth/reset-password`)
+
+**Request:**
+
+```json
+{
+  "token": "abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",
+  "newPassword": "MyNewStr0ngP@ssw0rd!"
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Password reset successful. Please log in with your new password.",
+  "statusCode": 200
 }
 ```
 
