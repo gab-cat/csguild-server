@@ -13,6 +13,7 @@ import { TokenPayload } from './token-payload.interface';
 import { User } from 'generated/prisma/client';
 import { EmailService } from '../common/email/email.service';
 import { randomBytes } from 'crypto';
+import { LoggerService } from 'src/common/logger/logger.service';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +22,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
+    private readonly logger: LoggerService,
   ) {}
 
   async login(user: User, response: Response, redirect = false) {
@@ -239,30 +241,16 @@ export class AuthService {
     } catch (error) {
       // For security reasons, we don't reveal whether the email exists or not
       // We silently succeed even if the user doesn't exist
-      console.log('Password reset requested for non-existent email:', email);
+      this.logger.warn(
+        `Password reset requested for non-existent email: ${email}`,
+      );
     }
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
     try {
       // Find user with a valid (non-expired) reset token
-      const users = await this.usersService.getUsers();
-      let targetUser: User | null = null;
-
-      // Check each user's hashed token against the provided token
-      for (const user of users) {
-        if (
-          user.passwordResetToken &&
-          user.passwordResetExpiresAt &&
-          user.passwordResetExpiresAt > new Date()
-        ) {
-          const isValidToken = await compare(token, user.passwordResetToken);
-          if (isValidToken) {
-            targetUser = user;
-            break;
-          }
-        }
-      }
+      const targetUser = await this.usersService.findUserByResetToken(token);
 
       if (!targetUser) {
         throw new BadRequestException(

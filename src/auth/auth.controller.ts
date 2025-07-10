@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Res, UseGuards, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Res,
+  UseGuards,
+  Body,
+  HttpCode,
+} from '@nestjs/common';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CurrentUser } from './current-user.decorator';
 import { Response } from 'express';
@@ -359,7 +367,7 @@ export class AuthController {
   })
   @ApiBody({ type: ForgotPasswordDto })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: 'Password reset email sent (if email exists)',
     schema: {
       type: 'object',
@@ -376,11 +384,12 @@ export class AuthController {
   @ApiBadRequestResponse({
     description: 'Invalid email format',
   })
+  @HttpCode(200)
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     await this.authService.forgotPassword(forgotPasswordDto.email);
     return {
       message: 'Password reset email sent if the email exists in our system',
-      statusCode: 201,
+      statusCode: 200,
     };
   }
 

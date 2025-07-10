@@ -160,6 +160,28 @@ export class UsersService {
     return newUser;
   }
 
+  async findUserByResetToken(token: string): Promise<User | null> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        passwordResetToken: {
+          not: null,
+        },
+        passwordResetExpiresAt: {
+          gt: new Date(),
+        },
+      },
+    });
+
+    for (const user of users) {
+      const isValidToken = await hash(token, user.passwordResetToken);
+      if (isValidToken) {
+        return user;
+      }
+    }
+
+    return null;
+  }
+
   async sendEmailVerification(email: string): Promise<void> {
     const user = await this.getUser({ email });
 

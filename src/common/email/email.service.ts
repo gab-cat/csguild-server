@@ -84,7 +84,7 @@ export class EmailService {
         resetUrl: `${this.configService.get(
           'FRONTEND_URL',
           'http://localhost:3000',
-        )}/reset-password?token=${resetToken}`,
+        )}/reset-password?token=${encodeURIComponent(resetToken)}`,
         supportEmail: this.configService.get(
           'SUPPORT_EMAIL',
           'support@csguild.org',
