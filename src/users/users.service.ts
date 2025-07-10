@@ -161,25 +161,19 @@ export class UsersService {
   }
 
   async findUserByResetToken(token: string): Promise<User | null> {
-    const users = await this.prisma.user.findMany({
+    const user = await this.prisma.user.findFirst({
       where: {
-        passwordResetToken: {
-          not: null,
-        },
+        passwordResetToken: token,
         passwordResetExpiresAt: {
-          gt: new Date(),
+          gte: new Date(), // Check if token is not expired
         },
       },
     });
 
-    for (const user of users) {
-      const isValidToken = await hash(token, user.passwordResetToken);
-      if (isValidToken) {
-        return user;
-      }
+    if (!user) {
+      throw new NotFoundException('User with this reset token not found');
     }
-
-    return null;
+    return user;
   }
 
   async sendEmailVerification(email: string): Promise<void> {

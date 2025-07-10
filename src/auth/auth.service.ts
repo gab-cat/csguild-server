@@ -216,9 +216,6 @@ export class AuthService {
       // Generate secure random token
       const resetToken = randomBytes(32).toString('hex');
 
-      // Hash the token before storing it
-      const hashedToken = await hash(resetToken, 10);
-
       // Set expiration time (1 hour from now)
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 1);
@@ -227,7 +224,7 @@ export class AuthService {
       await this.usersService.updateUser(
         { id: user.id },
         {
-          passwordResetToken: hashedToken,
+          passwordResetToken: resetToken,
           passwordResetExpiresAt: expiresAt,
         },
       );
