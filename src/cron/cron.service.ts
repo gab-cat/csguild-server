@@ -23,7 +23,10 @@ export class CronService implements OnModuleInit {
     );
   }
   // Run every day at 8 PM local time (20:00)
-  @Cron('0 20 * * *')
+  @Cron('0 20 * * *', {
+    name: 'timeoutUsersDaily',
+    timeZone: 'Asia/Manila',
+  })
   async timeoutUsersDaily() {
     try {
       const result = await this.usersService.timeoutAllActiveUsers();
