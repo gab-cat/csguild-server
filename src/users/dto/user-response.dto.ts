@@ -110,6 +110,13 @@ export class UserResponseDto {
     format: 'date-time',
   })
   updatedAt: Date;
+
+  @ApiProperty({
+    description: 'Current facility ID the user is associated with',
+    example: 'facility123',
+    required: false,
+  })
+  currentFacilityId?: string;
 }
 
 export class CreateUserResponseDto {

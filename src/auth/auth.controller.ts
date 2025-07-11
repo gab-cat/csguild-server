@@ -30,11 +30,11 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import {
   AuthSuccessResponseDto,
   AuthErrorResponseDto,
-  AuthMeResponseDto,
 } from './dto/auth-response.dto';
 import { RfidLoginDto } from '../users/dto/rfid-registration.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { SignupMethod } from 'src/users/dto/create-user.request';
+import { UserResponseDto } from 'src/users/dto/user-response.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -319,9 +319,13 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Current user',
+    type: UserResponseDto,
   })
-  async me(@CurrentUser() user: User): Promise<AuthMeResponseDto> {
+  async me(@CurrentUser() user: User): Promise<UserResponseDto> {
     return {
+      emailVerified: user.emailVerified,
+      id: user.id,
+      hasRefreshToken: !!user.refreshToken,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
@@ -334,6 +338,8 @@ export class AuthController {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       signupMethod: user.signupMethod as SignupMethod,
+      hasRfidCard: !!user.rfidId,
+      birthdate: user.birthdate,
     };
   }
 

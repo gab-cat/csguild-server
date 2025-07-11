@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { SignupMethod } from 'src/users/dto/create-user.request';
+import { SignupMethod } from '../../users/dto/create-user.request';
 
 export class AuthSuccessResponseDto {
   @ApiProperty({
@@ -104,7 +104,21 @@ export class AuthMeResponseDto {
 
   @ApiProperty({
     description: 'Signup method',
-    example: 'EMAIL',
+    example: SignupMethod.EMAIL,
+    enum: SignupMethod,
   })
   signupMethod: SignupMethod;
+
+  @ApiProperty({
+    description: 'Indicates if the user has an RFID card',
+    example: true,
+  })
+  hasRfidCard: boolean;
+
+  @ApiProperty({
+    description: 'User birth date',
+    example: '2000-01-01T00:00:00.000Z',
+    type: Date,
+  })
+  birthDate?: Date;
 }
