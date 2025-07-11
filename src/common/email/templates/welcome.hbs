@@ -23,23 +23,23 @@
         line-height: 1.6;
         color: #ffffff;
         background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
-        padding: 20px;
+        padding: 16px;
         min-height: 100vh;
       }
 
       .container {
-        max-width: 800px;
+        max-width: 700px;
         margin: 0 auto;
         background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        border-radius: 16px;
+        border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         border: 1px solid rgba(139, 92, 246, 0.2);
       }
 
       .header {
         background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
-        padding: 32px 40px 24px;
+        padding: 24px 32px 20px;
         position: relative;
         overflow: hidden;
       }
@@ -84,19 +84,19 @@
       }
 
       .logo {
-        font-size: 28px;
+        font-size: 24px;
         font-weight: 700;
         color: #ffffff;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
         font-family: 'JetBrains Mono', monospace;
       }
 
       .logo::before {
         content: '</>';
-        font-size: 24px;
+        font-size: 20px;
         background: linear-gradient(45deg, #f472b6, #a855f7);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -105,7 +105,7 @@
 
       .header h1 {
         color: rgba(255, 255, 255, 0.9);
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 400;
         margin: 0;
         font-family: 'JetBrains Mono', monospace;
@@ -117,7 +117,7 @@
       }
 
       .content {
-        padding: 40px;
+        padding: 32px;
       }
 
       .welcome-hero {
@@ -127,9 +127,9 @@
           rgba(139, 92, 246, 0.15) 100%
         );
         border: 1px solid rgba(236, 72, 153, 0.3);
-        border-radius: 16px;
-        padding: 48px;
-        margin-bottom: 32px;
+        border-radius: 12px;
+        padding: 32px;
+        margin-bottom: 24px;
         text-align: center;
         position: relative;
         overflow: hidden;
@@ -141,15 +141,15 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 3px;
+        height: 2px;
         background: linear-gradient(90deg, #ec4899, #8b5cf6, #a855f7, #ec4899);
         background-size: 300% 100%;
         animation: welcomeShift 3s ease infinite;
       }
 
       .welcome-icon {
-        font-size: 80px;
-        margin-bottom: 24px;
+        font-size: 64px;
+        margin-bottom: 20px;
         display: block;
         animation: celebrate 3s ease infinite;
       }
@@ -160,29 +160,29 @@
           transform: scale(1) rotate(0deg);
         }
         25% {
-          transform: scale(1.1) rotate(-5deg);
+          transform: scale(1.05) rotate(-3deg);
         }
         50% {
-          transform: scale(1.05) rotate(0deg);
+          transform: scale(1.02) rotate(0deg);
         }
         75% {
-          transform: scale(1.1) rotate(5deg);
+          transform: scale(1.05) rotate(3deg);
         }
       }
 
       .welcome-title {
-        font-size: 32px;
+        font-size: 28px;
         font-weight: 700;
         background: linear-gradient(45deg, #ec4899, #8b5cf6, #a855f7);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
         line-height: 1.2;
       }
 
       .welcome-subtitle {
-        font-size: 20px;
+        font-size: 18px;
         color: rgba(236, 72, 153, 0.9);
         font-weight: 500;
         font-family: 'JetBrains Mono', monospace;
@@ -202,14 +202,14 @@
         font-size: 18px;
         font-weight: 500;
         color: #ffffff;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
       }
 
       .description {
-        font-size: 16px;
+        font-size: 15px;
         color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 32px;
-        line-height: 1.7;
+        margin-bottom: 24px;
+        line-height: 1.6;
       }
 
       .account-info {
@@ -219,9 +219,9 @@
           rgba(55, 65, 81, 0.6) 100%
         );
         border: 1px solid rgba(139, 92, 246, 0.3);
-        border-radius: 16px;
-        padding: 32px;
-        margin: 32px 0;
+        border-radius: 12px;
+        padding: 24px;
+        margin: 24px 0;
         position: relative;
         overflow: hidden;
         backdrop-filter: blur(10px);
@@ -233,7 +233,7 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 3px;
+        height: 2px;
         background: linear-gradient(90deg, #ec4899, #8b5cf6, #a855f7, #ec4899);
         background-size: 300% 100%;
         animation: accountShift 4s ease infinite;
@@ -250,45 +250,45 @@
       }
 
       .account-info h3 {
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 600;
         color: #ffffff;
-        margin-bottom: 20px;
+        margin-bottom: 16px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
       }
 
       .account-info h3::before {
         content: '👤';
-        font-size: 18px;
+        font-size: 16px;
       }
 
       .info-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
       }
 
       .info-item {
         background: rgba(31, 41, 55, 0.5);
         border: 1px solid rgba(139, 92, 246, 0.2);
-        border-radius: 8px;
-        padding: 16px;
+        border-radius: 6px;
+        padding: 12px;
       }
 
       .info-label {
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 500;
         color: rgba(236, 72, 153, 0.8);
         text-transform: uppercase;
         letter-spacing: 1px;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         font-family: 'JetBrains Mono', monospace;
       }
 
       .info-value {
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 600;
         color: #ffffff;
         word-break: break-all;
@@ -301,56 +301,56 @@
           rgba(168, 85, 247, 0.1) 100%
         );
         border: 1px solid rgba(139, 92, 246, 0.2);
-        border-radius: 16px;
-        padding: 32px;
-        margin: 32px 0;
+        border-radius: 12px;
+        padding: 24px;
+        margin: 24px 0;
       }
 
       .features-section h3 {
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 600;
         color: #ffffff;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
         text-align: center;
       }
 
       .features-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
       }
 
       .feature-card {
         background: rgba(31, 41, 55, 0.3);
         border: 1px solid rgba(236, 72, 153, 0.2);
-        border-radius: 12px;
-        padding: 20px;
+        border-radius: 8px;
+        padding: 16px;
         text-align: center;
         transition: all 0.3s ease;
       }
 
       .feature-card:hover {
         border-color: rgba(236, 72, 153, 0.5);
-        transform: translateY(-2px);
+        transform: translateY(-1px);
       }
 
       .feature-icon {
-        font-size: 32px;
-        margin-bottom: 12px;
+        font-size: 28px;
+        margin-bottom: 10px;
         display: block;
       }
 
       .feature-title {
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 600;
         color: #ffffff;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
       }
 
       .feature-desc {
-        font-size: 14px;
+        font-size: 13px;
         color: rgba(255, 255, 255, 0.7);
-        line-height: 1.5;
+        line-height: 1.4;
       }
 
       .cta-section {
@@ -360,10 +360,10 @@
           #8b5cf6 50%,
           #a855f7 100%
         );
-        border-radius: 16px;
-        padding: 32px;
+        border-radius: 12px;
+        padding: 24px;
         text-align: center;
-        margin: 32px 0;
+        margin: 24px 0;
         color: #ffffff;
         position: relative;
         overflow: hidden;
@@ -399,23 +399,23 @@
       }
 
       .cta-title {
-        font-size: 24px;
+        font-size: 20px;
         font-weight: 700;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
       }
 
       .cta-desc {
-        font-size: 16px;
+        font-size: 15px;
         opacity: 0.9;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
       }
 
       .cta-button {
         display: inline-block;
         background: rgba(255, 255, 255, 0.2);
         color: #ffffff;
-        padding: 12px 32px;
-        border-radius: 8px;
+        padding: 10px 28px;
+        border-radius: 6px;
         text-decoration: none;
         font-weight: 600;
         border: 2px solid rgba(255, 255, 255, 0.3);
@@ -426,7 +426,7 @@
       .cta-button:hover {
         background: rgba(255, 255, 255, 0.3);
         border-color: rgba(255, 255, 255, 0.5);
-        transform: translateY(-2px);
+        transform: translateY(-1px);
       }
 
       .footer {
@@ -435,16 +435,16 @@
           rgba(31, 41, 55, 0.8) 0%,
           rgba(17, 24, 39, 0.8) 100%
         );
-        padding: 32px 40px;
+        padding: 24px 32px;
         text-align: center;
         border-top: 1px solid rgba(139, 92, 246, 0.2);
       }
 
       .footer-brand {
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 700;
         color: #ffffff;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         font-family: 'JetBrains Mono', monospace;
       }
 
@@ -454,23 +454,23 @@
       }
 
       .footer-tagline {
-        font-size: 14px;
+        font-size: 13px;
         color: rgba(255, 255, 255, 0.7);
-        margin-bottom: 20px;
+        margin-bottom: 16px;
       }
 
       .footer-links {
         display: flex;
         justify-content: center;
-        gap: 24px;
-        margin-bottom: 20px;
+        gap: 20px;
+        margin-bottom: 16px;
         flex-wrap: wrap;
       }
 
       .footer-link {
         color: rgba(236, 72, 153, 0.8);
         text-decoration: none;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 500;
         transition: color 0.3s ease;
       }
@@ -480,16 +480,16 @@
       }
 
       .footer-note {
-        font-size: 12px;
+        font-size: 11px;
         color: rgba(255, 255, 255, 0.5);
         font-family: 'JetBrains Mono', monospace;
       }
 
       .stats-section {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 20px;
-        margin: 32px 0;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 16px;
+        margin: 24px 0;
       }
 
       .stat-card {
@@ -499,43 +499,43 @@
           rgba(139, 92, 246, 0.1) 100%
         );
         border: 1px solid rgba(139, 92, 246, 0.2);
-        border-radius: 12px;
-        padding: 20px;
+        border-radius: 8px;
+        padding: 16px;
         text-align: center;
       }
 
       .stat-number {
-        font-size: 24px;
+        font-size: 20px;
         font-weight: 700;
         background: linear-gradient(45deg, #ec4899, #8b5cf6);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
       }
 
       .stat-label {
-        font-size: 14px;
+        font-size: 13px;
         color: rgba(255, 255, 255, 0.8);
         font-weight: 500;
       }
 
       @media (max-width: 768px) {
         .container {
-          margin: 10px;
-          border-radius: 12px;
+          margin: 8px;
+          border-radius: 10px;
         }
 
         .content {
-          padding: 24px;
+          padding: 20px;
         }
 
         .welcome-hero {
-          padding: 32px 20px;
+          padding: 24px 16px;
         }
 
         .welcome-title {
-          font-size: 24px;
+          font-size: 22px;
         }
 
         .info-grid {
@@ -548,7 +548,7 @@
 
         .footer-links {
           flex-direction: column;
-          gap: 12px;
+          gap: 10px;
         }
       }
     </style>
