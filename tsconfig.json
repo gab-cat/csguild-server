@@ -20,5 +20,6 @@
     "paths": {
       "generated/prisma/client": ["./generated/prisma/index"]
     },
+    "esModuleInterop": true,
   }
 }

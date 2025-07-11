@@ -1,12 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import { HttpLoggingInterceptor } from './common/logger/http-logging.interceptor';
 import { configureSwagger, SERVER, showStartupMessages } from './constants';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import helmet from 'helmet';
+import { NextFunction, Request, Response } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -29,7 +30,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(app.get(HttpLoggingInterceptor));
 
   // Helmet for security headers - completely skip for /logs route
-  app.use((req, res, next) => {
+  app.use((req: Request, res: Response, next: NextFunction) => {
     if (
       req.path === '/api/logs' ||
       req.path === '/api/health' ||
