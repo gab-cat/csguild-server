@@ -401,6 +401,14 @@ export class UsersController {
     description: 'Updates a user',
   })
   @ApiBody({ type: UpdateUserRequest })
+  @ApiResponse({
+    status: 200,
+    description: 'User updated successfully',
+    type: UserResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid JWT token',
+  })
   async updateUser(
     @Body() request: UpdateUserRequest,
     @CurrentUser() user: User,
