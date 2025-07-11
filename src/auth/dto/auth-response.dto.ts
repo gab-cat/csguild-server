@@ -120,5 +120,5 @@ export class AuthMeResponseDto {
     example: '2000-01-01T00:00:00.000Z',
     type: Date,
   })
-  birthDate?: Date;
+  birthdate?: Date;
 }
