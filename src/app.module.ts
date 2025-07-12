@@ -8,6 +8,8 @@ import { LoggerModule } from './common/logger/logger.module';
 import { EmailModule } from './common/email/email.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { ProjectsModule } from './projects/projects.module';
+import { RolesModule } from './roles/roles.module';
 import { FacilitiesModule } from './facilities/facilities.module';
 import { CronModule } from './cron/cron.module';
 import { LogsController } from './common/logger/logger.controller';
@@ -32,6 +34,8 @@ import { RATE_LIMITING } from './constants';
     EmailModule,
     AuthModule,
     UsersModule,
+    ProjectsModule,
+    RolesModule,
     FacilitiesModule,
     CronModule,
   ],
