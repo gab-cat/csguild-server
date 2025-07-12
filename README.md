@@ -9,10 +9,20 @@ A comprehensive NestJS backend system for the Computer Science Guild featuring:
 - **RFID Authentication** for student access
 - Google OAuth2 integration
 - **Email Service** with HTML templates
+- **Project Management** with CQRS pattern
+- **Facility Management** with occupancy tracking
 - Cookie-based token storage
 - TypeScript support
 - Docker setup for development
-- **Complete Swagger/OpenAPI documentation**
+- **C### 6. Facility Management Testing
+
+1. Create facilities via `POST /facilities`
+2. Test RFID time-in/time-out via `POST /facilities/toggle`
+3. Monitor real-time occupancy via `GET /facilities`
+4. Check facility usage history and analytics
+5. Test capacity management and overflow handling
+
+### 7. Real-time Monitoringwagger/OpenAPI documentation**
 
 ## Features
 
@@ -23,6 +33,8 @@ A comprehensive NestJS backend system for the Computer Science Guild featuring:
 - 🚀 Google OAuth2 integration with auto-registration
 - 📬 **Email Service** with HTML templates (verification, welcome, password reset)
 - 🏢 **Facility Management** with capacity tracking and occupancy monitoring
+- 📋 **Project Management** with team collaboration using CQRS pattern
+- 👥 **Role Management** with CQRS pattern for user role administration
 - ⏰ **Automated User Timeout** system with daily cron jobs
 - 📊 **Real-time Log Viewer** with WebSocket support and authentication
 - 🐘 PostgreSQL with Prisma ORM
@@ -224,6 +236,27 @@ The Swagger UI provides:
 - `POST /users/register-rfid` - Register RFID card (authenticated)
 - `POST /users/rfid-login` - Login using RFID card
 
+#### Project Endpoints
+
+- `POST /projects` - Create new project (authenticated)
+- `GET /projects` - Get all projects with filtering and pagination (authenticated)
+- `GET /projects/my-projects` - Get current user's projects (authenticated)
+- `GET /projects/my-applications` - Get current user's applications (authenticated)
+- `GET /projects/:id` - Get project details (authenticated)
+- `PATCH /projects/:id` - Update project (project owner only)
+- `PATCH /projects/:id/status` - Update project status (project owner only)
+- `DELETE /projects/:id` - Delete project (project owner only)
+- `POST /projects/join` - Apply to join project (authenticated)
+- `POST /projects/applications/review` - Review application (project owner only)
+
+#### Role Endpoints
+
+- `GET /roles` - Get all roles with filtering and pagination (public)
+- `GET /roles/:identifier` - Get role by ID or slug (public)
+- `POST /roles` - Create new role (staff/admin only)
+- `PATCH /roles/:id` - Update role (staff/admin only)
+- `DELETE /roles/:id` - Delete role (staff/admin only)
+
 ## 🎓 Student Registration System
 
 ### Registration Flow
@@ -258,6 +291,93 @@ The Swagger UI provides:
 - Quick authentication using RFID
 - Secure card registration process
 - RFID-based login system
+
+## 📋 Project Management System (CQRS Pattern)
+
+### Project Features
+
+- **Create Projects**: Students can create collaborative projects with detailed descriptions
+- **Role-Based Teams**: Define specific roles needed (Frontend Developer, Designer, etc.)
+- **Application System**: Students apply to join projects with custom messages
+- **Team Management**: Project owners review and approve/reject applications
+- **Project Tracking**: Track project status from creation to completion
+- **Advanced Filtering**: Search projects by status, tags, description, or owner
+
+### Project Workflow
+
+1. **Create Project**: `POST /projects` with title, description, tags, and required roles
+2. **Browse Projects**: `GET /projects` with filtering options (status, tags, search)
+3. **Apply to Project**: `POST /projects/join` with role preference and application message
+4. **Review Applications**: Project owners use `POST /projects/applications/review`
+5. **Team Collaboration**: Approved members become active team members
+6. **Project Updates**: Owners can update project details and status
+
+### Project Structure
+
+- **Project Details**: Title, description, tags, due date, status
+- **Role Definitions**: Specific roles with member limits and requirements
+- **Team Members**: Active participants with assigned roles
+- **Applications**: Pending/reviewed applications with status tracking
+- **Owner Management**: Project creators have full control over their projects
+
+### CQRS Implementation
+
+The project module uses Command Query Responsibility Segregation (CQRS) pattern:
+
+#### Commands (Write Operations)
+- `CreateProjectCommand` - Create new projects
+- `UpdateProjectCommand` - Modify project details
+- `UpdateProjectStatusCommand` - Change project status
+- `DeleteProjectCommand` - Remove projects
+- `JoinProjectCommand` - Submit project applications
+- `ReviewApplicationCommand` - Approve/reject applications
+
+#### Queries (Read Operations)
+- `FindAllProjectsQuery` - List projects with filtering
+- `FindByIdQuery` - Get project details
+- `GetMyProjectsQuery` - User's owned/member projects
+- `GetMyApplicationsQuery` - User's submitted applications
+
+## 👥 Role Management System (CQRS Pattern)
+
+### Role Features
+
+- **Create Roles**: Staff and admin users can create new user roles with descriptions
+- **Public Access**: Anyone can view and search roles without authentication
+- **Automatic Slug Generation**: URL-friendly slugs generated from role names
+- **Search & Filter**: Search roles by name, slug, or description with pagination
+- **Smart Querying**: Find roles by ID or slug using the same endpoint
+- **Usage Protection**: Prevent deletion of roles assigned to users or projects
+- **Staff Control**: Only staff and admin users can create, update, or delete roles
+
+### Role Workflow
+
+1. **Create Role**: `POST /roles` with name and description (staff/admin only)
+2. **Browse Roles**: `GET /roles` with search and pagination (public access)
+3. **Get Role Details**: `GET /roles/:identifier` by ID or slug (public access)
+4. **Update Role**: `PATCH /roles/:id` to modify details (staff/admin only)
+5. **Delete Role**: `DELETE /roles/:id` if not in use (staff/admin only)
+
+### Role Structure
+
+- **Role Details**: Name, slug, description, timestamps
+- **Automatic Slugs**: Generated from role names for URL-friendly access
+- **Usage Tracking**: Connected to users and projects
+- **Access Control**: Public read access, staff/admin write access
+
+### CQRS Implementation
+
+The role module uses Command Query Responsibility Segregation (CQRS) pattern:
+
+#### Commands (Write Operations)
+- `CreateRoleCommand` - Create new roles with automatic slug generation
+- `UpdateRoleCommand` - Modify role details with conflict detection  
+- `DeleteRoleCommand` - Remove roles with usage validation
+
+#### Queries (Read Operations)
+- `FindAllRolesQuery` - List roles with search and pagination
+- `FindRoleByIdQuery` - Get role details by ID
+- `FindRoleBySlugQuery` - Get role details by slug
 
 ## 📧 Email Service
 
@@ -358,6 +478,37 @@ src/
 │   ├── users.controller.ts # Student endpoints
 │   ├── users.service.ts   # Student business logic
 │   └── users.module.ts    # Users module
+├── projects/
+│   ├── commands/          # CQRS Command handlers
+│   │   ├── create-project/
+│   │   ├── update-project/
+│   │   ├── delete-project/
+│   │   ├── join-project/
+│   │   └── review-application/
+│   ├── queries/           # CQRS Query handlers
+│   │   ├── find-all-projects/
+│   │   ├── find-by-id/
+│   │   ├── get-my-projects/
+│   │   └── get-my-applications/
+│   ├── dto/               # Project DTOs
+│   ├── types/             # Project type definitions
+│   ├── projects.controller.ts # Project endpoints
+│   └── projects.module.ts    # Projects module
+├── roles/
+│   ├── commands/          # CQRS Command handlers
+│   │   ├── create-role/
+│   │   ├── update-role/
+│   │   └── delete-role/
+│   ├── queries/           # CQRS Query handlers
+│   │   ├── find-all-roles/
+│   │   ├── find-role-by-id/
+│   │   └── find-role-by-slug/
+│   ├── dto/               # Role DTOs
+│   ├── types/             # Role type definitions
+│   ├── __tests__/         # Role tests
+│   ├── roles.controller.ts # Role endpoints
+│   ├── roles.module.ts     # Roles module
+│   └── README.md          # 📚 Roles documentation
 ├── facilities/
 │   ├── dto/               # Facility DTOs
 │   ├── facilities.controller.ts # Facility endpoints
@@ -453,7 +604,27 @@ bun run test:cov
 3. Check HTML email templates
 4. Verify email delivery
 
-### 4. Facility Management Testing
+### 4. Project Management Testing
+
+1. Create projects via `POST /projects`
+2. Test project filtering and search via `GET /projects`
+3. Apply to projects via `POST /projects/join`
+4. Review applications via `POST /projects/applications/review`
+5. Test project updates and status changes
+6. Check team member management
+7. Test CQRS command and query separation
+
+### 5. Role Management Testing
+
+1. Browse roles via `GET /roles` (public access)
+2. Search roles by name/description with pagination
+3. Get role details via `GET /roles/:identifier` (by ID or slug)
+4. Create roles via `POST /roles` (staff/admin authentication required)
+5. Update roles via `PATCH /roles/:id` (staff/admin only)
+6. Test role deletion protection for roles in use
+7. Verify CQRS command and query patterns
+
+### 6. Facility Management Testing
 
 1. Create facilities via `POST /facilities`
 2. Test RFID time-in/time-out via `POST /facilities/toggle`
@@ -461,14 +632,14 @@ bun run test:cov
 4. Check facility usage history and analytics
 5. Test capacity management and overflow handling
 
-### 5. Real-time Monitoring
+### 7. Real-time Monitoring
 
 1. Access log viewer at `http://localhost:3000/logs`
 2. Monitor live application logs and HTTP requests
 3. Test WebSocket connection and authentication
 4. Observe cron job execution logs
 
-### 6. Database Changes
+### 8. Database Changes
 
 1. Update `prisma/schema.prisma`
 2. Run `bun run db:migrate`
@@ -514,6 +685,15 @@ bun run test:cov
 - RFID card integration for physical access
 - Role-based access control (STUDENT role)
 - Google OAuth for easy registration
+
+### Project Management
+
+- **Complete project lifecycle management** with CQRS architecture
+- **Team collaboration tools** with role-based assignments
+- **Application and approval system** for project participation
+- **Advanced project filtering** by status, tags, and search terms
+- **Project ownership controls** for creators and administrators
+- **Real-time project status tracking** from creation to completion
 
 ### Facility Management
 
@@ -564,320 +744,14 @@ This system has been customized from a generic NestJS authentication template to
 - Added RFID authentication
 - Created email service with templates
 - Enhanced Google OAuth with auto-registration
-- **Added facility management system** with occupancy tracking
+- **Added project management system** with CQRS pattern and team collaboration
+- **Implemented facility management system** with occupancy tracking
 - **Implemented automated user timeout** with cron jobs
 - **Created real-time log viewer** with WebSocket authentication
 - **Added comprehensive logging system** with multiple log levels
 - **Enhanced API documentation** with dark theme and customizations
 - Updated all branding to CSGUILD
 
-## 📋 API Endpoints Documentation
-
-### Authentication Endpoints
-
-| Method | Endpoint                | Description               | Authentication | Request Body                          | Response Body                                                                                                                            | Notes                                                                                      |
-| ------ | ----------------------- | ------------------------- | -------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `POST` | `/auth/login`           | Login with email/password | None           | `{ email: string, password: string }` | `201` - `{ message: "Login successful", statusCode: 201 }`                                                                               | Requires email verification. Sets HTTP-only cookies. Rate limited (5 attempts per 15 min). |
-| `POST` | `/auth/rfid-login`      | Login with RFID card      | None           | `{ rfidId: string }`                  | `200` - `{ message: "RFID login successful", statusCode: 200, student: { id, email, username, firstName, lastName, course, imageUrl } }` | Quick authentication for terminals. Returns student info.                                  |
-| `POST` | `/auth/refresh`         | Refresh access token      | Refresh Cookie | None                                  | `201` - `{ message: "Tokens refreshed successfully", statusCode: 201 }`                                                                  | Uses refresh token from cookie. Updates both tokens.                                       |
-| `POST` | `/auth/logout`          | Logout user               | JWT Cookie     | None                                  | `200` - `{ message: "Logout successful", statusCode: 200 }`                                                                              | Clears tokens and cookies. Invalidates refresh token.                                      |
-| `POST` | `/auth/forgot-password` | Request password reset    | None           | `{ email: string }`                   | `200` - `{ message: "Password reset email sent if the email exists in our system", statusCode: 200 }`                                   | Sends reset link via email. No information leakage about email existence. 1-hour expiration. |
-| `POST` | `/auth/reset-password`  | Reset password with token | None           | `{ token: string, newPassword: string }` | `200` - `{ message: "Password reset successful. Please log in with your new password.", statusCode: 200 }`                               | One-time use token. Invalidates all sessions. Minimum 8 characters for new password.       |
-| `GET`  | `/auth/google`          | Initiate Google OAuth     | None           | None                                  | `302` - HTTP redirect to Google OAuth consent screen                                                                                     | Redirects to Google consent screen.                                                        |
-| `GET`  | `/auth/google/callback` | Google OAuth callback     | None           | None                                  | `302` - HTTP redirect to frontend with authentication cookies set                                                                        | Handles OAuth callback. Auto-registers users.                                              |
-
-### Student Management Endpoints
-
-| Method | Endpoint                     | Description                 | Authentication           | Request Body                                  | Response Body                                                                                                                                                                                           | Notes                                                              |
-| ------ | ---------------------------- | --------------------------- | ------------------------ | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `POST` | `/users`                     | Register new student        | None                     | `CreateUserRequest`                           | `201` - `{ message: "Student registration successful. Please check your email for verification instructions.", statusCode: 201, details: "A verification email has been sent to your email address." }` | Sends verification email. Auto-generates username if not provided. |
-| `POST` | `/users/verify-email`        | Verify email address        | None                     | `{ email: string, verificationCode: string }` | `200` - `{ message: "Email verified successfully", statusCode: 200, details: "Welcome to CSGUILD! You can now access all features." }`                                                                  | 6-digit verification code. Sends welcome email.                    |
-| `POST` | `/users/resend-verification` | Resend verification code    | None                     | `{ email: string }`                           | `200` - `{ message: "Email verification code sent successfully", statusCode: 200, details: "Please check your email for the new verification code." }`                                                  | Generates new 6-digit code.                                        |
-| `POST` | `/users/register-rfid`       | Register RFID card          | JWT Cookie               | `{ rfidId: string }`                          | `201` - `{ message: "RFID card registered successfully", statusCode: 201, details: "You can now use your RFID card to access CSGUILD services." }`                                                      | Links RFID to student account. Sends confirmation email.           |
-| `POST` | `/users/rfid-login`          | Login with RFID (duplicate) | None                     | `{ rfidId: string }`                          | `200` - `{ message: "RFID login successful", statusCode: 200, student: { id, email, username, firstName, lastName } }`                                                                                  | Returns student info without creating session.                     |
-| `GET`  | `/users`                     | Get all students            | JWT Cookie + STAFF/ADMIN | None                                          | `200` - Array of `UserResponseDto` objects with full student data                                                                                                                                       | Protected endpoint. Returns comprehensive student data.            |
-| `GET`  | `/users/:id`                 | Get student by ID           | JWT Cookie               | None                                          | `200` - Single `UserResponseDto` object with full student data                                                                                                                                          | Students can only access own data. Staff/Admin can access any.     |
-
-### Facility Management Endpoints
-
-| Method   | Endpoint          | Description               | Authentication           | Request Body        | Response Body                                                                                                                        | Notes                                                            |
-| -------- | ----------------- | ------------------------- | ------------------------ | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
-| `POST`   | `/facilities`     | Create facility           | JWT Cookie + STAFF/ADMIN | `CreateFacilityDto` | `201` - `FacilityResponseDto` with `{ id, name, description, location, capacity, currentOccupancy, isActive, createdAt, updatedAt }` | Name must be unique. Includes occupancy info.                    |
-| `GET`    | `/facilities`     | Get all active facilities | None                     | None                | `200` - Array of `FacilityResponseDto` objects with current occupancy data                                                           | Public endpoint. Includes current occupancy.                     |
-| `GET`    | `/facilities/:id` | Get facility by ID        | None                     | None                | `200` - Single `FacilityResponseDto` object with real-time occupancy                                                                 | Public endpoint. Includes real-time occupancy.                   |
-| `PUT`    | `/facilities/:id` | Update facility           | JWT Cookie + STAFF/ADMIN | `UpdateFacilityDto` | `200` - Updated `FacilityResponseDto` object                                                                                         | Can update name, description, location, capacity, active status. |
-| `DELETE` | `/facilities/:id` | Delete facility           | JWT Cookie + STAFF/ADMIN | None                | `204` - No content (empty response body)                                                                                             | Soft delete. Cannot delete with active sessions.                 |
-
-### Facility Access Control Endpoints
-
-| Method | Endpoint                          | Description                 | Authentication           | Request Body                             | Response Body                                                                                                                                                                                                                                                   | Notes                                          |
-| ------ | --------------------------------- | --------------------------- | ------------------------ | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `POST` | `/facilities/toggle`              | Toggle facility access      | None                     | `{ rfidId: string, facilityId: string }` | `200/201` - `FacilityToggleResponseDto` with `{ message, statusCode, action, details, student: { id, firstName, lastName, username, email, imageUrl, course }, facility: { id, name, location }, session: { id, timeIn, timeOut, isActive, durationMinutes } }` | Smart endpoint: auto-detects time-in/time-out. |
-| `POST` | `/facilities/status`              | Check facility usage status | None                     | `{ rfidId: string, facilityId: string }` | `200` - `{ message: "Usage status retrieved successfully", statusCode: 200, isCurrentlyInFacility: boolean, currentSession: FacilityUsageResponseDto \| null }`                                                                                                 | Check if student is in facility.               |
-| `GET`  | `/facilities/:id/active-sessions` | Get active sessions         | JWT Cookie + STAFF/ADMIN | None                                     | `200` - Array of `FacilityUsageResponseDto` objects with `{ id, student: { id, firstName, lastName, username, email }, facility: { id, name, location }, timeIn, timeOut, isActive, durationMinutes }`                                                          | Real-time facility occupancy.                  |
-| `GET`  | `/facilities/:id/usage-history`   | Get facility usage history  | JWT Cookie + STAFF/ADMIN | Query: `page`, `limit`                   | `200` - `{ data: FacilityUsageResponseDto[], total: number, page: number, limit: number }` where each usage record contains student info, facility info, session times, and duration                                                                            | Historical usage data with pagination.         |
-
-### System Endpoints
-
-| Method | Endpoint  | Description          | Authentication | Request Body | Response Body                                                         | Notes                  |
-| ------ | --------- | -------------------- | -------------- | ------------ | --------------------------------------------------------------------- | ---------------------- |
-| `GET`  | `/health` | Check server health  | None           | None         | `200` - `{ status: "ok" }` or similar health status object            | Health check endpoint. |
-| `GET`  | `/logs`   | Log viewer interface | None           | None         | `200` - HTML document with tabbed interface for real-time log viewing | Real-time log viewer.  |
-
-### Request/Response Examples
-
-#### Student Registration (`POST /users`)
-
-**Request:**
-
-```json
-{
-  "email": "john.doe@example.com",
-  "username": "johndoe123",
-  "password": "MyStr0ngP@ssw0rd!",
-  "firstName": "John",
-  "lastName": "Doe",
-  "birthdate": "2000-01-15",
-  "course": "Bachelor of Science in Computer Science",
-  "rfidId": "RF001234567"
-}
-```
-
-**Response:**
-
-```json
-{
-  "message": "Student registration successful. Please check your email for verification instructions.",
-  "statusCode": 201,
-  "details": "A verification email has been sent to your email address."
-}
-```
-
-#### Login (`POST /auth/login`)
-
-**Request:**
-
-```json
-{
-  "email": "john.doe@example.com",
-  "password": "MyStr0ngP@ssw0rd!"
-}
-```
-
-**Response:**
-
-```json
-{
-  "message": "Login successful",
-  "statusCode": 201
-}
-```
-
-#### Facility Toggle (`POST /facilities/toggle`)
-
-**Request:**
-
-```json
-{
-  "rfidId": "RF001234567",
-  "facilityId": "clm7x8k9e0000v8og4n2h5k7s"
-}
-```
-
-**Response (Time-In):**
-
-```json
-{
-  "message": "Time-in successful",
-  "statusCode": 201,
-  "action": "time-in",
-  "details": "Successfully checked in to Computer Lab 1",
-  "student": {
-    "id": "clm7x8k9e0000v8og4n2h5k7s",
-    "firstName": "John",
-    "lastName": "Doe",
-    "username": "johndoe123",
-    "email": "john.doe@example.com",
-    "imageUrl": "https://example.com/avatar.jpg",
-    "course": "Bachelor of Science in Computer Science"
-  },
-  "facility": {
-    "id": "clm7x8k9e0000v8og4n2h5k7s",
-    "name": "Computer Lab 1",
-    "location": "Building A, 2nd Floor"
-  },
-  "session": {
-    "id": "clm7x8k9e0000v8og4n2h5k7s",
-    "timeIn": "2024-07-05T05:36:19.000Z",
-    "timeOut": null,
-    "isActive": true,
-    "durationMinutes": null
-  }
-}
-```
-
-#### Create Facility (`POST /facilities`)
-
-**Request:**
-
-```json
-{
-  "name": "Computer Lab 1",
-  "description": "Main computer laboratory with 30 workstations",
-  "location": "Building A, 2nd Floor",
-  "capacity": 30,
-  "isActive": true
-}
-```
-
-**Response:**
-
-```json
-{
-  "id": "clm7x8k9e0000v8og4n2h5k7s",
-  "name": "Computer Lab 1",
-  "description": "Main computer laboratory with 30 workstations",
-  "location": "Building A, 2nd Floor",
-  "capacity": 30,
-  "currentOccupancy": 0,
-  "isActive": true,
-  "createdAt": "2024-07-05T05:36:19.000Z",
-  "updatedAt": "2024-07-05T05:36:19.000Z"
-}
-```
-
-#### Get Student Data (`GET /users/:id`)
-
-**Response:**
-
-```json
-{
-  "id": "clm7x8k9e0000v8og4n2h5k7s",
-  "email": "john.doe@example.com",
-  "username": "johndoe123",
-  "firstName": "John",
-  "lastName": "Doe",
-  "birthdate": "2000-01-15T00:00:00.000Z",
-  "course": "Bachelor of Science in Computer Science",
-  "imageUrl": "https://lh3.googleusercontent.com/a/default-user=s96-c",
-  "emailVerified": true,
-  "hasRefreshToken": true,
-  "hasRfidCard": true,
-  "roles": ["STUDENT"],
-  "signupMethod": "EMAIL",
-  "createdAt": "2024-07-05T05:36:19.000Z",
-  "updatedAt": "2024-07-05T05:36:19.000Z"
-}
-```
-
-#### Email Verification (`POST /users/verify-email`)
-
-**Request:**
-
-```json
-{
-  "email": "john.doe@example.com",
-  "verificationCode": "123456"
-}
-```
-
-**Response:**
-
-```json
-{
-  "message": "Email verified successfully",
-  "statusCode": 200,
-  "details": "Welcome to CSGUILD! You can now access all features."
-}
-```
-
-#### Forgot Password (`POST /auth/forgot-password`)
-
-**Request:**
-
-```json
-{
-  "email": "john.doe@example.com"
-}
-```
-
-**Response:**
-
-```json
-{
-  "message": "Password reset email sent if the email exists in our system",
-  "statusCode": 200
-}
-```
-
-#### Reset Password (`POST /auth/reset-password`)
-
-**Request:**
-
-```json
-{
-  "token": "abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",
-  "newPassword": "MyNewStr0ngP@ssw0rd!"
-}
-```
-
-**Response:**
-
-```json
-{
-  "message": "Password reset successful. Please log in with your new password.",
-  "statusCode": 200
-}
-```
-
-### Authentication Methods
-
-1. **JWT Cookies**:
-   - `Authentication`: Access token (1 hour)
-   - `Refresh`: Refresh token (24 hours)
-   - HTTP-only, secure cookies
-
-2. **RFID Authentication**:
-   - No session required
-   - Direct card-to-student mapping
-   - Requires email verification
-
-3. **Google OAuth**:
-   - Automatic account creation
-   - Email auto-verification
-   - Seamless login flow
-
-### Role-Based Access Control
-
-- **STUDENT**: Default role, basic access
-- **STAFF**: Facility management, student data access
-- **ADMIN**: Full system access
-
-### Rate Limiting
-
-- **Login attempts**: 5 per IP per 15 minutes
-- **Email verification**: Standard rate limiting
-- **RFID operations**: No rate limiting (hardware integration)
-
-### Error Handling
-
-All endpoints return standardized error responses:
-
-```json
-{
-  "statusCode": 400,
-  "message": "Validation failed",
-  "error": "Bad Request"
-}
-```
-
-### Security Features
-
-- **Password Requirements**: Strong passwords with mixed case, numbers, special characters
-- **Email Verification**: Required before full access
-- **RFID Validation**: Unique card registration
-- **Token Security**: HTTP-only cookies, refresh rotation
-- **Role Protection**: Endpoint-level authorization
 
 ## License
 
