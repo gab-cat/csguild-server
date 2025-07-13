@@ -99,7 +99,7 @@ export class AuthService {
       const user = await this.usersService.getUser({
         email,
       });
-      const authenticated = await compare(password, user.password);
+      const authenticated = compare(password, user.password as string);
       if (!authenticated) {
         throw new UnauthorizedException();
       }
