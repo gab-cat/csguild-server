@@ -57,7 +57,8 @@ export class RolesCommandController {
         value: {
           name: 'Frontend Developer',
           description:
-            'Responsible for building and maintaining user interfaces using modern web technologies',
+            'Responsible for building and maintaining user interfaces using modern web technologies ' +
+            'like React, Vue, or Angular',
         },
       },
       example2: {
@@ -65,7 +66,17 @@ export class RolesCommandController {
         value: {
           name: 'UI/UX Designer',
           slug: 'ui-ux-designer',
-          description: 'Creates user interfaces and user experience designs',
+          description:
+            'Creates user interfaces and user experience designs for web and mobile applications',
+        },
+      },
+      example3: {
+        summary: 'Backend role',
+        value: {
+          name: 'Backend Developer',
+          slug: 'backend-developer',
+          description:
+            'Develops server-side applications, APIs, and database architecture',
         },
       },
     },
@@ -128,13 +139,22 @@ export class RolesCommandController {
         value: {
           name: 'Senior Frontend Developer',
           description:
-            'Lead frontend development initiatives and mentor junior developers',
+            'Lead frontend development initiatives and mentor junior developers. ' +
+            'Expert in modern web frameworks and best practices.',
         },
       },
       example2: {
         summary: 'Update only description',
         value: {
-          description: 'Updated role description with new responsibilities',
+          description:
+            'Updated role description with new responsibilities and requirements.',
+        },
+      },
+      example3: {
+        summary: 'Update name and slug',
+        value: {
+          name: 'Full Stack Developer',
+          slug: 'full-stack-developer',
         },
       },
     },

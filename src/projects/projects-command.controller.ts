@@ -57,17 +57,22 @@ export class ProjectsCommandController {
         summary: 'Basic project example',
         value: {
           title: 'CS Guild Mobile App Development',
-          description: 'A mobile application for the CS Guild community',
-          tags: ['mobile', 'typescript', 'react-native'],
+          description:
+            'We are looking for developers to help build a mobile application for the CS Guild community. ' +
+            'The app will include features for project collaboration, event management, and member networking.',
+          tags: ['mobile', 'react-native', 'typescript', 'collaboration'],
           dueDate: '2024-12-31T23:59:59.000Z',
           roles: [
             {
               roleId: 'clm7x8k9e0000v8og4n2h5k7t',
-              name: 'Frontend Developer',
-              description: 'Responsible for UI/UX development',
-              requiredSkills: ['React Native', 'TypeScript'],
               maxMembers: 2,
-              requiredExperience: 'Intermediate',
+              requirements:
+                'Experience with React Native and TypeScript required',
+            },
+            {
+              roleId: 'clm7x8k9e0000v8og4n2h5k7u',
+              maxMembers: 1,
+              requirements: 'UI/UX design experience with mobile applications',
             },
           ],
         },
@@ -120,12 +125,27 @@ export class ProjectsCommandController {
     description: 'Project update data',
     examples: {
       example1: {
-        summary: 'Update project example',
+        summary: 'Update project details',
         value: {
           title: 'Updated CS Guild Mobile App',
-          description: 'Updated description for the mobile application',
+          description:
+            'Updated description for the mobile application with enhanced features',
           tags: ['mobile', 'typescript', 'react-native', 'updated'],
           dueDate: '2024-12-31T23:59:59.000Z',
+        },
+      },
+      example2: {
+        summary: 'Update project status and roles',
+        value: {
+          status: 'IN_PROGRESS',
+          roles: [
+            {
+              roleId: 'clm7x8k9e0000v8og4n2h5k7t',
+              maxMembers: 3,
+              requirements:
+                'Updated requirements: Senior React Native developer',
+            },
+          ],
         },
       },
     },
@@ -268,13 +288,20 @@ export class ProjectsCommandController {
     description: 'Project join application data',
     examples: {
       example1: {
-        summary: 'Join project application',
+        summary: 'Join project application with message',
         value: {
           projectId: 'clm7x8k9e0000v8og4n2h5k7s',
           projectRoleId: 'clm7x8k9e0000v8og4n2h5k7t',
           message:
             'I have 3 years of experience with React Native and would love to contribute to this project. ' +
             'I have previously worked on similar mobile applications and am excited about the CS Guild community.',
+        },
+      },
+      example2: {
+        summary: 'Simple application without message',
+        value: {
+          projectId: 'clm7x8k9e0000v8og4n2h5k7s',
+          projectRoleId: 'clm7x8k9e0000v8og4n2h5k7t',
         },
       },
     },
@@ -327,7 +354,8 @@ export class ProjectsCommandController {
         value: {
           applicationId: 'clm7x8k9e0000v8og4n2h5k7u',
           decision: 'APPROVED',
-          reviewMessage: 'Great experience and skills match our requirements.',
+          reviewMessage:
+            'Great experience and skills match our requirements perfectly.',
         },
       },
       reject: {
@@ -336,7 +364,7 @@ export class ProjectsCommandController {
           applicationId: 'clm7x8k9e0000v8og4n2h5k7u',
           decision: 'REJECTED',
           reviewMessage:
-            'Thank you for your interest, but we are looking for different skills.',
+            'Thank you for your interest, but we are looking for different skills at this time.',
         },
       },
     },

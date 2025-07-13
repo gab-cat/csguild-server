@@ -43,12 +43,21 @@ export class RolesQueryController {
               name: 'Frontend Developer',
               slug: 'frontend-developer',
               description:
-                'Responsible for building and maintaining user interfaces',
+                'Responsible for building and maintaining user interfaces using modern web technologies',
               createdAt: '2024-01-15T10:30:00.000Z',
               updatedAt: '2024-01-15T10:30:00.000Z',
             },
+            {
+              id: 'clm7x8k9e0000v8og4n2h5k7t',
+              name: 'Backend Developer',
+              slug: 'backend-developer',
+              description:
+                'Develops server-side applications, APIs, and database architecture',
+              createdAt: '2024-01-16T10:30:00.000Z',
+              updatedAt: '2024-01-16T10:30:00.000Z',
+            },
           ],
-          total: 1,
+          total: 2,
           page: 1,
           limit: 10,
           totalPages: 1,
@@ -133,6 +142,20 @@ export class RolesQueryController {
     status: 200,
     description: 'Role retrieved successfully',
     type: RoleResponseDto,
+    examples: {
+      success: {
+        summary: 'Successful response',
+        value: {
+          id: 'clm7x8k9e0000v8og4n2h5k7s',
+          name: 'Frontend Developer',
+          slug: 'frontend-developer',
+          description:
+            'Responsible for building and maintaining user interfaces using modern web technologies',
+          createdAt: '2024-01-15T10:30:00.000Z',
+          updatedAt: '2024-01-15T10:30:00.000Z',
+        },
+      },
+    },
   })
   @ApiResponse({
     status: 404,
@@ -167,6 +190,20 @@ export class RolesQueryController {
     status: 200,
     description: 'Role retrieved successfully',
     type: RoleResponseDto,
+    examples: {
+      success: {
+        summary: 'Successful response',
+        value: {
+          id: 'clm7x8k9e0000v8og4n2h5k7s',
+          name: 'Frontend Developer',
+          slug: 'frontend-developer',
+          description:
+            'Responsible for building and maintaining user interfaces using modern web technologies',
+          createdAt: '2024-01-15T10:30:00.000Z',
+          updatedAt: '2024-01-15T10:30:00.000Z',
+        },
+      },
+    },
   })
   @ApiResponse({
     status: 404,

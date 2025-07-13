@@ -1,6 +1,5 @@
 import {
   IsOptional,
-  IsUUID,
   IsNotEmpty,
   IsInt,
   Min,
@@ -15,7 +14,7 @@ export class CreateProjectRoleDto {
     description: 'User role ID for this project position',
     example: 'clm7x8k9e0000v8og4n2h5k7s',
   })
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   roleId: string;
 

@@ -45,11 +45,41 @@ export class ProjectsQueryController {
         value: {
           message: 'Projects retrieved successfully',
           statusCode: 200,
-          data: [],
-          total: 0,
+          data: [
+            {
+              id: 'clm7x8k9e0000v8og4n2h5k7s',
+              title: 'CS Guild Mobile App Development',
+              description:
+                'We are looking for developers to help build a mobile application for the CS Guild community.',
+              tags: ['mobile', 'react-native', 'typescript'],
+              dueDate: '2024-12-31T23:59:59.000Z',
+              status: 'OPEN',
+              createdAt: '2024-01-01T00:00:00.000Z',
+              owner: {
+                id: 'clm7x8k9e0000v8og4n2h5k7o',
+                firstName: 'John',
+                lastName: 'Doe',
+              },
+              roles: [
+                {
+                  id: 'clm7x8k9e0000v8og4n2h5k7r',
+                  maxMembers: 2,
+                  requirements: 'Experience with React Native',
+                  role: {
+                    id: 'clm7x8k9e0000v8og4n2h5k7t',
+                    name: 'Frontend Developer',
+                    slug: 'frontend-developer',
+                  },
+                },
+              ],
+              memberCount: 1,
+              applicationCount: 3,
+            },
+          ],
+          total: 1,
           page: 1,
           limit: 10,
-          totalPages: 0,
+          totalPages: 1,
         },
       },
     },
@@ -154,8 +184,24 @@ export class ProjectsQueryController {
         value: {
           message: 'User projects retrieved successfully',
           statusCode: 200,
-          ownedProjects: [],
-          memberProjects: [],
+          ownedProjects: [
+            {
+              id: 'clm7x8k9e0000v8og4n2h5k7s',
+              title: 'My Project',
+              status: 'IN_PROGRESS',
+              memberCount: 3,
+              applicationCount: 2,
+            },
+          ],
+          memberProjects: [
+            {
+              id: 'clm7x8k9e0000v8og4n2h5k7t',
+              title: 'Collaborative Project',
+              status: 'OPEN',
+              memberCount: 5,
+              applicationCount: 1,
+            },
+          ],
         },
       },
     },
@@ -185,7 +231,23 @@ export class ProjectsQueryController {
         value: {
           message: 'User applications retrieved successfully',
           statusCode: 200,
-          applications: [],
+          applications: [
+            {
+              id: 'clm7x8k9e0000v8og4n2h5k7a',
+              message: 'I would love to contribute to this project.',
+              status: 'PENDING',
+              createdAt: '2024-01-01T00:00:00.000Z',
+              project: {
+                id: 'clm7x8k9e0000v8og4n2h5k7s',
+                title: 'CS Guild Mobile App',
+              },
+              projectRole: {
+                role: {
+                  name: 'Frontend Developer',
+                },
+              },
+            },
+          ],
         },
       },
     },
