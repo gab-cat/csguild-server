@@ -72,7 +72,7 @@ export class UsersService {
       // Send verification email
       this.emailService.sendEmailVerification({
         email: user.email,
-        firstName: user.firstName,
+        firstName: user.firstName ?? '',
         verificationCode,
       });
     });
@@ -150,7 +150,7 @@ export class UsersService {
     try {
       await this.emailService.sendWelcomeEmail({
         email: newUser.email,
-        firstName: newUser.firstName,
+        firstName: newUser.firstName ?? '',
         username: newUser.username,
       });
     } catch (error) {
@@ -192,7 +192,7 @@ export class UsersService {
 
     await this.emailService.sendEmailVerification({
       email: user.email,
-      firstName: user.firstName,
+      firstName: user.firstName ?? '',
       verificationCode,
     });
   }
@@ -222,7 +222,7 @@ export class UsersService {
     // Send welcome email
     await this.emailService.sendWelcomeEmail({
       email: user.email,
-      firstName: user.firstName,
+      firstName: user.firstName ?? '',
       username: user.username,
     });
   }
@@ -254,7 +254,7 @@ export class UsersService {
     // Send RFID registration success email
     await this.emailService.sendRfidRegistrationSuccess({
       email: user.email,
-      firstName: user.firstName,
+      firstName: user.firstName ?? '',
       rfidId,
     });
 

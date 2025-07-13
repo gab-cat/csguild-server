@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { PrismaModule } from './common/prisma/prisma.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { EmailModule } from './common/email/email.module';
@@ -40,6 +39,5 @@ import { RATE_LIMITING } from './constants';
     CronModule,
   ],
   controllers: [AppController, LogsController],
-  providers: [AppService],
 })
 export class AppModule {}

@@ -1,12 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, Headers } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('App')
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
   @Get('health')
   @ApiOperation({ summary: 'Check server health' })
   @ApiResponse({
@@ -19,7 +16,17 @@ export class AppController {
       },
     },
   })
-  getHealth() {
-    return this.appService.getHealth();
+  getHealth(@Headers('x-forwarded-for') forwardedFor: string): {
+    status: string;
+    timestamp: string;
+    version: string;
+    ip: string | undefined;
+  } {
+    return {
+      status: 'OK',
+      ip: forwardedFor || 'unknown',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+    };
   }
 }
