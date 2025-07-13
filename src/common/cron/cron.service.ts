@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { UsersService } from '../users/users.service';
-import { LoggerService } from '../common/logger/logger.service';
+import { UsersService } from '../../users/users.service';
+import { LoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class CronService implements OnModuleInit {
