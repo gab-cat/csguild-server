@@ -10,11 +10,7 @@ import {
 import { RoleListResponseDto, RoleResponseDto } from './dto';
 
 // Queries
-import {
-  FindAllRolesQuery,
-  FindRoleByIdQuery,
-  FindRoleBySlugQuery,
-} from './queries';
+import { FindAllRolesQuery, FindRoleBySlugQuery } from './queries';
 
 @ApiTags('Roles')
 @Controller('roles')
@@ -106,11 +102,16 @@ export class RolesQueryController {
     @Query('limit') limit = 10,
     @Query(
       'sortBy',
-      new ParseEnumPipe(['createdAt', 'updatedAt', 'name', 'slug']),
+      new ParseEnumPipe(['createdAt', 'updatedAt', 'name', 'slug', undefined]),
     )
-    sortBy: 'createdAt' | 'updatedAt' | 'name' | 'slug' = 'createdAt',
-    @Query('sortOrder', new ParseEnumPipe(['asc', 'desc']))
-    sortOrder: 'asc' | 'desc' = 'desc',
+    sortBy:
+      | 'createdAt'
+      | 'updatedAt'
+      | 'name'
+      | 'slug'
+      | undefined = 'createdAt',
+    @Query('sortOrder', new ParseEnumPipe(['asc', 'desc', undefined]))
+    sortOrder: 'asc' | 'desc' | undefined = 'desc',
   ): Promise<RoleListResponseDto> {
     const filters = {
       search,
@@ -126,55 +127,7 @@ export class RolesQueryController {
     return this.queryBus.execute(new FindAllRolesQuery(filters, pagination));
   }
 
-  @Get(':id')
-  @ApiOperation({
-    summary: 'Get a role by ID',
-    description:
-      'Retrieve detailed information about a specific role by its ID. No authentication required.',
-  })
-  @ApiParam({
-    name: 'id',
-    description: 'Role ID',
-    example: 'clm7x8k9e0000v8og4n2h5k7s',
-    type: String,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Role retrieved successfully',
-    type: RoleResponseDto,
-    examples: {
-      success: {
-        summary: 'Successful response',
-        value: {
-          id: 'clm7x8k9e0000v8og4n2h5k7s',
-          name: 'Frontend Developer',
-          slug: 'frontend-developer',
-          description:
-            'Responsible for building and maintaining user interfaces using modern web technologies',
-          createdAt: '2024-01-15T10:30:00.000Z',
-          updatedAt: '2024-01-15T10:30:00.000Z',
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Role not found',
-    examples: {
-      notFound: {
-        summary: 'Role not found',
-        value: {
-          message: 'Role not found',
-          statusCode: 404,
-        },
-      },
-    },
-  })
-  async findById(@Param('id') id: string): Promise<RoleResponseDto> {
-    return await this.queryBus.execute(new FindRoleByIdQuery(id));
-  }
-
-  @Get('slug/:slug')
+  @Get(':slug')
   @ApiOperation({
     summary: 'Get a role by slug',
     description:

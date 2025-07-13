@@ -7,19 +7,6 @@ export class RoleUtils {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Generate a URL-friendly slug from a role name
-   */
-  static generateSlug(name: string): string {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-      .trim()
-      .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
-  }
-
-  /**
    * Get role by ID with error handling
    */
   async getRoleById(id: string): Promise<RoleEntity | null> {
@@ -85,7 +72,7 @@ export class RoleUtils {
         where: { userRoles: { some: { id: roleId } } },
       }),
       this.prisma.projectRole.count({
-        where: { roleId },
+        where: { roleSlug: roleId },
       }),
     ]);
 

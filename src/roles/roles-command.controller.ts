@@ -115,7 +115,7 @@ export class RolesCommandController {
     };
   }
 
-  @Patch(':id')
+  @Patch(':slug')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
   @ApiBearerAuth()
@@ -125,9 +125,9 @@ export class RolesCommandController {
       'Update role details. Only staff and admin users can update roles.',
   })
   @ApiParam({
-    name: 'id',
-    description: 'Role ID',
-    example: 'clm7x8k9e0000v8og4n2h5k7s',
+    name: 'slug',
+    description: 'Role slug',
+    example: 'frontend-developer',
     type: String,
   })
   @ApiBody({
@@ -181,11 +181,11 @@ export class RolesCommandController {
     description: 'Conflict - role with this name or slug already exists',
   })
   async update(
-    @Param('id') id: string,
+    @Param('slug') slug: string,
     @Body() updateRoleDto: UpdateRoleDto,
   ): Promise<UpdateRoleResponseDto> {
     const role = await this.commandBus.execute(
-      new UpdateRoleCommand(id, updateRoleDto),
+      new UpdateRoleCommand(slug, updateRoleDto),
     );
     return {
       message: 'Role updated successfully',
@@ -194,7 +194,7 @@ export class RolesCommandController {
     };
   }
 
-  @Delete(':id')
+  @Delete(':slug')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STAFF, Role.ADMIN)
   @ApiBearerAuth()
@@ -205,9 +205,9 @@ export class RolesCommandController {
       'Roles that are assigned to users or projects cannot be deleted.',
   })
   @ApiParam({
-    name: 'id',
-    description: 'Role ID',
-    example: 'clm7x8k9e0000v8og4n2h5k7s',
+    name: 'slug',
+    description: 'Role slug',
+    example: 'frontend-developer',
     type: String,
   })
   @ApiResponse({
@@ -238,8 +238,8 @@ export class RolesCommandController {
     status: 409,
     description: 'Conflict - role is assigned to users or projects',
   })
-  async remove(@Param('id') id: string): Promise<{ message: string }> {
-    await this.commandBus.execute(new DeleteRoleCommand(id));
+  async remove(@Param('slug') slug: string): Promise<{ message: string }> {
+    await this.commandBus.execute(new DeleteRoleCommand(slug));
     return { message: 'Role deleted successfully' };
   }
 }

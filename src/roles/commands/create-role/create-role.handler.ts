@@ -9,6 +9,7 @@ import { CreateRoleCommand } from './create-role.command';
 import { RoleEntity } from '../../types/role.types';
 import { RoleUtils } from '../../utils';
 import { Prisma } from '../../../../generated/prisma';
+import { UtilsService } from 'src/common/utils/utils.service';
 
 @Injectable()
 @CommandHandler(CreateRoleCommand)
@@ -16,6 +17,7 @@ export class CreateRoleHandler implements ICommandHandler<CreateRoleCommand> {
   constructor(
     private readonly prisma: PrismaService,
     private readonly roleUtils: RoleUtils,
+    private readonly utilsService: UtilsService,
   ) {}
 
   async execute(command: CreateRoleCommand): Promise<RoleEntity> {
@@ -23,7 +25,7 @@ export class CreateRoleHandler implements ICommandHandler<CreateRoleCommand> {
     const { name, description } = createRoleDto;
 
     // Generate slug if not provided
-    const slug = createRoleDto.slug || RoleUtils.generateSlug(name);
+    const slug = createRoleDto.slug || this.utilsService.generateSlug(name);
 
     try {
       // Check if role with this name or slug already exists

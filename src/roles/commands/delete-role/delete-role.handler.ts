@@ -19,18 +19,20 @@ export class DeleteRoleHandler implements ICommandHandler<DeleteRoleCommand> {
   ) {}
 
   async execute(command: DeleteRoleCommand): Promise<void> {
-    const { id } = command;
+    const { slug } = command;
 
     try {
       // Check if the role exists
-      const existingRole = await this.roleUtils.getRoleById(id);
+      const existingRole = await this.roleUtils.getRoleBySlug(slug);
 
       if (!existingRole) {
-        throw new NotFoundException(`Role with ID '${id}' not found`);
+        throw new NotFoundException(`Role with slug '${slug}' not found`);
       }
 
       // Check if the role can be safely deleted
-      const { canDelete, reason } = await this.roleUtils.canDeleteRole(id);
+      const { canDelete, reason } = await this.roleUtils.canDeleteRole(
+        existingRole.id,
+      );
 
       if (!canDelete) {
         throw new ConflictException(
@@ -40,7 +42,7 @@ export class DeleteRoleHandler implements ICommandHandler<DeleteRoleCommand> {
 
       // Delete the role
       await this.prisma.userRole.delete({
-        where: { id },
+        where: { slug },
       });
     } catch (error) {
       if (
@@ -51,7 +53,7 @@ export class DeleteRoleHandler implements ICommandHandler<DeleteRoleCommand> {
       }
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          throw new NotFoundException(`Role with ID '${id}' not found`);
+          throw new NotFoundException(`Role with slug '${slug}' not found`);
         }
         if (error.code === 'P2003') {
           throw new ConflictException(
