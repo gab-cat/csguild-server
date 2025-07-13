@@ -8,6 +8,7 @@ generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  previewFeatures = ["queryCompiler", "driverAdapters"]
 }
 
 datasource db {
@@ -108,3 +109,4 @@ model FacilityUsage {
   @@index([isActive])
   @@index([userId, facilityId, isActive])
 }
+

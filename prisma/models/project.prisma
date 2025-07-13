@@ -17,93 +17,95 @@ model UserRole {
 model Project {
   id          String      @id @default(cuid())
   title       String
+  slug        String      @unique
   description String
   tags        String[]    @default([])
   dueDate     DateTime?
   status      ProjectStatus @default(OPEN)
-  ownerId     String
+  ownerSlug   String
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
   // Relations
-  owner       User        @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  owner       User        @relation("ProjectOwner", fields: [ownerSlug], references: [username], onDelete: Cascade)
   members     ProjectMember[]
   roles       ProjectRole[]
   applications ProjectApplication[]
 
   @@map("projects")
-  @@index([ownerId])
+  @@index([slug])
+  @@index([ownerSlug])
   @@index([status])
   @@index([dueDate])
 }
 
 model ProjectRole {
   id          String    @id @default(cuid())
-  projectId   String
-  roleId      String
+  projectSlug String
+  roleSlug    String
   maxMembers  Int?      @default(1)
   requirements String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   // Relations
-  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  role        UserRole  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  project     Project   @relation(fields: [projectSlug], references: [slug], onDelete: Cascade)
+  role        UserRole  @relation(fields: [roleSlug], references: [slug], onDelete: Cascade)
   members     ProjectMember[]
   applications ProjectApplication[]
 
-  @@unique([projectId, roleId])
+  @@unique([projectSlug, roleSlug])
   @@map("project_roles")
-  @@index([projectId])
-  @@index([roleId])
+  @@index([projectSlug])
+  @@index([roleSlug])
 }
 
 model ProjectMember {
   id            String      @id @default(cuid())
-  projectId     String
-  userId        String
-  projectRoleId String
+  projectSlug   String
+  userSlug      String
+  roleSlug      String
   status        MemberStatus @default(ACTIVE)
   joinedAt      DateTime    @default(now())
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
   // Relations
-  project       Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user          User        @relation("ProjectMember", fields: [userId], references: [id], onDelete: Cascade)
-  projectRole   ProjectRole @relation(fields: [projectRoleId], references: [id], onDelete: Cascade)
+  project       Project     @relation(fields: [projectSlug], references: [slug], onDelete: Cascade)
+  user          User        @relation("ProjectMember", fields: [userSlug], references: [username], onDelete: Cascade)
+  projectRole   ProjectRole @relation(fields: [projectSlug, roleSlug], references: [projectSlug, roleSlug], onDelete: Cascade)
 
-  @@unique([projectId, userId, projectRoleId])
+  @@unique([projectSlug, userSlug, roleSlug])
   @@map("project_members")
-  @@index([projectId])
-  @@index([userId])
-  @@index([projectRoleId])
+  @@index([projectSlug])
+  @@index([userSlug])
+  @@index([roleSlug])
 }
 
 model ProjectApplication {
   id            String           @id @default(cuid())
-  projectId     String
-  userId        String
-  projectRoleId String
+  projectSlug   String
+  userSlug      String
+  roleSlug      String
   message       String?
   status        ApplicationStatus @default(PENDING)
   appliedAt     DateTime         @default(now())
   reviewedAt    DateTime?
-  reviewedBy    String?
+  reviewedBySlug String?
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
 
   // Relations
-  project       Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user          User             @relation("ProjectApplication", fields: [userId], references: [id], onDelete: Cascade)
-  projectRole   ProjectRole      @relation(fields: [projectRoleId], references: [id], onDelete: Cascade)
-  reviewer      User?            @relation("ProjectApplicationReviewer", fields: [reviewedBy], references: [id])
+  project       Project          @relation(fields: [projectSlug], references: [slug], onDelete: Cascade)
+  user          User             @relation("ProjectApplication", fields: [userSlug], references: [username], onDelete: Cascade)
+  projectRole   ProjectRole      @relation(fields: [projectSlug, roleSlug], references: [projectSlug, roleSlug], onDelete: Cascade)
+  reviewer      User?            @relation("ProjectApplicationReviewer", fields: [reviewedBySlug], references: [username])
 
-  @@unique([projectId, userId, projectRoleId])
+  @@unique([projectSlug, userSlug, roleSlug])
   @@map("project_applications")
-  @@index([projectId])
-  @@index([userId])
-  @@index([projectRoleId])
+  @@index([projectSlug])
+  @@index([userSlug])
+  @@index([roleSlug])
   @@index([status])
 }
 
