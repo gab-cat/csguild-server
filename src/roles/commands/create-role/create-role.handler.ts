@@ -53,11 +53,6 @@ export class CreateRoleHandler implements ICommandHandler<CreateRoleCommand> {
         throw error;
       }
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ConflictException(
-            'Role with this name or slug already exists',
-          );
-        }
         throw new BadRequestException(
           'Failed to create role: ' + error.message,
         );

@@ -218,7 +218,7 @@ export class RolesCommandController {
     status: 409,
     description: 'Conflict - role is assigned to users or projects',
   })
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string): Promise<{ message: string }> {
     await this.commandBus.execute(new DeleteRoleCommand(id));
     return { message: 'Role deleted successfully' };
   }

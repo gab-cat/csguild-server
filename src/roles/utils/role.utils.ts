@@ -22,23 +22,23 @@ export class RoleUtils {
   /**
    * Get role by ID with error handling
    */
-  async getRoleById(id: string): Promise<RoleEntity> {
+  async getRoleById(id: string): Promise<RoleEntity | null> {
     const role = await this.prisma.userRole.findUnique({
       where: { id },
     });
 
-    return role as any;
+    return role;
   }
 
   /**
    * Get role by slug with error handling
    */
-  async getRoleBySlug(slug: string): Promise<RoleEntity> {
+  async getRoleBySlug(slug: string): Promise<RoleEntity | null> {
     const role = await this.prisma.userRole.findUnique({
       where: { slug },
     });
 
-    return role as any;
+    return role;
   }
 
   /**

@@ -1,6 +1,5 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../../common/prisma/prisma.service';
 import { FindRoleBySlugQuery } from './find-role-by-slug.query';
 import { RoleResponseDto } from '../../dto';
 import { RoleUtils } from '../../utils';
@@ -10,10 +9,7 @@ import { RoleUtils } from '../../utils';
 export class FindRoleBySlugHandler
   implements IQueryHandler<FindRoleBySlugQuery>
 {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly roleUtils: RoleUtils,
-  ) {}
+  constructor(private readonly roleUtils: RoleUtils) {}
 
   async execute(query: FindRoleBySlugQuery): Promise<RoleResponseDto> {
     const { slug } = query;

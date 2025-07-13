@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseEnumPipe, Query } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import {
   ApiTags,
@@ -95,8 +95,13 @@ export class RolesQueryController {
     @Query('search') search?: string,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
-    @Query('sortBy') sortBy = 'createdAt',
-    @Query('sortOrder') sortOrder = 'desc',
+    @Query(
+      'sortBy',
+      new ParseEnumPipe(['createdAt', 'updatedAt', 'name', 'slug']),
+    )
+    sortBy: 'createdAt' | 'updatedAt' | 'name' | 'slug' = 'createdAt',
+    @Query('sortOrder', new ParseEnumPipe(['asc', 'desc']))
+    sortOrder: 'asc' | 'desc' = 'desc',
   ): Promise<RoleListResponseDto> {
     const filters = {
       search,
