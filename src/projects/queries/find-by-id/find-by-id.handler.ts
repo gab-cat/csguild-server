@@ -22,6 +22,6 @@ export class FindByIdHandler implements IQueryHandler<FindByIdQuery> {
       throw new NotFoundException(`Project with ID ${id} not found`);
     }
 
-    return project as any; // Type transformation will be handled by the controller
+    return project;
   }
 }

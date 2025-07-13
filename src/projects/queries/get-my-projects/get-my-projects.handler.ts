@@ -73,6 +73,6 @@ export class GetMyProjectsHandler implements IQueryHandler<GetMyProjectsQuery> {
       })),
       memberCount: project._count.members,
       applicationCount: project._count.applications,
-    })) as any;
+    })) as ProjectSummary[];
   }
 }

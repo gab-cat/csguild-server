@@ -127,7 +127,7 @@ export class FindAllProjectsHandler
     const hasPrev = page > 1;
 
     return {
-      data: data as any, // Type transformation handled by controller
+      data: data as ProjectListResponse['data'], // Type transformation handled by controller
       pagination: {
         page,
         limit,

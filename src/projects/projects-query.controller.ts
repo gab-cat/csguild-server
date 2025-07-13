@@ -20,6 +20,8 @@ import {
   GetMyApplicationsQuery,
 } from './queries';
 import { User, ProjectStatus } from '../../generated/prisma';
+import { ProjectSummary } from './types/project.types';
+import { ProjectApplication } from 'generated/prisma/client';
 
 @ApiTags('Projects')
 @Controller('projects')
@@ -162,7 +164,7 @@ export class ProjectsQueryController {
     status: 401,
     description: 'Unauthorized - valid JWT token required',
   })
-  async getMyProjects(@CurrentUser() user: User) {
+  async getMyProjects(@CurrentUser() user: User): Promise<ProjectSummary[]> {
     return this.queryBus.execute(new GetMyProjectsQuery(user.id));
   }
 
@@ -192,7 +194,9 @@ export class ProjectsQueryController {
     status: 401,
     description: 'Unauthorized - valid JWT token required',
   })
-  async getMyApplications(@CurrentUser() user: User) {
+  async getMyApplications(
+    @CurrentUser() user: User,
+  ): Promise<ProjectApplication[]> {
     return this.queryBus.execute(new GetMyApplicationsQuery(user.id));
   }
 

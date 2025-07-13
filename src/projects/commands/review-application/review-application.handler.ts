@@ -20,48 +20,12 @@ export class ReviewApplicationHandler
     const { reviewDto, reviewerId } = command;
     const { applicationId, decision } = reviewDto;
 
-    // Get application with project details
-    const application = await this.prisma.projectApplication.findUnique({
-      where: { id: applicationId },
-      include: {
-        project: {
-          include: {
-            owner: true,
-          },
-        },
-        projectRole: {
-          include: {
-            members: true,
-          },
-        },
-        user: true,
-      },
-    });
+    const application = await this.getApplicationWithDetails(applicationId);
+    this.validateApplicationExists(application, applicationId);
+    this.validateReviewerIsProjectOwner(application!, reviewerId);
+    this.validateApplicationIsPending(application!);
 
-    if (!application) {
-      throw new NotFoundException(
-        `Application with ID ${applicationId} not found`,
-      );
-    }
-
-    // Check if reviewer is the project owner
-    if (application.project.ownerId !== reviewerId) {
-      throw new ForbiddenException(
-        'Only the project owner can review applications',
-      );
-    }
-
-    // Check if application is still pending
-    if (application.status !== ApplicationStatus.PENDING) {
-      throw new BadRequestException(
-        'This application has already been reviewed',
-      );
-    }
-
-    const newStatus =
-      decision === 'APPROVED'
-        ? ApplicationStatus.APPROVED
-        : ApplicationStatus.REJECTED;
+    const newStatus = this.determineNewStatus(decision);
 
     // Use transaction for approval to ensure consistency
     return this.prisma.$transaction(async (tx) => {
@@ -103,9 +67,9 @@ export class ReviewApplicationHandler
       if (decision === 'APPROVED') {
         await tx.projectMember.create({
           data: {
-            projectId: application.projectId,
-            userId: application.userId,
-            projectRoleId: application.projectRoleId,
+            projectId: application!.projectId,
+            userId: application!.userId,
+            projectRoleId: application!.projectRoleId,
             status: MemberStatus.ACTIVE,
           },
         });
@@ -113,5 +77,60 @@ export class ReviewApplicationHandler
 
       return updatedApplication;
     });
+  }
+
+  private async getApplicationWithDetails(applicationId: string) {
+    return this.prisma.projectApplication.findUnique({
+      where: { id: applicationId },
+      include: {
+        project: {
+          include: {
+            owner: true,
+          },
+        },
+        projectRole: {
+          include: {
+            members: true,
+          },
+        },
+        user: true,
+      },
+    });
+  }
+
+  private validateApplicationExists(
+    application: any,
+    applicationId: string,
+  ): void {
+    if (!application) {
+      throw new NotFoundException(
+        `Application with ID ${applicationId} not found`,
+      );
+    }
+  }
+
+  private validateReviewerIsProjectOwner(
+    application: any,
+    reviewerId: string,
+  ): void {
+    if (application.project.ownerId !== reviewerId) {
+      throw new ForbiddenException(
+        'Only the project owner can review applications',
+      );
+    }
+  }
+
+  private validateApplicationIsPending(application: any): void {
+    if (application.status !== ApplicationStatus.PENDING) {
+      throw new BadRequestException(
+        'This application has already been reviewed',
+      );
+    }
+  }
+
+  private determineNewStatus(decision: string): ApplicationStatus {
+    return decision === 'APPROVED'
+      ? ApplicationStatus.APPROVED
+      : ApplicationStatus.REJECTED;
   }
 }

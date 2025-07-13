@@ -10,7 +10,7 @@ export class GetMyApplicationsHandler
 {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(query: GetMyApplicationsQuery) {
+  async execute(query: GetMyApplicationsQuery): Promise<any[]> {
     const { userId } = query;
 
     const applications = await this.prisma.projectApplication.findMany({

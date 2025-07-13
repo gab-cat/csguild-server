@@ -1,12 +1,13 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { UpdateProjectStatusCommand } from './update-project-status.command';
-import { ProjectEntity } from '../../types/project.types';
+import { ProjectWithOwner } from '../../types/project.types';
 import { ProjectUtils } from '../../utils';
 
 @Injectable()
@@ -19,7 +20,9 @@ export class UpdateProjectStatusHandler
     private readonly projectUtils: ProjectUtils,
   ) {}
 
-  async execute(command: UpdateProjectStatusCommand): Promise<ProjectEntity> {
+  async execute(
+    command: UpdateProjectStatusCommand,
+  ): Promise<ProjectWithOwner> {
     const { id, updateStatusDto, userId } = command;
     const { status } = updateStatusDto;
 
@@ -43,6 +46,15 @@ export class UpdateProjectStatusHandler
       data: { status },
     });
 
-    return this.projectUtils.getProjectWithDetails(updatedProject.id);
+    const projectWithDetails = await this.projectUtils.getProjectWithDetails(
+      updatedProject.id,
+    );
+
+    if (!projectWithDetails) {
+      throw new BadRequestException(
+        'Failed to retrieve updated project details',
+      );
+    }
+    return projectWithDetails;
   }
 }

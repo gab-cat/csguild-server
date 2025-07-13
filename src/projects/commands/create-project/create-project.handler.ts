@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { CreateProjectCommand } from './create-project.command';
-import { ProjectEntity } from '../../types/project.types';
+import { ProjectWithOwner } from '../../types/project.types';
 import { ProjectUtils } from '../../utils';
 import { Prisma } from '../../../../generated/prisma';
 
@@ -16,7 +16,7 @@ export class CreateProjectHandler
     private readonly projectUtils: ProjectUtils,
   ) {}
 
-  async execute(command: CreateProjectCommand): Promise<ProjectEntity> {
+  async execute(command: CreateProjectCommand): Promise<ProjectWithOwner> {
     const { createProjectDto, ownerId } = command;
     const { roles, ...projectData } = createProjectDto;
 
@@ -50,7 +50,17 @@ export class CreateProjectHandler
       });
 
       // Return project with full details using the utility function
-      return this.projectUtils.getProjectWithDetails(project.id);
+      const projectWithDetails = await this.projectUtils.getProjectWithDetails(
+        project.id,
+      );
+
+      if (!projectWithDetails) {
+        throw new BadRequestException(
+          'Failed to retrieve created project details',
+        );
+      }
+
+      return projectWithDetails;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         throw new BadRequestException(

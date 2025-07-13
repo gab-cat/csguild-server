@@ -38,7 +38,7 @@ import {
   JoinProjectCommand,
   ReviewApplicationCommand,
 } from './commands';
-import { User } from '../../generated/prisma';
+import { ProjectApplication, User } from '../../generated/prisma';
 
 @ApiTags('Projects')
 @Controller('projects')
@@ -62,10 +62,12 @@ export class ProjectsCommandController {
           dueDate: '2024-12-31T23:59:59.000Z',
           roles: [
             {
+              roleId: 'clm7x8k9e0000v8og4n2h5k7t',
               name: 'Frontend Developer',
               description: 'Responsible for UI/UX development',
               requiredSkills: ['React Native', 'TypeScript'],
               maxMembers: 2,
+              requiredExperience: 'Intermediate',
             },
           ],
         },
@@ -149,7 +151,7 @@ export class ProjectsCommandController {
     @Param('id') id: string,
     @Body() updateProjectDto: UpdateProjectDto,
     @CurrentUser() user: User,
-  ) {
+  ): Promise<ProjectDetailResponseDto> {
     return this.commandBus.execute(
       new UpdateProjectCommand(id, updateProjectDto, user.id),
     );
@@ -202,7 +204,7 @@ export class ProjectsCommandController {
     @Param('id') id: string,
     @Body() updateStatusDto: UpdateProjectStatusDto,
     @CurrentUser() user: User,
-  ) {
+  ): Promise<ProjectDetailResponseDto> {
     return this.commandBus.execute(
       new UpdateProjectStatusCommand(id, updateStatusDto, user.id),
     );
@@ -246,7 +248,10 @@ export class ProjectsCommandController {
     status: 404,
     description: 'Project not found',
   })
-  async remove(@Param('id') id: string, @CurrentUser() user: User) {
+  async remove(
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+  ): Promise<{ message: string }> {
     await this.commandBus.execute(new DeleteProjectCommand(id, user.id));
     return { message: 'Project deleted successfully' };
   }
@@ -266,8 +271,10 @@ export class ProjectsCommandController {
         summary: 'Join project application',
         value: {
           projectId: 'clm7x8k9e0000v8og4n2h5k7s',
-          roleId: 'clm7x8k9e0000v8og4n2h5k7t',
-          coverLetter: 'I am excited to contribute to this project...',
+          projectRoleId: 'clm7x8k9e0000v8og4n2h5k7t',
+          message:
+            'I have 3 years of experience with React Native and would love to contribute to this project. ' +
+            'I have previously worked on similar mobile applications and am excited about the CS Guild community.',
         },
       },
     },
@@ -319,16 +326,16 @@ export class ProjectsCommandController {
         summary: 'Approve application',
         value: {
           applicationId: 'clm7x8k9e0000v8og4n2h5k7u',
-          status: 'APPROVED',
-          reviewNotes: 'Great experience and skills match our requirements.',
+          decision: 'APPROVED',
+          reviewMessage: 'Great experience and skills match our requirements.',
         },
       },
       reject: {
         summary: 'Reject application',
         value: {
           applicationId: 'clm7x8k9e0000v8og4n2h5k7u',
-          status: 'REJECTED',
-          reviewNotes:
+          decision: 'REJECTED',
+          reviewMessage:
             'Thank you for your interest, but we are looking for different skills.',
         },
       },
@@ -367,7 +374,7 @@ export class ProjectsCommandController {
   async reviewApplication(
     @Body() reviewDto: ReviewApplicationDto,
     @CurrentUser() user: User,
-  ) {
+  ): Promise<ProjectApplication> {
     return this.commandBus.execute(
       new ReviewApplicationCommand(reviewDto, user.id),
     );

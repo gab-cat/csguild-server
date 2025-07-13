@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service';
-import { ProjectEntity } from '../types/project.types';
+import { ProjectWithOwner } from '../types/project.types';
 
 @Injectable()
 export class ProjectUtils {
@@ -121,13 +121,74 @@ export class ProjectUtils {
   /**
    * Get project with full details using the standard include structure
    */
-  async getProjectWithDetails(id: string): Promise<ProjectEntity> {
+  async getProjectWithDetails(id: string): Promise<ProjectWithOwner | null> {
     const project = await this.prisma.project.findUnique({
       where: { id },
       include: ProjectUtils.getProjectIncludeStructure(),
     });
 
-    return project as any;
+    if (!project) {
+      return null;
+    }
+
+    // Transform the data to match ProjectWithOwner structure
+    const transformedProject: ProjectWithOwner = {
+      ...project,
+      owner: {
+        id: project.owner.id,
+        username: project.owner.username,
+        firstName: project.owner.firstName || '',
+        lastName: project.owner.lastName || '',
+        imageUrl: project.owner.imageUrl || undefined,
+      },
+      roles: project.roles.map((role) => ({
+        ...role,
+        members: role.members.map((member) => ({
+          ...member,
+          user: {
+            id: member.user.id,
+            username: member.user.username,
+            firstName: member.user.firstName || '',
+            lastName: member.user.lastName || '',
+            imageUrl: member.user.imageUrl || undefined,
+          },
+          projectRole: {
+            id: role.id,
+            role: {
+              name: role.role.name,
+              slug: role.role.slug,
+            },
+          },
+        })),
+        applications: role.applications.map((application) => ({
+          ...application,
+          user: {
+            id: application.user.id,
+            username: application.user.username,
+            firstName: application.user.firstName || '',
+            lastName: application.user.lastName || '',
+            imageUrl: application.user.imageUrl || undefined,
+          },
+          projectRole: {
+            id: role.id,
+            role: {
+              name: role.role.name,
+              slug: role.role.slug,
+            },
+          },
+          reviewer: application.reviewer
+            ? {
+                id: application.reviewer.id,
+                username: application.reviewer.username,
+                firstName: application.reviewer.firstName || '',
+                lastName: application.reviewer.lastName || '',
+              }
+            : undefined,
+        })),
+      })),
+    };
+
+    return transformedProject;
   }
 
   /**
