@@ -170,6 +170,15 @@ export class AuthService {
         },
       );
 
+      const minimalUser = {
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        imageUrl: user.imageUrl || undefined,
+        signupMethod: user.signupMethod,
+      };
+
       await this.usersService.updateUser(
         { id: user.id },
         { refreshToken: await hash(refreshToken, 10) },
@@ -184,6 +193,17 @@ export class AuthService {
         httpOnly: true,
         secure: this.configService.get('NODE_ENV') === 'production',
         expires: expiresRefreshToken,
+      });
+
+      response.cookie('user', JSON.stringify(minimalUser), {
+        httpOnly: true,
+        secure: this.configService.get('NODE_ENV') === 'production',
+        expires: expiresAccessToken,
+      });
+      response.cookie('isAuthenticated', 'true', {
+        httpOnly: true,
+        secure: this.configService.get('NODE_ENV') === 'production',
+        expires: expiresAccessToken,
       });
 
       return user;
@@ -202,6 +222,17 @@ export class AuthService {
       expires: new Date(),
     });
     response.cookie('Refresh', '', {
+      httpOnly: true,
+      secure: this.configService.get('NODE_ENV') === 'production',
+      expires: new Date(),
+    });
+
+    response.cookie('user', '', {
+      httpOnly: true,
+      secure: this.configService.get('NODE_ENV') === 'production',
+      expires: new Date(),
+    });
+    response.cookie('isAuthenticated', 'false', {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') === 'production',
       expires: new Date(),

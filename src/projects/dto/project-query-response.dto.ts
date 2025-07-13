@@ -204,6 +204,12 @@ export class ProjectApplicationDto {
   })
   message?: string;
 
+  @ApiProperty({
+    example: 'Great experience and skills match our requirements perfectly.',
+    required: false,
+  })
+  reviewMessage?: string;
+
   @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
   createdAt: string;
 

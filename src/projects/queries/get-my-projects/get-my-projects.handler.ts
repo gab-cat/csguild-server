@@ -33,6 +33,7 @@ export class GetMyProjectsHandler implements IQueryHandler<GetMyProjectsQuery> {
             username: true,
             firstName: true,
             lastName: true,
+            imageUrl: true,
           },
         },
         roles: {
@@ -63,11 +64,13 @@ export class GetMyProjectsHandler implements IQueryHandler<GetMyProjectsQuery> {
     });
 
     return projects.map((project) => ({
+      id: project.id,
       ...project,
       roles: project.roles.map((projectRole) => ({
         roleSlug: projectRole.roleSlug,
         role: projectRole.role,
         maxMembers: projectRole.maxMembers,
+        requirements: projectRole.requirements || '',
         currentMembers: projectRole._count.members,
       })),
       memberCount: project._count.members,

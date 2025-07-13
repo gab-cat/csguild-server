@@ -76,6 +76,7 @@ export class FindAllProjectsHandler
             username: true,
             firstName: true,
             lastName: true,
+            imageUrl: true,
           },
         },
         roles: {
@@ -114,6 +115,7 @@ export class FindAllProjectsHandler
         roleSlug: projectRole.roleSlug,
         role: projectRole.role,
         maxMembers: projectRole.maxMembers,
+        requirements: projectRole.requirements,
         currentMembers: projectRole._count.members,
       })),
       memberCount: project._count.members,

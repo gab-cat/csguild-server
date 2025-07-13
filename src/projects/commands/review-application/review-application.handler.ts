@@ -18,7 +18,7 @@ export class ReviewApplicationHandler
 
   async execute(command: ReviewApplicationCommand) {
     const { reviewDto, reviewerSlug } = command;
-    const { applicationId, decision } = reviewDto;
+    const { applicationId, decision, reviewMessage } = reviewDto;
 
     const application = await this.getApplicationWithDetails(applicationId);
     this.validateApplicationExists(application, applicationId);
@@ -36,6 +36,7 @@ export class ReviewApplicationHandler
           status: newStatus,
           reviewedAt: new Date(),
           reviewedBySlug: reviewerSlug,
+          reviewMessage: reviewMessage,
         },
         include: {
           user: {

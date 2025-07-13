@@ -35,6 +35,7 @@ export interface ProjectWithOwner extends Project {
 
 // Lighter view for project listings
 export interface ProjectSummary {
+  id: string;
   slug: string;
   title: string;
   description: string;
@@ -46,6 +47,7 @@ export interface ProjectSummary {
     username: string;
     firstName: string;
     lastName: string;
+    imageUrl: string;
   };
   roles: {
     roleSlug: string;
@@ -54,6 +56,7 @@ export interface ProjectSummary {
       slug: string;
     };
     maxMembers?: number;
+    requirements: string;
     currentMembers: number;
   }[];
   memberCount: number;

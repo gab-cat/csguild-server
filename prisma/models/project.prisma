@@ -92,6 +92,7 @@ model ProjectApplication {
   appliedAt     DateTime         @default(now())
   reviewedAt    DateTime?
   reviewedBySlug String?
+  reviewMessage String?
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
 

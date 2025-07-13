@@ -31,7 +31,6 @@ import {
 import {
   ProjectDetailResponse,
   ProjectListResponse,
-  ProjectSummary,
 } from './types/project.types';
 import {
   ProjectListResponseDto,
@@ -159,8 +158,63 @@ export class ProjectsQueryController {
     status: 401,
     description: 'Unauthorized - valid JWT token required',
   })
-  async getMyProjects(@CurrentUser() user: User): Promise<ProjectSummary[]> {
-    return this.queryBus.execute(new GetMyProjectsQuery(user.username));
+  async getMyProjects(
+    @CurrentUser() user: User,
+  ): Promise<MyProjectsResponseDto> {
+    const projects = await this.queryBus.execute(
+      new GetMyProjectsQuery(user.username),
+    );
+
+    const ownedProjects = projects
+      .filter((project) => project.owner.username === user.username)
+      .map((project) => ({
+        id: project.id,
+        slug: project.slug,
+        title: project.title,
+        description: project.description,
+        tags: project.tags,
+        dueDate: project.dueDate?.toISOString(),
+        status: project.status,
+        createdAt: project.createdAt.toISOString(),
+        owner: project.owner,
+        roles: project.roles.map((role) => ({
+          roleSlug: role.roleSlug,
+          maxMembers: role.maxMembers || 1,
+          requirements: role.requirements,
+          role: role.role,
+        })),
+        memberCount: project.memberCount,
+        applicationCount: project.applicationCount,
+      }));
+
+    const memberProjects = projects
+      .filter((project) => project.owner.username !== user.username)
+      .map((project) => ({
+        id: project.id,
+        slug: project.slug,
+        title: project.title,
+        description: project.description,
+        tags: project.tags,
+        dueDate: project.dueDate?.toISOString(),
+        status: project.status,
+        createdAt: project.createdAt.toISOString(),
+        owner: project.owner,
+        roles: project.roles.map((role) => ({
+          roleSlug: role.roleSlug,
+          maxMembers: role.maxMembers || 1,
+          requirements: role.requirements,
+          role: role.role,
+        })),
+        memberCount: project.memberCount,
+        applicationCount: project.applicationCount,
+      }));
+
+    return {
+      statusCode: 200,
+      message: 'User projects retrieved successfully',
+      ownedProjects,
+      memberProjects,
+    };
   }
 
   @Get('my-applications')
@@ -182,8 +236,15 @@ export class ProjectsQueryController {
   })
   async getMyApplications(
     @CurrentUser() user: User,
-  ): Promise<ProjectApplication[]> {
-    return this.queryBus.execute(new GetMyApplicationsQuery(user.username));
+  ): Promise<MyApplicationsResponseDto> {
+    const applications = await this.queryBus.execute(
+      new GetMyApplicationsQuery(user.username),
+    );
+    return {
+      statusCode: 200,
+      message: 'Applications retrieved successfully',
+      applications: applications as unknown as ProjectApplicationDto[],
+    };
   }
 
   @Get(':slug')
