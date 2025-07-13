@@ -60,7 +60,7 @@ export class LogGateway
     } catch (error) {
       this.loggerService.warn(
         `Unauthorized log viewer connection attempt: ${client.id}`,
-        { error: error.message },
+        { error: (error as Error).message },
         'LogGateway',
       );
 
@@ -112,7 +112,7 @@ export class LogGateway
       } catch (error) {
         this.loggerService.debug(
           'JWT authentication failed, trying basic auth',
-          { error: error.message },
+          { error: (error as Error).message },
           'LogGateway',
         );
       }
@@ -133,7 +133,7 @@ export class LogGateway
         } catch (error) {
           this.loggerService.debug(
             'Basic authentication failed',
-            { email, error: error.message },
+            { email, error: (error as Error).message },
             'LogGateway',
           );
         }

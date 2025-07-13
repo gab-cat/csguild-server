@@ -1,0 +1,129 @@
+model UserRole {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users       User[]
+  projects    ProjectRole[]
+
+  @@map("user_roles")
+  @@index([slug])
+}
+
+model Project {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String      @unique
+  description String
+  tags        String[]    @default([])
+  dueDate     DateTime?
+  status      ProjectStatus @default(OPEN)
+  ownerSlug   String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  owner       User        @relation("ProjectOwner", fields: [ownerSlug], references: [username], onDelete: Cascade)
+  members     ProjectMember[]
+  roles       ProjectRole[]
+  applications ProjectApplication[]
+
+  @@map("projects")
+  @@index([slug])
+  @@index([ownerSlug])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model ProjectRole {
+  id          String    @id @default(cuid())
+  projectSlug String
+  roleSlug    String
+  maxMembers  Int?      @default(1)
+  requirements String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  project     Project   @relation(fields: [projectSlug], references: [slug], onDelete: Cascade)
+  role        UserRole  @relation(fields: [roleSlug], references: [slug], onDelete: Cascade)
+  members     ProjectMember[]
+  applications ProjectApplication[]
+
+  @@unique([projectSlug, roleSlug])
+  @@map("project_roles")
+  @@index([projectSlug])
+  @@index([roleSlug])
+}
+
+model ProjectMember {
+  id            String      @id @default(cuid())
+  projectSlug   String
+  userSlug      String
+  roleSlug      String
+  status        MemberStatus @default(ACTIVE)
+  joinedAt      DateTime    @default(now())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  project       Project     @relation(fields: [projectSlug], references: [slug], onDelete: Cascade)
+  user          User        @relation("ProjectMember", fields: [userSlug], references: [username], onDelete: Cascade)
+  projectRole   ProjectRole @relation(fields: [projectSlug, roleSlug], references: [projectSlug, roleSlug], onDelete: Cascade)
+
+  @@unique([projectSlug, userSlug, roleSlug])
+  @@map("project_members")
+  @@index([projectSlug])
+  @@index([userSlug])
+  @@index([roleSlug])
+}
+
+model ProjectApplication {
+  id            String           @id @default(cuid())
+  projectSlug   String
+  userSlug      String
+  roleSlug      String
+  message       String?
+  status        ApplicationStatus @default(PENDING)
+  appliedAt     DateTime         @default(now())
+  reviewedAt    DateTime?
+  reviewedBySlug String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  // Relations
+  project       Project          @relation(fields: [projectSlug], references: [slug], onDelete: Cascade)
+  user          User             @relation("ProjectApplication", fields: [userSlug], references: [username], onDelete: Cascade)
+  projectRole   ProjectRole      @relation(fields: [projectSlug, roleSlug], references: [projectSlug, roleSlug], onDelete: Cascade)
+  reviewer      User?            @relation("ProjectApplicationReviewer", fields: [reviewedBySlug], references: [username])
+
+  @@unique([projectSlug, userSlug, roleSlug])
+  @@map("project_applications")
+  @@index([projectSlug])
+  @@index([userSlug])
+  @@index([roleSlug])
+  @@index([status])
+}
+
+enum ProjectStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MemberStatus {
+  ACTIVE
+  INACTIVE
+  REMOVED
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}

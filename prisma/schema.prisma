@@ -8,6 +8,7 @@ generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  previewFeatures = ["queryCompiler", "driverAdapters"]
 }
 
 datasource db {
@@ -30,6 +31,7 @@ model User {
   passwordResetExpiresAt DateTime?
   rfidId                 String?        @unique
   roles                  Role[]
+  userRoles              UserRole[]
   refreshToken           String?        @db.Text
   imageUrl               String?
   createdAt              DateTime       @default(now())
@@ -40,7 +42,12 @@ model User {
   // Relations
   facilityUsages         FacilityUsage[]
   currentFacility        Facility?      @relation(fields: [currentFacilityId], references: [id])
-
+  
+  // Project relations
+  ownedProjects          Project[]      @relation("ProjectOwner")
+  projectMemberships     ProjectMember[] @relation("ProjectMember")
+  projectApplications    ProjectApplication[] @relation("ProjectApplication")
+  reviewedApplications   ProjectApplication[] @relation("ProjectApplicationReviewer")
 
   @@map("users")
   @@index([email])
@@ -102,3 +109,4 @@ model FacilityUsage {
   @@index([isActive])
   @@index([userId, facilityId, isActive])
 }
+

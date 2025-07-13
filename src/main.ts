@@ -14,11 +14,10 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'https://csguild.tech',
-      'http://localhost:3001',
-    ],
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? ['https://csguild.tech']
+        : ['http://localhost:3000', 'http://localhost:3001'],
     credentials: true,
   });
 

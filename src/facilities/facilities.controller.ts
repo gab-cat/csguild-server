@@ -351,7 +351,7 @@ export class FacilitiesController {
       result.action === 'time-out'
         ? this.facilitiesService.calculateSessionDuration(
             result.session.timeIn,
-            result.session.timeOut,
+            result.session.timeOut ?? undefined,
           )
         : null;
 
@@ -376,24 +376,24 @@ export class FacilitiesController {
       details: actionDetails,
       student: {
         id: result.session.user.id,
-        firstName: result.session.user.firstName || '',
-        lastName: result.session.user.lastName || '',
-        username: result.session.user.username,
-        email: result.session.user.email,
-        imageUrl: result.session.user.imageUrl || '',
-        course: result.session.user.course || '',
+        firstName: result.session.user.firstName ?? '',
+        lastName: result.session.user.lastName ?? '',
+        username: result.session.user.username ?? '',
+        email: result.session.user.email ?? '',
+        imageUrl: result.session.user.imageUrl ?? '',
+        course: result.session.user.course ?? '',
       },
       facility: {
         id: result.session.facility.id,
         name: result.session.facility.name,
-        location: result.session.facility.location,
+        location: result.session.facility.location ?? undefined,
       },
       session: {
         id: result.session.id,
         timeIn: result.session.timeIn,
-        timeOut: result.session.timeOut,
+        timeOut: result.session.timeOut ?? undefined,
         isActive: result.session.isActive,
-        durationMinutes,
+        durationMinutes: durationMinutes ?? undefined,
       },
     };
   }
@@ -525,12 +525,12 @@ export class FacilitiesController {
       facility: {
         id: session.facilityId,
         name: '', // Will be filled by service if needed
-        location: undefined,
+        location: '',
       },
       timeIn: session.timeIn,
       timeOut: session.timeOut,
       isActive: session.isActive,
-      durationMinutes: null,
+      durationMinutes: 0,
     }));
   }
 
@@ -627,7 +627,7 @@ export class FacilitiesController {
         facility: {
           id: session.facilityId,
           name: '', // Will be filled by service if needed
-          location: undefined,
+          location: '',
         },
         timeIn: session.timeIn,
         timeOut: session.timeOut,

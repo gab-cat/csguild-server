@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CronService } from './cron.service';
-import { UsersModule } from '../users/users.module';
-import { LoggerModule } from '../common/logger/logger.module';
+import { UsersModule } from '../../users/users.module';
+import { LoggerModule } from '../logger/logger.module';
 
 @Module({
   imports: [UsersModule, LoggerModule],

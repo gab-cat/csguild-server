@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "strict": true,
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -13,13 +14,14 @@
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
     "paths": {
-      "generated/prisma/client": ["./generated/prisma/index"]
+      "generated/prisma/client": ["./generated/prisma/index"],
+      "@/prisma/client": ["./generated/prisma/index"]
     },
-    "esModuleInterop": true,
+    "esModuleInterop": true
   }
 }
