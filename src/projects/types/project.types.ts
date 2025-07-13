@@ -21,7 +21,6 @@ export interface ProjectEntity extends Project {
 // Project with owner details for display
 export interface ProjectWithOwner extends Project {
   owner: {
-    id: string;
     username: string;
     firstName: string;
     lastName: string;
@@ -36,7 +35,7 @@ export interface ProjectWithOwner extends Project {
 
 // Lighter view for project listings
 export interface ProjectSummary {
-  id: string;
+  slug: string;
   title: string;
   description: string;
   tags: string[];
@@ -44,13 +43,12 @@ export interface ProjectSummary {
   status: ProjectStatus;
   createdAt: Date;
   owner: {
-    id: string;
     username: string;
     firstName: string;
     lastName: string;
   };
   roles: {
-    id: string;
+    roleSlug: string;
     role: {
       name: string;
       slug: string;
@@ -76,14 +74,13 @@ export interface ProjectRoleWithDetails extends ProjectRole {
 // Project member with user details
 export interface ProjectMemberWithUser extends ProjectMember {
   user: {
-    id: string;
     username: string;
     firstName: string;
     lastName: string;
     imageUrl?: string;
   };
   projectRole: {
-    id: string;
+    roleSlug: string;
     role: {
       name: string;
       slug: string;
@@ -94,21 +91,19 @@ export interface ProjectMemberWithUser extends ProjectMember {
 // Project application with user details
 export interface ProjectApplicationWithUser extends ProjectApplication {
   user: {
-    id: string;
     username: string;
     firstName: string;
     lastName: string;
     imageUrl?: string;
   };
   projectRole: {
-    id: string;
+    roleSlug: string;
     role: {
       name: string;
       slug: string;
     };
   };
   reviewer?: {
-    id: string;
     username: string;
     firstName: string;
     lastName: string;
@@ -117,9 +112,8 @@ export interface ProjectApplicationWithUser extends ProjectApplication {
 
 // User role with basic info
 export interface UserRoleBasic {
-  id: string;
-  name: string;
   slug: string;
+  name: string;
   description?: string;
 }
 
@@ -130,7 +124,7 @@ export { ProjectStatus, ApplicationStatus, MemberStatus };
 export interface ProjectFilters {
   status?: ProjectStatus;
   tags?: string[];
-  ownerId?: string;
+  ownerSlug?: string;
   search?: string;
   dueDate?: {
     from?: Date;

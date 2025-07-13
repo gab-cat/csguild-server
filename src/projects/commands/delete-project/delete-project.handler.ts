@@ -15,18 +15,18 @@ export class DeleteProjectHandler
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(command: DeleteProjectCommand): Promise<void> {
-    const { id, userId } = command;
+    const { slug, userSlug } = command;
 
     // Check if project exists and user is owner
     const existingProject = await this.prisma.project.findUnique({
-      where: { id },
+      where: { slug },
     });
 
     if (!existingProject) {
-      throw new NotFoundException(`Project with ID ${id} not found`);
+      throw new NotFoundException(`Project with slug ${slug} not found`);
     }
 
-    if (existingProject.ownerId !== userId) {
+    if (existingProject.ownerSlug !== userSlug) {
       throw new ForbiddenException(
         'Only the project owner can delete this project',
       );
@@ -34,7 +34,7 @@ export class DeleteProjectHandler
 
     // Delete project (cascade will handle related records)
     await this.prisma.project.delete({
-      where: { id },
+      where: { slug },
     });
   }
 }

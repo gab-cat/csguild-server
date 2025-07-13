@@ -1,25 +1,25 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
-import { FindByIdQuery } from './find-by-id.query';
+import { FindBySlugQuery } from './find-by-slug.query';
 import { ProjectDetailResponse } from '../../types/project.types';
 import { ProjectUtils } from '../../utils';
 
 @Injectable()
-@QueryHandler(FindByIdQuery)
-export class FindByIdHandler implements IQueryHandler<FindByIdQuery> {
+@QueryHandler(FindBySlugQuery)
+export class FindBySlugHandler implements IQueryHandler<FindBySlugQuery> {
   constructor(
     private readonly prisma: PrismaService,
     private readonly projectUtils: ProjectUtils,
   ) {}
 
-  async execute(query: FindByIdQuery): Promise<ProjectDetailResponse> {
-    const { id } = query;
+  async execute(query: FindBySlugQuery): Promise<ProjectDetailResponse> {
+    const { slug } = query;
 
-    const project = await this.projectUtils.getProjectWithDetails(id);
+    const project = await this.projectUtils.getProjectWithDetails(slug);
 
     if (!project) {
-      throw new NotFoundException(`Project with ID ${id} not found`);
+      throw new NotFoundException(`Project with slug ${slug} not found`);
     }
 
     return project;

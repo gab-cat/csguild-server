@@ -11,12 +11,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateProjectRoleDto {
   @ApiProperty({
-    description: 'User role ID for this project position',
-    example: 'clm7x8k9e0000v8og4n2h5k7s',
+    description: 'User role slug for this project position',
+    example: 'frontend-developer',
   })
   @IsString()
   @IsNotEmpty()
-  roleId: string;
+  roleSlug: string;
 
   @ApiProperty({
     description: 'Maximum number of members for this role',

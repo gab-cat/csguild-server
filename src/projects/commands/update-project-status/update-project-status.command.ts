@@ -1,9 +1,13 @@
 import { UpdateProjectStatusDto } from '../../dto';
+import { Command } from '@nestjs/cqrs';
+import { Project } from '../../../../generated/prisma';
 
-export class UpdateProjectStatusCommand {
+export class UpdateProjectStatusCommand extends Command<Project> {
   constructor(
-    public readonly id: string,
+    public readonly slug: string,
     public readonly updateStatusDto: UpdateProjectStatusDto,
-    public readonly userId: string,
-  ) {}
+    public readonly userSlug: string,
+  ) {
+    super();
+  }
 }

@@ -2,9 +2,9 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { CreateProjectCommand } from './create-project.command';
-import { ProjectWithOwner } from '../../types/project.types';
 import { ProjectUtils } from '../../utils';
-import { Prisma } from '../../../../generated/prisma';
+import { Prisma, Project } from '../../../../generated/prisma';
+import { UtilsService } from 'src/common/utils/utils.service';
 
 @Injectable()
 @CommandHandler(CreateProjectCommand)
@@ -14,33 +14,38 @@ export class CreateProjectHandler
   constructor(
     private readonly prisma: PrismaService,
     private readonly projectUtils: ProjectUtils,
+    private readonly utilsService: UtilsService,
   ) {}
 
-  async execute(command: CreateProjectCommand): Promise<ProjectWithOwner> {
-    const { createProjectDto, ownerId } = command;
+  async execute(command: CreateProjectCommand): Promise<Project> {
+    const { createProjectDto, ownerSlug } = command;
     const { roles, ...projectData } = createProjectDto;
 
-    // Validate that all role IDs exist using the utility function
-    const roleIds = roles.map((role) => role.roleId);
-    await this.projectUtils.validateRoleIds(roleIds);
+    // Generate slug from title
+    const slug = this.utilsService.generateSlug(projectData.title);
+
+    // Validate that all role slugs exist using the utility function
+    const roleSlugs = roles.map((role) => role.roleSlug);
+    await this.projectUtils.validateRoleSlugs(roleSlugs);
 
     try {
       // Create project with roles in a transaction
-      const project = await this.prisma.$transaction(async (tx) => {
+      return await this.prisma.$transaction(async (tx) => {
         // Create the project
         const createdProject = await tx.project.create({
           data: {
             ...projectData,
+            slug,
             dueDate: projectData.dueDate ? new Date(projectData.dueDate) : null,
-            ownerId,
+            ownerSlug,
           },
         });
 
         // Create project roles
         await tx.projectRole.createMany({
           data: roles.map((role) => ({
-            projectId: createdProject.id,
-            roleId: role.roleId,
+            projectSlug: createdProject.slug,
+            roleSlug: role.roleSlug,
             maxMembers: role.maxMembers,
             requirements: role.requirements,
           })),
@@ -48,19 +53,6 @@ export class CreateProjectHandler
 
         return createdProject;
       });
-
-      // Return project with full details using the utility function
-      const projectWithDetails = await this.projectUtils.getProjectWithDetails(
-        project.id,
-      );
-
-      if (!projectWithDetails) {
-        throw new BadRequestException(
-          'Failed to retrieve created project details',
-        );
-      }
-
-      return projectWithDetails;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         throw new BadRequestException(

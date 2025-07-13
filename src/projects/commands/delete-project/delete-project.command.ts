@@ -1,6 +1,10 @@
-export class DeleteProjectCommand {
+import { Command } from '@nestjs/cqrs';
+
+export class DeleteProjectCommand extends Command<void> {
   constructor(
-    public readonly id: string,
-    public readonly userId: string,
-  ) {}
+    public readonly slug: string,
+    public readonly userSlug: string,
+  ) {
+    super();
+  }
 }

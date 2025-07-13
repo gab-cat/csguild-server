@@ -11,16 +11,16 @@ export class GetMyProjectsHandler implements IQueryHandler<GetMyProjectsQuery> {
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(query: GetMyProjectsQuery): Promise<ProjectSummary[]> {
-    const { userId } = query;
+    const { userSlug } = query;
 
     const projects = await this.prisma.project.findMany({
       where: {
         OR: [
-          { ownerId: userId },
+          { ownerSlug: userSlug },
           {
             members: {
               some: {
-                userId,
+                userSlug,
                 status: MemberStatus.ACTIVE,
               },
             },
@@ -30,7 +30,6 @@ export class GetMyProjectsHandler implements IQueryHandler<GetMyProjectsQuery> {
       include: {
         owner: {
           select: {
-            id: true,
             username: true,
             firstName: true,
             lastName: true,
@@ -66,7 +65,7 @@ export class GetMyProjectsHandler implements IQueryHandler<GetMyProjectsQuery> {
     return projects.map((project) => ({
       ...project,
       roles: project.roles.map((projectRole) => ({
-        id: projectRole.id,
+        roleSlug: projectRole.roleSlug,
         role: projectRole.role,
         maxMembers: projectRole.maxMembers,
         currentMembers: projectRole._count.members,

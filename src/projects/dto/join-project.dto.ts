@@ -1,28 +1,22 @@
-import {
-  IsString,
-  IsOptional,
-  IsUUID,
-  IsNotEmpty,
-  MaxLength,
-} from 'class-validator';
+import { IsString, IsOptional, IsNotEmpty, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class JoinProjectDto {
   @ApiProperty({
-    description: 'Project ID to join',
-    example: 'clm7x8k9e0000v8og4n2h5k7s',
+    description: 'Project slug to join',
+    example: 'cs-guild-mobile-app',
   })
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
-  projectId: string;
+  projectSlug: string;
 
   @ApiProperty({
-    description: 'Project role ID to apply for',
-    example: 'clm7x8k9e0000v8og4n2h5k7t',
+    description: 'Role slug to apply for',
+    example: 'frontend-developer',
   })
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
-  projectRoleId: string;
+  roleSlug: string;
 
   @ApiProperty({
     description: 'Optional message to the project owner',

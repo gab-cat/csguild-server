@@ -7,27 +7,34 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { JoinProjectCommand } from './join-project.command';
-import { ProjectStatus, ApplicationStatus } from '../../../../generated/prisma';
+import {
+  ProjectStatus,
+  ApplicationStatus,
+  ProjectApplication,
+} from '../../../../generated/prisma';
 
 @Injectable()
 @CommandHandler(JoinProjectCommand)
 export class JoinProjectHandler implements ICommandHandler<JoinProjectCommand> {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(command: JoinProjectCommand) {
-    const { joinProjectDto, userId } = command;
-    const { projectId, projectRoleId, message } = joinProjectDto;
+  async execute(command: JoinProjectCommand): Promise<ProjectApplication> {
+    const { joinProjectDto, userSlug } = command;
+    const { projectSlug, roleSlug, message } = joinProjectDto;
 
     // Check if project exists and is open
     const project = await this.prisma.project.findUnique({
-      where: { id: projectId },
+      where: { slug: projectSlug },
       include: {
         roles: {
-          where: { id: projectRoleId },
+          where: {
+            projectSlug: projectSlug,
+            roleSlug: roleSlug,
+          },
           include: {
             members: true,
             applications: {
-              where: { userId },
+              where: { userSlug },
             },
           },
         },
@@ -35,7 +42,7 @@ export class JoinProjectHandler implements ICommandHandler<JoinProjectCommand> {
     });
 
     if (!project) {
-      throw new NotFoundException(`Project with ID ${projectId} not found`);
+      throw new NotFoundException(`Project with slug ${projectSlug} not found`);
     }
 
     if (project.status !== ProjectStatus.OPEN) {
@@ -47,7 +54,7 @@ export class JoinProjectHandler implements ICommandHandler<JoinProjectCommand> {
     const projectRole = project.roles[0];
     if (!projectRole) {
       throw new NotFoundException(
-        `Project role with ID ${projectRoleId} not found`,
+        `Project role with slug ${roleSlug} not found`,
       );
     }
 
@@ -58,7 +65,7 @@ export class JoinProjectHandler implements ICommandHandler<JoinProjectCommand> {
 
     // Check if user is already a member
     const existingMember = projectRole.members.find(
-      (member) => member.userId === userId,
+      (member) => member.userSlug === userSlug,
     );
     if (existingMember) {
       throw new ConflictException(
@@ -75,32 +82,14 @@ export class JoinProjectHandler implements ICommandHandler<JoinProjectCommand> {
     }
 
     // Create application
-    const application = await this.prisma.projectApplication.create({
+    return this.prisma.projectApplication.create({
       data: {
-        projectId,
-        userId,
-        projectRoleId,
+        projectSlug,
+        userSlug,
+        roleSlug,
         message,
         status: ApplicationStatus.PENDING,
       },
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            firstName: true,
-            lastName: true,
-            imageUrl: true,
-          },
-        },
-        projectRole: {
-          include: {
-            role: true,
-          },
-        },
-      },
     });
-
-    return application;
   }
 }

@@ -21,7 +21,7 @@ export class FindAllProjectsHandler
       sortOrder = 'desc',
     } = pagination;
 
-    const { status, tags, search, ownerId, dueDate } = filters;
+    const { status, tags, search, ownerSlug, dueDate } = filters;
 
     // Build where clause
     const where: Prisma.ProjectWhereInput = {};
@@ -30,8 +30,8 @@ export class FindAllProjectsHandler
       where.status = status;
     }
 
-    if (ownerId) {
-      where.ownerId = ownerId;
+    if (ownerSlug) {
+      where.ownerSlug = ownerSlug;
     }
 
     if (tags && tags.length > 0) {
@@ -73,7 +73,6 @@ export class FindAllProjectsHandler
       include: {
         owner: {
           select: {
-            id: true,
             username: true,
             firstName: true,
             lastName: true,
@@ -112,7 +111,7 @@ export class FindAllProjectsHandler
     const data = projects.map((project) => ({
       ...project,
       roles: project.roles.map((projectRole) => ({
-        id: projectRole.id,
+        roleSlug: projectRole.roleSlug,
         role: projectRole.role,
         maxMembers: projectRole.maxMembers,
         currentMembers: projectRole._count.members,

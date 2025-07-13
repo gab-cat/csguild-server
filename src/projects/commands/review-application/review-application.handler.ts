@@ -17,12 +17,12 @@ export class ReviewApplicationHandler
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(command: ReviewApplicationCommand) {
-    const { reviewDto, reviewerId } = command;
+    const { reviewDto, reviewerSlug } = command;
     const { applicationId, decision } = reviewDto;
 
     const application = await this.getApplicationWithDetails(applicationId);
     this.validateApplicationExists(application, applicationId);
-    this.validateReviewerIsProjectOwner(application!, reviewerId);
+    this.validateReviewerIsProjectOwner(application!, reviewerSlug);
     this.validateApplicationIsPending(application!);
 
     const newStatus = this.determineNewStatus(decision);
@@ -35,12 +35,11 @@ export class ReviewApplicationHandler
         data: {
           status: newStatus,
           reviewedAt: new Date(),
-          reviewedBy: reviewerId,
+          reviewedBySlug: reviewerSlug,
         },
         include: {
           user: {
             select: {
-              id: true,
               username: true,
               firstName: true,
               lastName: true,
@@ -54,7 +53,6 @@ export class ReviewApplicationHandler
           },
           reviewer: {
             select: {
-              id: true,
               username: true,
               firstName: true,
               lastName: true,
@@ -67,9 +65,9 @@ export class ReviewApplicationHandler
       if (decision === 'APPROVED') {
         await tx.projectMember.create({
           data: {
-            projectId: application!.projectId,
-            userId: application!.userId,
-            projectRoleId: application!.projectRoleId,
+            projectSlug: application!.projectSlug,
+            userSlug: application!.userSlug,
+            roleSlug: application!.roleSlug,
             status: MemberStatus.ACTIVE,
           },
         });
@@ -111,9 +109,9 @@ export class ReviewApplicationHandler
 
   private validateReviewerIsProjectOwner(
     application: any,
-    reviewerId: string,
+    reviewerSlug: string,
   ): void {
-    if (application.project.ownerId !== reviewerId) {
+    if (application.project.ownerSlug !== reviewerSlug) {
       throw new ForbiddenException(
         'Only the project owner can review applications',
       );

@@ -8,20 +8,39 @@ import {
   ApiQuery,
   ApiParam,
 } from '@nestjs/swagger';
-import { ProjectListResponseDto, ProjectDetailResponseDto } from './dto';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 // Queries
 import {
   FindAllProjectsQuery,
-  FindByIdQuery,
   GetMyProjectsQuery,
   GetMyApplicationsQuery,
+  FindBySlugQuery,
+  GetProjectApplicationsQuery,
+  GetProjectMembersQuery,
+  GetProjectBasicInfoQuery,
 } from './queries';
-import { User, ProjectStatus } from '../../generated/prisma';
-import { ProjectSummary } from './types/project.types';
-import { ProjectApplication } from 'generated/prisma/client';
+import {
+  User,
+  ProjectStatus,
+  Project,
+  ProjectApplication,
+  ProjectMember,
+} from '../../generated/prisma';
+import {
+  ProjectDetailResponse,
+  ProjectListResponse,
+  ProjectSummary,
+} from './types/project.types';
+import {
+  ProjectListResponseDto,
+  ProjectDetailDto,
+  ProjectApplicationDto,
+  ProjectMemberDto,
+  MyProjectsResponseDto,
+  MyApplicationsResponseDto,
+} from './dto';
 
 @ApiTags('Projects')
 @Controller('projects')
@@ -39,50 +58,6 @@ export class ProjectsQueryController {
     status: 200,
     description: 'Projects retrieved successfully',
     type: ProjectListResponseDto,
-    examples: {
-      success: {
-        summary: 'Successful response',
-        value: {
-          message: 'Projects retrieved successfully',
-          statusCode: 200,
-          data: [
-            {
-              id: 'clm7x8k9e0000v8og4n2h5k7s',
-              title: 'CS Guild Mobile App Development',
-              description:
-                'We are looking for developers to help build a mobile application for the CS Guild community.',
-              tags: ['mobile', 'react-native', 'typescript'],
-              dueDate: '2024-12-31T23:59:59.000Z',
-              status: 'OPEN',
-              createdAt: '2024-01-01T00:00:00.000Z',
-              owner: {
-                id: 'clm7x8k9e0000v8og4n2h5k7o',
-                firstName: 'John',
-                lastName: 'Doe',
-              },
-              roles: [
-                {
-                  id: 'clm7x8k9e0000v8og4n2h5k7r',
-                  maxMembers: 2,
-                  requirements: 'Experience with React Native',
-                  role: {
-                    id: 'clm7x8k9e0000v8og4n2h5k7t',
-                    name: 'Frontend Developer',
-                    slug: 'frontend-developer',
-                  },
-                },
-              ],
-              memberCount: 1,
-              applicationCount: 3,
-            },
-          ],
-          total: 1,
-          page: 1,
-          limit: 10,
-          totalPages: 1,
-        },
-      },
-    },
   })
   @ApiQuery({
     name: 'status',
@@ -106,10 +81,10 @@ export class ProjectsQueryController {
     type: String,
   })
   @ApiQuery({
-    name: 'ownerId',
+    name: 'ownerSlug',
     required: false,
-    description: 'Filter by project owner ID',
-    example: 'clm7x8k9e0000v8og4n2h5k7s',
+    description: 'Filter by project owner username',
+    example: 'johndoe',
     type: String,
   })
   @ApiQuery({
@@ -144,17 +119,17 @@ export class ProjectsQueryController {
     @Query('status') status?: string,
     @Query('tags') tags?: string,
     @Query('search') search?: string,
-    @Query('ownerId') ownerId?: string,
+    @Query('ownerSlug') ownerSlug?: string,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
     @Query('sortBy') sortBy = 'createdAt',
     @Query('sortOrder') sortOrder = 'desc',
-  ): Promise<ProjectListResponseDto> {
+  ): Promise<ProjectListResponse> {
     const filters = {
       status: status as ProjectStatus, // Will be validated by Prisma
       tags: tags ? tags.split(',') : undefined,
       search,
-      ownerId,
+      ownerSlug,
     };
 
     const pagination = {
@@ -178,40 +153,14 @@ export class ProjectsQueryController {
   @ApiResponse({
     status: 200,
     description: 'User projects retrieved successfully',
-    examples: {
-      success: {
-        summary: 'Successful response',
-        value: {
-          message: 'User projects retrieved successfully',
-          statusCode: 200,
-          ownedProjects: [
-            {
-              id: 'clm7x8k9e0000v8og4n2h5k7s',
-              title: 'My Project',
-              status: 'IN_PROGRESS',
-              memberCount: 3,
-              applicationCount: 2,
-            },
-          ],
-          memberProjects: [
-            {
-              id: 'clm7x8k9e0000v8og4n2h5k7t',
-              title: 'Collaborative Project',
-              status: 'OPEN',
-              memberCount: 5,
-              applicationCount: 1,
-            },
-          ],
-        },
-      },
-    },
+    type: MyProjectsResponseDto,
   })
   @ApiResponse({
     status: 401,
     description: 'Unauthorized - valid JWT token required',
   })
   async getMyProjects(@CurrentUser() user: User): Promise<ProjectSummary[]> {
-    return this.queryBus.execute(new GetMyProjectsQuery(user.id));
+    return this.queryBus.execute(new GetMyProjectsQuery(user.username));
   }
 
   @Get('my-applications')
@@ -225,32 +174,7 @@ export class ProjectsQueryController {
   @ApiResponse({
     status: 200,
     description: 'User applications retrieved successfully',
-    examples: {
-      success: {
-        summary: 'Successful response',
-        value: {
-          message: 'User applications retrieved successfully',
-          statusCode: 200,
-          applications: [
-            {
-              id: 'clm7x8k9e0000v8og4n2h5k7a',
-              message: 'I would love to contribute to this project.',
-              status: 'PENDING',
-              createdAt: '2024-01-01T00:00:00.000Z',
-              project: {
-                id: 'clm7x8k9e0000v8og4n2h5k7s',
-                title: 'CS Guild Mobile App',
-              },
-              projectRole: {
-                role: {
-                  name: 'Frontend Developer',
-                },
-              },
-            },
-          ],
-        },
-      },
-    },
+    type: MyApplicationsResponseDto,
   })
   @ApiResponse({
     status: 401,
@@ -259,24 +183,24 @@ export class ProjectsQueryController {
   async getMyApplications(
     @CurrentUser() user: User,
   ): Promise<ProjectApplication[]> {
-    return this.queryBus.execute(new GetMyApplicationsQuery(user.id));
+    return this.queryBus.execute(new GetMyApplicationsQuery(user.username));
   }
 
-  @Get(':id')
+  @Get(':slug')
   @ApiOperation({
-    summary: 'Get a project by ID',
+    summary: 'Get a project by slug',
     description: 'Retrieve detailed information about a specific project',
   })
   @ApiParam({
-    name: 'id',
-    description: 'Project ID',
-    example: 'clm7x8k9e0000v8og4n2h5k7s',
+    name: 'slug',
+    description: 'Project slug',
+    example: 'cs-guild-mobile-app',
     type: String,
   })
   @ApiResponse({
     status: 200,
     description: 'Project retrieved successfully',
-    type: ProjectDetailResponseDto,
+    type: ProjectDetailDto,
   })
   @ApiResponse({
     status: 404,
@@ -291,7 +215,104 @@ export class ProjectsQueryController {
       },
     },
   })
-  async findOne(@Param('id') id: string): Promise<ProjectDetailResponseDto> {
-    return this.queryBus.execute(new FindByIdQuery(id));
+  async findOne(@Param('slug') slug: string): Promise<ProjectDetailResponse> {
+    return this.queryBus.execute(new FindBySlugQuery(slug));
+  }
+
+  @Get(':slug/applications')
+  @ApiOperation({
+    summary: 'Get project applications',
+    description:
+      'Retrieve all applications for a specific project, optionally filtered by role',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Project slug',
+    example: 'cs-guild-mobile-app',
+    type: String,
+  })
+  @ApiQuery({
+    name: 'roleSlug',
+    required: false,
+    description: 'Filter applications by role slug',
+    example: 'frontend-developer',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Project applications retrieved successfully',
+    type: [ProjectApplicationDto],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Project not found',
+  })
+  async getProjectApplications(
+    @Param('slug') slug: string,
+    @Query('roleSlug') roleSlug?: string,
+  ): Promise<ProjectApplication[]> {
+    return this.queryBus.execute(
+      new GetProjectApplicationsQuery(slug, roleSlug),
+    );
+  }
+
+  @Get(':slug/members')
+  @ApiOperation({
+    summary: 'Get project members',
+    description:
+      'Retrieve all active members for a specific project, optionally filtered by role',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Project slug',
+    example: 'cs-guild-mobile-app',
+    type: String,
+  })
+  @ApiQuery({
+    name: 'roleSlug',
+    required: false,
+    description: 'Filter members by role slug',
+    example: 'frontend-developer',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Project members retrieved successfully',
+    type: [ProjectMemberDto],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Project not found',
+  })
+  async getProjectMembers(
+    @Param('slug') slug: string,
+    @Query('roleSlug') roleSlug?: string,
+  ): Promise<ProjectMember[]> {
+    return this.queryBus.execute(new GetProjectMembersQuery(slug, roleSlug));
+  }
+
+  @Get(':slug/basic')
+  @ApiOperation({
+    summary: 'Get basic project information',
+    description:
+      'Retrieve basic project information without members or applications',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Project slug',
+    example: 'cs-guild-mobile-app',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Basic project information retrieved successfully',
+    type: ProjectDetailDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Project not found',
+  })
+  async getProjectBasic(@Param('slug') slug: string): Promise<Project> {
+    return this.queryBus.execute(new GetProjectBasicInfoQuery(slug));
   }
 }

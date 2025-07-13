@@ -22,9 +22,12 @@ import {
   UpdateProjectDto,
   UpdateProjectStatusDto,
   ReviewApplicationDto,
-  CreateProjectResponseDto,
+  ProjectCreateResponseDto,
+  ProjectUpdateResponseDto,
+  ProjectStatusUpdateResponseDto,
+  ProjectDeleteResponseDto,
   JoinProjectResponseDto,
-  ProjectDetailResponseDto,
+  ReviewApplicationResponseDto,
 } from './dto';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -38,7 +41,9 @@ import {
   JoinProjectCommand,
   ReviewApplicationCommand,
 } from './commands';
-import { ProjectApplication, User } from '../../generated/prisma';
+
+// Queries
+import { User } from '../../generated/prisma';
 
 @ApiTags('Projects')
 @Controller('projects')
@@ -64,13 +69,13 @@ export class ProjectsCommandController {
           dueDate: '2024-12-31T23:59:59.000Z',
           roles: [
             {
-              roleId: 'clm7x8k9e0000v8og4n2h5k7t',
+              roleSlug: 'frontend-developer',
               maxMembers: 2,
               requirements:
                 'Experience with React Native and TypeScript required',
             },
             {
-              roleId: 'clm7x8k9e0000v8og4n2h5k7u',
+              roleSlug: 'ui-ux-designer',
               maxMembers: 1,
               requirements: 'UI/UX design experience with mobile applications',
             },
@@ -82,7 +87,7 @@ export class ProjectsCommandController {
   @ApiResponse({
     status: 201,
     description: 'Project created successfully',
-    type: CreateProjectResponseDto,
+    type: ProjectCreateResponseDto,
   })
   @ApiResponse({
     status: 400,
@@ -95,18 +100,18 @@ export class ProjectsCommandController {
   async create(
     @Body() createProjectDto: CreateProjectDto,
     @CurrentUser() user: User,
-  ): Promise<CreateProjectResponseDto> {
+  ): Promise<ProjectCreateResponseDto> {
     const project = await this.commandBus.execute(
-      new CreateProjectCommand(createProjectDto, user.id),
+      new CreateProjectCommand(createProjectDto, user.username),
     );
     return {
       message: 'Project created successfully',
       statusCode: 201,
-      project: project,
+      project,
     };
   }
 
-  @Patch(':id')
+  @Patch(':slug')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
@@ -115,9 +120,9 @@ export class ProjectsCommandController {
       'Update project details. Only the project owner can update the project.',
   })
   @ApiParam({
-    name: 'id',
-    description: 'Project ID',
-    example: 'clm7x8k9e0000v8og4n2h5k7s',
+    name: 'slug',
+    description: 'Project slug',
+    example: 'cs-guild-mobile-app',
     type: String,
   })
   @ApiBody({
@@ -140,7 +145,7 @@ export class ProjectsCommandController {
           status: 'IN_PROGRESS',
           roles: [
             {
-              roleId: 'clm7x8k9e0000v8og4n2h5k7t',
+              roleSlug: 'frontend-developer',
               maxMembers: 3,
               requirements:
                 'Updated requirements: Senior React Native developer',
@@ -153,7 +158,7 @@ export class ProjectsCommandController {
   @ApiResponse({
     status: 200,
     description: 'Project updated successfully',
-    type: ProjectDetailResponseDto,
+    type: ProjectUpdateResponseDto,
   })
   @ApiResponse({
     status: 401,
@@ -168,16 +173,21 @@ export class ProjectsCommandController {
     description: 'Project not found',
   })
   async update(
-    @Param('id') id: string,
+    @Param('slug') slug: string,
     @Body() updateProjectDto: UpdateProjectDto,
     @CurrentUser() user: User,
-  ): Promise<ProjectDetailResponseDto> {
-    return this.commandBus.execute(
-      new UpdateProjectCommand(id, updateProjectDto, user.id),
+  ): Promise<ProjectUpdateResponseDto> {
+    const project = await this.commandBus.execute(
+      new UpdateProjectCommand(slug, updateProjectDto, user.username),
     );
+    return {
+      message: 'Project updated successfully',
+      statusCode: 200,
+      project,
+    };
   }
 
-  @Patch(':id/status')
+  @Patch(':slug/status')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
@@ -186,9 +196,9 @@ export class ProjectsCommandController {
       'Update the status of a project. Only the project owner can change status.',
   })
   @ApiParam({
-    name: 'id',
-    description: 'Project ID',
-    example: 'clm7x8k9e0000v8og4n2h5k7s',
+    name: 'slug',
+    description: 'Project slug',
+    example: 'cs-guild-mobile-app',
     type: String,
   })
   @ApiBody({
@@ -206,7 +216,7 @@ export class ProjectsCommandController {
   @ApiResponse({
     status: 200,
     description: 'Project status updated successfully',
-    type: ProjectDetailResponseDto,
+    type: ProjectStatusUpdateResponseDto,
   })
   @ApiResponse({
     status: 401,
@@ -221,16 +231,21 @@ export class ProjectsCommandController {
     description: 'Project not found',
   })
   async updateStatus(
-    @Param('id') id: string,
+    @Param('slug') slug: string,
     @Body() updateStatusDto: UpdateProjectStatusDto,
     @CurrentUser() user: User,
-  ): Promise<ProjectDetailResponseDto> {
-    return this.commandBus.execute(
-      new UpdateProjectStatusCommand(id, updateStatusDto, user.id),
+  ): Promise<ProjectStatusUpdateResponseDto> {
+    const project = await this.commandBus.execute(
+      new UpdateProjectStatusCommand(slug, updateStatusDto, user.username),
     );
+    return {
+      message: 'Project status updated successfully',
+      statusCode: 200,
+      project,
+    };
   }
 
-  @Delete(':id')
+  @Delete(':slug')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
@@ -239,22 +254,15 @@ export class ProjectsCommandController {
       'Delete a project permanently. Only the project owner can delete the project.',
   })
   @ApiParam({
-    name: 'id',
-    description: 'Project ID',
-    example: 'clm7x8k9e0000v8og4n2h5k7s',
+    name: 'slug',
+    description: 'Project slug',
+    example: 'cs-guild-mobile-app',
     type: String,
   })
   @ApiResponse({
     status: 200,
     description: 'Project deleted successfully',
-    examples: {
-      success: {
-        summary: 'Successful deletion',
-        value: {
-          message: 'Project deleted successfully',
-        },
-      },
-    },
+    type: ProjectDeleteResponseDto,
   })
   @ApiResponse({
     status: 401,
@@ -269,10 +277,12 @@ export class ProjectsCommandController {
     description: 'Project not found',
   })
   async remove(
-    @Param('id') id: string,
+    @Param('slug') slug: string,
     @CurrentUser() user: User,
-  ): Promise<{ message: string }> {
-    await this.commandBus.execute(new DeleteProjectCommand(id, user.id));
+  ): Promise<ProjectDeleteResponseDto> {
+    await this.commandBus.execute(
+      new DeleteProjectCommand(slug, user.username),
+    );
     return { message: 'Project deleted successfully' };
   }
 
@@ -290,8 +300,8 @@ export class ProjectsCommandController {
       example1: {
         summary: 'Join project application with message',
         value: {
-          projectId: 'clm7x8k9e0000v8og4n2h5k7s',
-          projectRoleId: 'clm7x8k9e0000v8og4n2h5k7t',
+          projectSlug: 'cs-guild-mobile-app',
+          roleSlug: 'frontend-developer',
           message:
             'I have 3 years of experience with React Native and would love to contribute to this project. ' +
             'I have previously worked on similar mobile applications and am excited about the CS Guild community.',
@@ -300,8 +310,8 @@ export class ProjectsCommandController {
       example2: {
         summary: 'Simple application without message',
         value: {
-          projectId: 'clm7x8k9e0000v8og4n2h5k7s',
-          projectRoleId: 'clm7x8k9e0000v8og4n2h5k7t',
+          projectSlug: 'cs-guild-mobile-app',
+          roleSlug: 'frontend-developer',
         },
       },
     },
@@ -328,12 +338,12 @@ export class ProjectsCommandController {
     @CurrentUser() user: User,
   ): Promise<JoinProjectResponseDto> {
     const application = await this.commandBus.execute(
-      new JoinProjectCommand(joinProjectDto, user.id),
+      new JoinProjectCommand(joinProjectDto, user.username),
     );
     return {
       message: 'Application submitted successfully',
       statusCode: 201,
-      application: application,
+      application,
     };
   }
 
@@ -372,20 +382,7 @@ export class ProjectsCommandController {
   @ApiResponse({
     status: 200,
     description: 'Application reviewed successfully',
-    examples: {
-      success: {
-        summary: 'Application reviewed',
-        value: {
-          message: 'Application reviewed successfully',
-          statusCode: 200,
-          application: {
-            id: 'clm7x8k9e0000v8og4n2h5k7u',
-            status: 'APPROVED',
-            reviewNotes: 'Great experience and skills match our requirements.',
-          },
-        },
-      },
-    },
+    type: ReviewApplicationResponseDto,
   })
   @ApiResponse({
     status: 401,
@@ -402,9 +399,14 @@ export class ProjectsCommandController {
   async reviewApplication(
     @Body() reviewDto: ReviewApplicationDto,
     @CurrentUser() user: User,
-  ): Promise<ProjectApplication> {
-    return this.commandBus.execute(
-      new ReviewApplicationCommand(reviewDto, user.id),
+  ): Promise<ReviewApplicationResponseDto> {
+    const application = await this.commandBus.execute(
+      new ReviewApplicationCommand(reviewDto, user.username),
     );
+    return {
+      message: 'Application reviewed successfully',
+      statusCode: 200,
+      application,
+    };
   }
 }

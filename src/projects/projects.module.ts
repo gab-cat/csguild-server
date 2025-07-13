@@ -18,9 +18,12 @@ import {
 // Query Handlers
 import {
   FindAllProjectsHandler,
-  FindByIdHandler,
+  FindBySlugHandler,
   GetMyProjectsHandler,
   GetMyApplicationsHandler,
+  GetProjectApplicationsHandler,
+  GetProjectMembersHandler,
+  GetProjectBasicInfoHandler,
 } from './queries';
 
 const CommandHandlers = [
@@ -34,9 +37,12 @@ const CommandHandlers = [
 
 const QueryHandlers = [
   FindAllProjectsHandler,
-  FindByIdHandler,
+  FindBySlugHandler,
   GetMyProjectsHandler,
   GetMyApplicationsHandler,
+  GetProjectApplicationsHandler,
+  GetProjectMembersHandler,
+  GetProjectBasicInfoHandler,
 ];
 
 @Module({

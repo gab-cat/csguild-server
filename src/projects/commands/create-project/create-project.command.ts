@@ -1,8 +1,12 @@
+import { Command } from '@nestjs/cqrs';
 import { CreateProjectDto } from '../../dto';
+import { Project } from '../../../../generated/prisma';
 
-export class CreateProjectCommand {
+export class CreateProjectCommand extends Command<Project> {
   constructor(
     public readonly createProjectDto: CreateProjectDto,
-    public readonly ownerId: string,
-  ) {}
+    public readonly ownerSlug: string,
+  ) {
+    super();
+  }
 }

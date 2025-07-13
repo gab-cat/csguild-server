@@ -13,7 +13,6 @@ export class ProjectUtils {
     return {
       owner: {
         select: {
-          id: true,
           username: true,
           firstName: true,
           lastName: true,
@@ -27,7 +26,6 @@ export class ProjectUtils {
             include: {
               user: {
                 select: {
-                  id: true,
                   username: true,
                   firstName: true,
                   lastName: true,
@@ -40,7 +38,6 @@ export class ProjectUtils {
             include: {
               user: {
                 select: {
-                  id: true,
                   username: true,
                   firstName: true,
                   lastName: true,
@@ -49,7 +46,6 @@ export class ProjectUtils {
               },
               reviewer: {
                 select: {
-                  id: true,
                   username: true,
                   firstName: true,
                   lastName: true,
@@ -69,7 +65,6 @@ export class ProjectUtils {
         include: {
           user: {
             select: {
-              id: true,
               username: true,
               firstName: true,
               lastName: true,
@@ -87,7 +82,6 @@ export class ProjectUtils {
         include: {
           user: {
             select: {
-              id: true,
               username: true,
               firstName: true,
               lastName: true,
@@ -101,7 +95,6 @@ export class ProjectUtils {
           },
           reviewer: {
             select: {
-              id: true,
               username: true,
               firstName: true,
               lastName: true,
@@ -121,9 +114,9 @@ export class ProjectUtils {
   /**
    * Get project with full details using the standard include structure
    */
-  async getProjectWithDetails(id: string): Promise<ProjectWithOwner | null> {
+  async getProjectWithDetails(slug: string): Promise<ProjectWithOwner | null> {
     const project = await this.prisma.project.findUnique({
-      where: { id },
+      where: { slug },
       include: ProjectUtils.getProjectIncludeStructure(),
     });
 
@@ -135,7 +128,6 @@ export class ProjectUtils {
     const transformedProject: ProjectWithOwner = {
       ...project,
       owner: {
-        id: project.owner.id,
         username: project.owner.username,
         firstName: project.owner.firstName || '',
         lastName: project.owner.lastName || '',
@@ -146,14 +138,13 @@ export class ProjectUtils {
         members: role.members.map((member) => ({
           ...member,
           user: {
-            id: member.user.id,
             username: member.user.username,
             firstName: member.user.firstName || '',
             lastName: member.user.lastName || '',
             imageUrl: member.user.imageUrl || undefined,
           },
           projectRole: {
-            id: role.id,
+            roleSlug: role.roleSlug,
             role: {
               name: role.role.name,
               slug: role.role.slug,
@@ -163,14 +154,13 @@ export class ProjectUtils {
         applications: role.applications.map((application) => ({
           ...application,
           user: {
-            id: application.user.id,
             username: application.user.username,
             firstName: application.user.firstName || '',
             lastName: application.user.lastName || '',
             imageUrl: application.user.imageUrl || undefined,
           },
           projectRole: {
-            id: role.id,
+            roleSlug: role.roleSlug,
             role: {
               name: role.role.name,
               slug: role.role.slug,
@@ -178,7 +168,6 @@ export class ProjectUtils {
           },
           reviewer: application.reviewer
             ? {
-                id: application.reviewer.id,
                 username: application.reviewer.username,
                 firstName: application.reviewer.firstName || '',
                 lastName: application.reviewer.lastName || '',
@@ -192,18 +181,20 @@ export class ProjectUtils {
   }
 
   /**
-   * Validate that all provided role IDs exist in the database
+   * Validate that all provided role slugs exist in the database
    */
-  async validateRoleIds(roleIds: string[]): Promise<void> {
+  async validateRoleSlugs(roleSlugs: string[]): Promise<void> {
     const existingRoles = await this.prisma.userRole.findMany({
-      where: { id: { in: roleIds } },
+      where: { slug: { in: roleSlugs } },
     });
 
-    if (existingRoles.length !== roleIds.length) {
-      const foundRoleIds = existingRoles.map((role) => role.id);
-      const missingRoleIds = roleIds.filter((id) => !foundRoleIds.includes(id));
+    if (existingRoles.length !== roleSlugs.length) {
+      const foundRoleSlugs = existingRoles.map((role) => role.slug);
+      const missingRoleSlugs = roleSlugs.filter(
+        (slug) => !foundRoleSlugs.includes(slug),
+      );
       throw new BadRequestException(
-        `The following role IDs do not exist: ${missingRoleIds.join(', ')}`,
+        `The following role slugs do not exist: ${missingRoleSlugs.join(', ')}`,
       );
     }
   }
@@ -213,7 +204,6 @@ export class ProjectUtils {
    */
   static getUserSelectStructure() {
     return {
-      id: true,
       username: true,
       firstName: true,
       lastName: true,
