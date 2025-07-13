@@ -51,27 +51,29 @@
 
 | Method   | Endpoint                         | Description                    | Authentication | Request Body               | Response Body                                                                                                                                         | Notes                                                    |
 | -------- | -------------------------------- | ------------------------------ | -------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `POST`   | `/projects`                      | Create new project             | JWT Bearer     | `CreateProjectDto`         | `201` - `CreateProjectResponseDto` with project details including roles, owner info, and member counts                                               | Requires title, description, tags, and at least 1 role. |
-| `GET`    | `/projects`                      | Get all projects with filters  | None           | Query parameters           | `200` - `ProjectListResponseDto` with pagination and filtering options                                                                                | Supports filtering by status, tags, search, owner. Public endpoint. |
-| `GET`    | `/projects/my-projects`          | Get current user's projects    | JWT Bearer     | None                       | `200` - Array of `ProjectSummaryResponseDto` for owned and member projects                                                                            | Shows projects user owns or is a member of.             |
-| `GET`    | `/projects/my-applications`      | Get current user's applications| JWT Bearer     | None                       | `200` - Array of `ProjectApplicationResponseDto` with application status and project details                                                          | Shows all applications user has submitted.              |
-| `GET`    | `/projects/:id`                  | Get project by ID              | None           | None                       | `200` - `ProjectDetailResponseDto` with complete project details, members, applications, and roles                                                    | Full project details including team composition. Public endpoint. |
-| `PATCH`  | `/projects/:id`                  | Update project                 | JWT Bearer     | `UpdateProjectDto`         | `200` - Updated `ProjectDetailResponseDto`                                                                                                            | Only project owner can update. Can modify roles. Enhanced with modular architecture for better maintainability and consistent role default handling. |
-| `PATCH`  | `/projects/:id/status`           | Update project status          | JWT Bearer     | `UpdateProjectStatusDto`   | `200` - Updated `ProjectDetailResponseDto`                                                                                                            | Only project owner can change status.                   |
-| `DELETE` | `/projects/:id`                  | Delete project                 | JWT Bearer     | None                       | `200` - `{ message: "Project deleted successfully" }`                                                                                                 | Only project owner can delete. Cascade deletes.        |
-| `POST`   | `/projects/join`                 | Apply to join project          | JWT Bearer     | `JoinProjectDto`           | `201` - `JoinProjectResponseDto` with application details                                                                                             | Creates application. Prevents duplicate applications.   |
-| `POST`   | `/projects/applications/review`  | Review project application     | JWT Bearer     | `ReviewApplicationDto`     | `200` - Updated `ProjectApplicationResponseDto` with review details                                                                                    | Only project owner can review. Approves/rejects apps.   |
+| `POST`   | `/projects`                      | Create new project             | JWT Cookie     | `CreateProjectDto`         | `201` - `ProjectCreateResponseDto` with project details including roles, owner info, and member counts                                               | Requires title, description, tags, dueDate, and at least 1 role. Auto-generates slug. |
+| `GET`    | `/projects`                      | Get all projects with filters  | None           | Query parameters           | `200` - `ProjectListResponse` with pagination and filtering options                                                                                   | Supports filtering by status, tags, search, ownerSlug. Public endpoint. Max 100 items per page. |
+| `GET`    | `/projects/my-projects`          | Get current user's projects    | JWT Cookie     | None                       | `200` - Array of `ProjectSummary` for owned and member projects                                                                                       | Shows projects user owns or is a member of.             |
+| `GET`    | `/projects/my-applications`      | Get current user's applications| JWT Cookie     | None                       | `200` - Array of `ProjectApplication` with application status and project details                                                                     | Shows all applications user has submitted.              |
+| `GET`    | `/projects/:slug`                | Get project by slug            | None           | None                       | `200` - `ProjectDetailResponse` with complete project details, members, applications, and roles                                                       | Full project details including team composition. Public endpoint. |
+| `GET`    | `/projects/:slug/basic`          | Get basic project info         | None           | None                       | `200` - Basic `Project` object without members or applications                                                                                        | Lightweight endpoint for basic project info.            |
+| `GET`    | `/projects/:slug/applications`   | Get project applications       | None           | Query: `roleSlug`          | `200` - Array of `ProjectApplication` objects                                                                                                         | Public endpoint. Can filter by role slug.               |
+| `GET`    | `/projects/:slug/members`        | Get project members            | None           | Query: `roleSlug`          | `200` - Array of `ProjectMember` objects                                                                                                              | Public endpoint. Can filter by role slug.               |
+| `PATCH`  | `/projects/:slug`                | Update project                 | JWT Cookie     | `UpdateProjectDto`         | `200` - `ProjectUpdateResponseDto` with updated project details                                                                                       | Only project owner can update. Can modify roles.       |
+| `PATCH`  | `/projects/:slug/status`         | Update project status          | JWT Cookie     | `UpdateProjectStatusDto`   | `200` - `ProjectStatusUpdateResponseDto` with updated project                                                                                         | Only project owner can change status.                   |
+| `DELETE` | `/projects/:slug`                | Delete project                 | JWT Cookie     | None                       | `200` - `ProjectDeleteResponseDto` with success message                                                                                               | Only project owner can delete. Cascade deletes.        |
+| `POST`   | `/projects/join`                 | Apply to join project          | JWT Cookie     | `JoinProjectDto`           | `201` - `JoinProjectResponseDto` with application details                                                                                             | Uses projectSlug and roleSlug. Prevents duplicate applications. |
+| `POST`   | `/projects/applications/review`  | Review project application     | JWT Cookie     | `ReviewApplicationDto`     | `200` - `ReviewApplicationResponseDto` with review details                                                                                            | Only project owner can review. Approves/rejects apps.   |
 
 ### Role Management Endpoints
 
 | Method   | Endpoint           | Description                    | Authentication           | Request Body        | Response Body                                                                                                         | Notes                                                    |
 | -------- | ------------------ | ------------------------------ | ------------------------ | ------------------- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
 | `GET`    | `/roles`           | Get all roles with filters     | None                     | Query parameters    | `200` - `RoleListResponseDto` with pagination and filtering options                                                   | Public endpoint. Supports search, pagination, sorting.  |
-| `GET`    | `/roles/:id`       | Get role by ID                 | None                     | None                | `200` - `RoleResponseDto` with role details                                                                           | Public endpoint. Accepts ID as identifier.              |
-| `GET`    | `/roles/slug/:slug`| Get role by slug               | None                     | None                | `200` - `RoleResponseDto` with role details                                                                           | Public endpoint. Accepts slug as identifier.            |
-| `POST`   | `/roles`           | Create new role                | JWT Bearer + STAFF/ADMIN | `CreateRoleDto`     | `201` - `CreateRoleResponseDto` with created role details                                                             | Only staff/admin can create. Auto-generates slug.       |
-| `PATCH`  | `/roles/:id`       | Update role                    | JWT Bearer + STAFF/ADMIN | `UpdateRoleDto`     | `200` - `UpdateRoleResponseDto` with updated role details                                                             | Only staff/admin can update. Validates uniqueness.      |
-| `DELETE` | `/roles/:id`       | Delete role                    | JWT Bearer + STAFF/ADMIN | None                | `200` - `{ message: "Role deleted successfully" }`                                                                    | Only staff/admin can delete. Prevents deletion if in use. |
+| `GET`    | `/roles/:slug`     | Get role by slug               | None                     | None                | `200` - `RoleResponseDto` with role details                                                                           | Public endpoint. Uses slug as identifier.               |
+| `POST`   | `/roles`           | Create new role                | JWT Cookie + STAFF/ADMIN | `CreateRoleDto`     | `201` - `CreateRoleResponseDto` with created role details                                                             | Only staff/admin can create. Auto-generates slug.       |
+| `PATCH`  | `/roles/:slug`     | Update role                    | JWT Cookie + STAFF/ADMIN | `UpdateRoleDto`     | `200` - `UpdateRoleResponseDto` with updated role details                                                             | Only staff/admin can update. Validates uniqueness.      |
+| `DELETE` | `/roles/:slug`     | Delete role                    | JWT Cookie + STAFF/ADMIN | None                | `200` - `{ message: "Role deleted successfully" }`                                                                    | Only staff/admin can delete. Prevents deletion if in use. |
 
 ### System Endpoints
 
@@ -316,7 +318,7 @@
 
 #### Create Project (`POST /projects`)
 
-**Authentication Required:** JWT Bearer token in Authorization header
+**Authentication Required:** JWT Cookie in `Authentication` header
 
 **Request:**
 
@@ -328,14 +330,14 @@
   "dueDate": "2024-12-31T23:59:59.000Z",
   "roles": [
     {
-      "roleId": "clm7x8k9e0000v8og4n2h5k7s",
+      "roleSlug": "frontend-developer",
       "maxMembers": 2,
       "requirements": "Experience with React Native and TypeScript required"
     },
     {
-      "roleId": "clm7x8k9e0000v8og4n2h5k8t",
+      "roleSlug": "ui-ux-designer",
       "maxMembers": 1,
-      "requirements": "Experience with UI/UX design and Figma"
+      "requirements": "UI/UX design experience with mobile applications"
     }
   ]
 }
@@ -350,11 +352,13 @@
   "project": {
     "id": "clm7x8k9e0000v8og4n2h5k7s",
     "title": "CS Guild Mobile App Development",
+    "slug": "cs-guild-mobile-app-development",
     "description": "We are looking for developers to help build a mobile application for the CS Guild community.",
     "tags": ["mobile", "react-native", "typescript", "collaboration"],
     "dueDate": "2024-12-31T23:59:59.000Z",
     "status": "OPEN",
     "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
     "owner": {
       "id": "clm7x8k9e0000v8og4n2h5k7s",
       "username": "johndoe123",
@@ -376,23 +380,21 @@
       }
     ],
     "memberCount": 0,
-    "applicationCount": 0,
-    "members": [],
-    "applications": []
+    "applicationCount": 0
   }
 }
 ```
 
 #### Join Project (`POST /projects/join`)
 
-**Authentication Required:** JWT Bearer token in Authorization header
+**Authentication Required:** JWT Cookie in `Authentication` header
 
 **Request:**
 
 ```json
 {
-  "projectId": "clm7x8k9e0000v8og4n2h5k7s",
-  "projectRoleId": "clm7x8k9e0000v8og4n2h5k7t",
+  "projectSlug": "cs-guild-mobile-app-development",
+  "roleSlug": "frontend-developer",
   "message": "I have 3 years of experience with React Native and would love to contribute to this project. I have previously worked on similar mobile applications and am excited about the CS Guild community."
 }
 ```
@@ -435,7 +437,7 @@
 - `status` - Filter by project status (OPEN, IN_PROGRESS, COMPLETED, CANCELLED)
 - `tags` - Comma-separated list of tags to filter by
 - `search` - Search in project title and description  
-- `ownerId` - Filter by project owner ID
+- `ownerSlug` - Filter by project owner username
 - `page` - Page number for pagination (default: 1)
 - `limit` - Number of items per page (default: 10, max: 100)
 - `sortBy` - Field to sort by (createdAt, updatedAt, dueDate, title, default: createdAt)
@@ -448,20 +450,25 @@
 
 ```json
 {
+  "message": "Projects retrieved successfully",
+  "statusCode": 200,
   "data": [
     {
       "id": "clm7x8k9e0000v8og4n2h5k7s",
       "title": "CS Guild Mobile App Development",
+      "slug": "cs-guild-mobile-app-development",
       "description": "We are looking for developers to help build a mobile application for the CS Guild community.",
       "tags": ["mobile", "react-native", "typescript", "collaboration"],
       "dueDate": "2024-12-31T23:59:59.000Z",
       "status": "OPEN",
       "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z",
       "owner": {
         "id": "clm7x8k9e0000v8og4n2h5k7s",
         "username": "johndoe123",
         "firstName": "John",
-        "lastName": "Doe"
+        "lastName": "Doe",
+        "imageUrl": "https://example.com/avatar.jpg"
       },
       "roles": [
         {
@@ -478,18 +485,16 @@
       "applicationCount": 3
     }
   ],
-  "pagination": {
-    "page": 1,
-    "limit": 5,
-    "total": 15,
-    "totalPages": 3,
-    "hasNext": true,
-    "hasPrev": false
-  }
+  "total": 15,
+  "page": 1,
+  "limit": 5,
+  "totalPages": 3
 }
 ```
 
 #### Review Application (`POST /projects/applications/review`)
+
+**Authentication Required:** JWT Cookie in `Authentication` header
 
 **Request:**
 
@@ -505,31 +510,36 @@
 
 ```json
 {
-  "id": "clm7x8k9e0000v8og4n2h5k7s",
-  "user": {
+  "message": "Application reviewed successfully",
+  "statusCode": 200,
+  "application": {
     "id": "clm7x8k9e0000v8og4n2h5k7s",
-    "username": "janedoe456",
-    "firstName": "Jane",
-    "lastName": "Doe",
-    "imageUrl": "https://example.com/jane-avatar.jpg"
-  },
-  "projectRole": {
-    "id": "clm7x8k9e0000v8og4n2h5k7t",
-    "role": {
+    "user": {
       "id": "clm7x8k9e0000v8og4n2h5k7s",
-      "name": "Frontend Developer",
-      "slug": "frontend-developer"
+      "username": "janedoe456",
+      "firstName": "Jane",
+      "lastName": "Doe",
+      "imageUrl": "https://example.com/jane-avatar.jpg"
+    },
+    "projectRole": {
+      "id": "clm7x8k9e0000v8og4n2h5k7t",
+      "role": {
+        "id": "clm7x8k9e0000v8og4n2h5k7s",
+        "name": "Frontend Developer",
+        "slug": "frontend-developer"
+      }
+    },
+    "message": "I have 3 years of experience with React Native and would love to contribute to this project.",
+    "status": "APPROVED",
+    "appliedAt": "2024-01-02T00:00:00.000Z",
+    "reviewedAt": "2024-01-03T00:00:00.000Z",
+    "reviewMessage": "Welcome to the team! Your experience looks great.",
+    "reviewer": {
+      "id": "clm7x8k9e0000v8og4n2h5k7s",
+      "username": "johndoe123",
+      "firstName": "John",
+      "lastName": "Doe"
     }
-  },
-  "message": "I have 3 years of experience with React Native and would love to contribute to this project.",
-  "status": "APPROVED",
-  "appliedAt": "2024-01-02T00:00:00.000Z",
-  "reviewedAt": "2024-01-03T00:00:00.000Z",
-  "reviewer": {
-    "id": "clm7x8k9e0000v8og4n2h5k7s",
-    "username": "johndoe123",
-    "firstName": "John",
-    "lastName": "Doe"
   }
 }
 ```
@@ -540,11 +550,13 @@
    - `Authentication`: Access token (1 hour)
    - `Refresh`: Refresh token (24 hours)
    - HTTP-only, secure cookies
+   - Used for most authenticated endpoints
 
 2. **RFID Authentication**:
    - No session required
    - Direct card-to-student mapping
    - Requires email verification
+   - Used for facility access
 
 3. **Google OAuth**:
    - Automatic account creation
@@ -585,7 +597,7 @@ All endpoints return standardized error responses:
 
 #### Create Role (`POST /roles`)
 
-**Authentication Required:** JWT Bearer token with STAFF or ADMIN role
+**Authentication Required:** JWT Cookie with STAFF or ADMIN role
 
 **Request:**
 
@@ -644,9 +656,9 @@ GET /roles?search=frontend&page=1&limit=10&sortBy=name&sortOrder=asc
 }
 ```
 
-#### Update Role (`PATCH /roles/:id`)
+#### Update Role (`PATCH /roles/:slug`)
 
-**Authentication Required:** JWT Bearer token with STAFF or ADMIN role
+**Authentication Required:** JWT Cookie with STAFF or ADMIN role
 
 **Request:**
 
@@ -674,12 +686,12 @@ GET /roles?search=frontend&page=1&limit=10&sortBy=name&sortOrder=asc
 }
 ```
 
-#### Get Role by Slug (`GET /roles/slug/:slug`)
+#### Get Role by Slug (`GET /roles/:slug`)
 
 **Request:**
 
 ```
-GET /roles/slug/frontend-developer
+GET /roles/frontend-developer
 ```
 
 **Response:**

@@ -10,10 +10,11 @@ import { UsersModule } from './users/users.module';
 import { ProjectsModule } from './projects/projects.module';
 import { RolesModule } from './roles/roles.module';
 import { FacilitiesModule } from './facilities/facilities.module';
-import { CronModule } from './cron/cron.module';
+import { CronModule } from './common/cron/cron.module';
 import { LogsController } from './common/logger/logger.controller';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { RATE_LIMITING } from './constants';
+import { UtilsModule } from './common/utils/utils.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { RATE_LIMITING } from './constants';
     RolesModule,
     FacilitiesModule,
     CronModule,
+    UtilsModule,
   ],
   controllers: [AppController, LogsController],
 })
