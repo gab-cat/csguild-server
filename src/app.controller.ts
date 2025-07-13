@@ -4,6 +4,11 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 @ApiTags('App')
 @Controller()
 export class AppController {
+  /**
+   * Returns the health status of the server including IP, timestamp, and version information.
+   * @param forwardedFor - The x-forwarded-for header value for client IP detection
+   * @returns Health status object with server information
+   */
   @Get('health')
   @ApiOperation({ summary: 'Check server health' })
   @ApiResponse({
@@ -13,6 +18,9 @@ export class AppController {
       type: 'object',
       properties: {
         status: { type: 'string' },
+        timestamp: { type: 'string', format: 'date-time' },
+        version: { type: 'string' },
+        ip: { type: 'string' },
       },
     },
   })
@@ -20,13 +28,14 @@ export class AppController {
     status: string;
     timestamp: string;
     version: string;
-    ip: string | undefined;
+    ip: string;
   } {
+    const version = process.env.npm_package_version || 'unknown';
     return {
       status: 'OK',
       ip: forwardedFor || 'unknown',
       timestamp: new Date().toISOString(),
-      version: '1.0.0',
+      version,
     };
   }
 }
