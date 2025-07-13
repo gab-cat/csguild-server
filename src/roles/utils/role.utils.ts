@@ -67,12 +67,20 @@ export class RoleUtils {
     userCount: number;
     projectCount: number;
   }> {
+    const role = await this.prisma.userRole.findUnique({
+      where: { id: roleId },
+    });
+
+    if (!role) {
+      return { userCount: 0, projectCount: 0 };
+    }
+
     const [userCount, projectCount] = await Promise.all([
       this.prisma.user.count({
         where: { userRoles: { some: { id: roleId } } },
       }),
       this.prisma.projectRole.count({
-        where: { roleSlug: roleId },
+        where: { roleSlug: role.slug },
       }),
     ]);
 

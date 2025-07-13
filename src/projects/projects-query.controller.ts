@@ -312,7 +312,11 @@ export class ProjectsQueryController {
     status: 404,
     description: 'Project not found',
   })
-  async getProjectBasic(@Param('slug') slug: string): Promise<Project> {
+  async getProjectBasic(@Param('slug') slug: string): Promise<
+    Project & {
+      owner: Pick<User, 'username' | 'firstName' | 'lastName' | 'imageUrl'>;
+    }
+  > {
     return this.queryBus.execute(new GetProjectBasicInfoQuery(slug));
   }
 }

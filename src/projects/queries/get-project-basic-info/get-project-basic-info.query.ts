@@ -1,7 +1,11 @@
 import { Query } from '@nestjs/cqrs';
-import { Project } from 'generated/prisma/client';
+import { Project, User } from 'generated/prisma/client';
 
-export class GetProjectBasicInfoQuery extends Query<Project> {
+export class GetProjectBasicInfoQuery extends Query<
+  Project & {
+    owner: Pick<User, 'username' | 'firstName' | 'lastName' | 'imageUrl'>;
+  }
+> {
   constructor(public readonly projectSlug: string) {
     super();
   }
