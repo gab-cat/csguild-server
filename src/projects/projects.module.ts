@@ -3,6 +3,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { ProjectsQueryController } from './projects-query.controller';
 import { ProjectsCommandController } from './projects-command.controller';
 import { PrismaModule } from '../common/prisma/prisma.module';
+import { EmailModule } from '../common/email/email.module';
 import { ProjectUtils } from './utils';
 
 // Command Handlers
@@ -13,6 +14,7 @@ import {
   DeleteProjectHandler,
   JoinProjectHandler,
   ReviewApplicationHandler,
+  RemoveProjectMemberHandler,
 } from './commands';
 
 // Query Handlers
@@ -33,6 +35,7 @@ const CommandHandlers = [
   DeleteProjectHandler,
   JoinProjectHandler,
   ReviewApplicationHandler,
+  RemoveProjectMemberHandler,
 ];
 
 const QueryHandlers = [
@@ -46,7 +49,7 @@ const QueryHandlers = [
 ];
 
 @Module({
-  imports: [PrismaModule, CqrsModule],
+  imports: [PrismaModule, EmailModule, CqrsModule],
   controllers: [ProjectsQueryController, ProjectsCommandController],
   providers: [...CommandHandlers, ...QueryHandlers, ProjectUtils],
 })

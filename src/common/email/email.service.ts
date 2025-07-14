@@ -20,6 +20,22 @@ interface SendPasswordResetParams {
   resetToken: string;
 }
 
+interface SendApplicationAcceptedParams {
+  email: string;
+  firstName: string;
+  projectName: string;
+  roleName: string;
+  reviewMessage?: string;
+}
+
+interface SendApplicationRejectedParams {
+  email: string;
+  firstName: string;
+  projectName: string;
+  roleName: string;
+  reviewMessage?: string;
+}
+
 @Injectable()
 export class EmailService {
   constructor(
@@ -112,6 +128,70 @@ export class EmailService {
           'SUPPORT_EMAIL',
           'support@csguild.org',
         ),
+      },
+    });
+  }
+
+  async sendApplicationAccepted(
+    params: SendApplicationAcceptedParams,
+  ): Promise<void> {
+    const { email, firstName, projectName, roleName, reviewMessage } = params;
+
+    await this.mailerService.sendMail({
+      to: email,
+      subject: `CSGUILD - Application Accepted for ${projectName}`,
+      template: 'application-accepted',
+      context: {
+        firstName,
+        projectName,
+        roleName,
+        reviewMessage,
+        organizationName: 'CSGUILD',
+        supportEmail: this.configService.get(
+          'SUPPORT_EMAIL',
+          'support@csguild.org',
+        ),
+        projectUrl: `${this.configService.get(
+          'FRONTEND_URL',
+          'http://localhost:3000',
+        )}/projects/${encodeURIComponent(
+          projectName.toLowerCase().replace(/\s+/g, '-'),
+        )}`,
+        dashboardUrl: `${this.configService.get(
+          'FRONTEND_URL',
+          'http://localhost:3000',
+        )}/dashboard`,
+      },
+    });
+  }
+
+  async sendApplicationRejected(
+    params: SendApplicationRejectedParams,
+  ): Promise<void> {
+    const { email, firstName, projectName, roleName, reviewMessage } = params;
+
+    await this.mailerService.sendMail({
+      to: email,
+      subject: `CSGUILD - Application Update for ${projectName}`,
+      template: 'application-rejected',
+      context: {
+        firstName,
+        projectName,
+        roleName,
+        reviewMessage,
+        organizationName: 'CSGUILD',
+        supportEmail: this.configService.get(
+          'SUPPORT_EMAIL',
+          'support@csguild.org',
+        ),
+        projectsUrl: `${this.configService.get(
+          'FRONTEND_URL',
+          'http://localhost:3000',
+        )}/projects`,
+        dashboardUrl: `${this.configService.get(
+          'FRONTEND_URL',
+          'http://localhost:3000',
+        )}/dashboard`,
       },
     });
   }

@@ -10,3 +10,5 @@ export * from './join-project/join-project.command';
 export * from './join-project/join-project.handler';
 export * from './review-application/review-application.command';
 export * from './review-application/review-application.handler';
+export * from './remove-project-member/remove-project-member.command';
+export * from './remove-project-member/remove-project-member.handler';

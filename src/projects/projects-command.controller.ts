@@ -28,6 +28,7 @@ import {
   ProjectDeleteResponseDto,
   JoinProjectResponseDto,
   ReviewApplicationResponseDto,
+  RemoveProjectMemberResponseDto,
 } from './dto';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -40,6 +41,7 @@ import {
   DeleteProjectCommand,
   JoinProjectCommand,
   ReviewApplicationCommand,
+  RemoveProjectMemberCommand,
 } from './commands';
 
 // Queries
@@ -407,6 +409,61 @@ export class ProjectsCommandController {
       message: 'Application reviewed successfully',
       statusCode: 200,
       application,
+    };
+  }
+
+  @Delete(':slug/members/:memberUserSlug')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Remove a project member',
+    description:
+      'Remove a member from a project and free up their role slot. Only the project owner can remove members.',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Project slug',
+    example: 'cs-guild-mobile-app',
+    type: String,
+  })
+  @ApiParam({
+    name: 'memberUserSlug',
+    description: 'Username of the member to remove',
+    example: 'johndoe',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Project member removed successfully',
+    type: RemoveProjectMemberResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - valid JWT token required',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - only project owner can remove members',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Project or member not found',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - project owner cannot remove themselves',
+  })
+  async removeProjectMember(
+    @Param('slug') slug: string,
+    @Param('memberUserSlug') memberUserSlug: string,
+    @CurrentUser() user: User,
+  ): Promise<RemoveProjectMemberResponseDto> {
+    await this.commandBus.execute(
+      new RemoveProjectMemberCommand(slug, memberUserSlug, user.username),
+    );
+    return {
+      message: 'Project member removed successfully',
+      statusCode: 200,
     };
   }
 }
