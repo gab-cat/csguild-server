@@ -15,6 +15,7 @@ import {
   JoinProjectHandler,
   ReviewApplicationHandler,
   RemoveProjectMemberHandler,
+  ReactivateProjectMemberHandler,
 } from './commands';
 
 // Query Handlers
@@ -36,6 +37,7 @@ const CommandHandlers = [
   JoinProjectHandler,
   ReviewApplicationHandler,
   RemoveProjectMemberHandler,
+  ReactivateProjectMemberHandler,
 ];
 
 const QueryHandlers = [

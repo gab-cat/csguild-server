@@ -12,3 +12,5 @@ export * from './review-application/review-application.command';
 export * from './review-application/review-application.handler';
 export * from './remove-project-member/remove-project-member.command';
 export * from './remove-project-member/remove-project-member.handler';
+export * from './reactivate-project-member/reactivate-project-member.command';
+export * from './reactivate-project-member/reactivate-project-member.handler';

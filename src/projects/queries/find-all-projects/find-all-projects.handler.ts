@@ -77,6 +77,7 @@ export class FindAllProjectsHandler
             firstName: true,
             lastName: true,
             imageUrl: true,
+            email: true,
           },
         },
         roles: {

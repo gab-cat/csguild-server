@@ -25,6 +25,7 @@ export interface ProjectWithOwner extends Project {
     firstName: string;
     lastName: string;
     imageUrl?: string;
+    email?: string;
   };
   roles: ProjectRoleWithDetails[];
   _count?: {

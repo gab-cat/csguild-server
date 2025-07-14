@@ -17,6 +17,7 @@ export class ProjectUtils {
           firstName: true,
           lastName: true,
           imageUrl: true,
+          email: true,
         },
       },
       roles: {
@@ -30,6 +31,7 @@ export class ProjectUtils {
                   firstName: true,
                   lastName: true,
                   imageUrl: true,
+                  email: true,
                 },
               },
             },
@@ -42,6 +44,7 @@ export class ProjectUtils {
                   firstName: true,
                   lastName: true,
                   imageUrl: true,
+                  email: true,
                 },
               },
               reviewer: {
@@ -49,6 +52,8 @@ export class ProjectUtils {
                   username: true,
                   firstName: true,
                   lastName: true,
+                  imageUrl: true,
+                  email: true,
                 },
               },
             },
@@ -69,6 +74,7 @@ export class ProjectUtils {
               firstName: true,
               lastName: true,
               imageUrl: true,
+              email: true,
             },
           },
           projectRole: {
@@ -86,6 +92,7 @@ export class ProjectUtils {
               firstName: true,
               lastName: true,
               imageUrl: true,
+              email: true,
             },
           },
           projectRole: {
@@ -98,6 +105,8 @@ export class ProjectUtils {
               username: true,
               firstName: true,
               lastName: true,
+              imageUrl: true,
+              email: true,
             },
           },
         },
@@ -132,6 +141,7 @@ export class ProjectUtils {
         firstName: project.owner.firstName || '',
         lastName: project.owner.lastName || '',
         imageUrl: project.owner.imageUrl || undefined,
+        email: project.owner.email || undefined,
       },
       roles: project.roles.map((role) => ({
         ...role,

@@ -27,6 +27,7 @@ export class GetProjectBasicInfoHandler
             firstName: true,
             lastName: true,
             imageUrl: true,
+            email: true,
           },
         },
       },

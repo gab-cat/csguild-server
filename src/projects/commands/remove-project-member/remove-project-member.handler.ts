@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { RemoveProjectMemberCommand } from './remove-project-member.command';
-import { MemberStatus } from '../../../../generated/prisma';
+import { MemberStatus, ApplicationStatus } from '../../../../generated/prisma';
 
 @Injectable()
 @CommandHandler(RemoveProjectMemberCommand)
@@ -84,16 +84,37 @@ export class RemoveProjectMemberHandler
       );
     }
 
-    // Update member status to REMOVED instead of deleting the record
-    // This preserves the history and allows for potential re-activation
-    await this.prisma.projectMember.update({
-      where: {
-        id: projectMember.id,
-      },
-      data: {
-        status: MemberStatus.REMOVED,
-        updatedAt: new Date(),
-      },
+    // Update member status to REMOVED and handle pending applications in a transaction
+    await this.prisma.$transaction(async (tx) => {
+      // Update member status to REMOVED instead of deleting the record
+      // This preserves the history and allows for potential re-activation
+      await tx.projectMember.update({
+        where: {
+          id: projectMember.id,
+        },
+        data: {
+          status: MemberStatus.REMOVED,
+          updatedAt: new Date(),
+        },
+      });
+
+      // Cancel any pending applications for this user in the same project
+      // This ensures they don't have pending applications while being removed
+      await tx.projectApplication.updateMany({
+        where: {
+          projectSlug,
+          userSlug: memberUserSlug,
+          status: ApplicationStatus.PENDING,
+        },
+        data: {
+          status: ApplicationStatus.REJECTED,
+          reviewedAt: new Date(),
+          reviewedBySlug: requestorUserSlug,
+          reviewMessage:
+            'Application cancelled due to member removal from project',
+          updatedAt: new Date(),
+        },
+      });
     });
   }
 }

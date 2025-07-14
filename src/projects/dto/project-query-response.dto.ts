@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ProjectStatus } from '../../../generated/prisma';
+import { ProjectStatus, MemberStatus } from '../../../generated/prisma';
 
 export class ProjectOwnerDto {
   @ApiProperty({ example: 'johndoe' })
@@ -13,6 +13,9 @@ export class ProjectOwnerDto {
 
   @ApiProperty({ example: 'https://example.com/avatar.jpg', required: false })
   imageUrl?: string;
+
+  @ApiProperty({ example: 'johndoe@example.com', required: false })
+  email?: string;
 }
 
 export class ProjectRoleDto {
@@ -177,6 +180,9 @@ export class UserBasicDto {
 
   @ApiProperty({ example: 'https://example.com/avatar.jpg', required: false })
   imageUrl?: string;
+
+  @ApiProperty({ example: 'johndoe@example.com', required: false })
+  email?: string;
 }
 
 export class ProjectApplicationDto {
@@ -251,10 +257,10 @@ export class ProjectMemberDto {
   roleSlug: string;
 
   @ApiProperty({
-    enum: ['ACTIVE', 'INACTIVE'],
+    enum: MemberStatus,
     example: 'ACTIVE',
   })
-  status: string;
+  status: MemberStatus;
 
   @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
   joinedAt: string;

@@ -6,6 +6,7 @@ export * from './update-project.dto';
 export * from './update-project-status.dto';
 export * from './review-application.dto';
 export * from './remove-project-member.dto';
+export * from './reactivate-project-member.dto';
 export * from './user-role.dto';
 export * from './create-user-role.dto';
 export * from './update-user-role.dto';
