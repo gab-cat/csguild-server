@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
+import { EmailService } from '../../../common/email/email.service';
 import { ReviewApplicationCommand } from './review-application.command';
 import { ApplicationStatus, MemberStatus } from '../../../../generated/prisma';
 
@@ -14,7 +15,10 @@ import { ApplicationStatus, MemberStatus } from '../../../../generated/prisma';
 export class ReviewApplicationHandler
   implements ICommandHandler<ReviewApplicationCommand>
 {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly emailService: EmailService,
+  ) {}
 
   async execute(command: ReviewApplicationCommand) {
     const { reviewDto, reviewerSlug } = command;
@@ -45,6 +49,13 @@ export class ReviewApplicationHandler
               firstName: true,
               lastName: true,
               imageUrl: true,
+              email: true,
+            },
+          },
+          project: {
+            select: {
+              title: true,
+              slug: true,
             },
           },
           projectRole: {
@@ -72,6 +83,30 @@ export class ReviewApplicationHandler
             status: MemberStatus.ACTIVE,
           },
         });
+      }
+
+      // Send email notification after successful database update
+      try {
+        if (decision === 'APPROVED') {
+          await this.emailService.sendApplicationAccepted({
+            email: updatedApplication.user.email,
+            firstName: updatedApplication.user.firstName,
+            projectName: updatedApplication.project.title,
+            roleName: updatedApplication.projectRole.role.name,
+            reviewMessage: reviewMessage,
+          });
+        } else {
+          await this.emailService.sendApplicationRejected({
+            email: updatedApplication.user.email,
+            firstName: updatedApplication.user.firstName,
+            projectName: updatedApplication.project.title,
+            roleName: updatedApplication.projectRole.role.name,
+            reviewMessage: reviewMessage,
+          });
+        }
+      } catch (emailError) {
+        // Log email error but don't fail the transaction
+        console.error('Failed to send application review email:', emailError);
       }
 
       return updatedApplication;

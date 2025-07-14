@@ -2,7 +2,7 @@ import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { GetProjectMembersQuery } from './get-project-members.query';
-import { ProjectMember, MemberStatus } from '../../../../generated/prisma';
+import { ProjectMember } from '../../../../generated/prisma';
 
 @Injectable()
 @QueryHandler(GetProjectMembersQuery)
@@ -28,7 +28,6 @@ export class GetProjectMembersHandler
         projectSlug,
         ...(roleSlug && { roleSlug }),
       },
-      status: MemberStatus.ACTIVE,
     };
 
     return this.prisma.projectMember.findMany({
@@ -40,6 +39,7 @@ export class GetProjectMembersHandler
             firstName: true,
             lastName: true,
             imageUrl: true,
+            email: true,
           },
         },
         projectRole: {

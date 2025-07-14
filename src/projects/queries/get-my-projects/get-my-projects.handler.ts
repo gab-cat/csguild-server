@@ -34,6 +34,7 @@ export class GetMyProjectsHandler implements IQueryHandler<GetMyProjectsQuery> {
             firstName: true,
             lastName: true,
             imageUrl: true,
+            email: true,
           },
         },
         roles: {
