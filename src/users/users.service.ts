@@ -60,7 +60,7 @@ export class UsersService {
           lastName: data.lastName,
           birthdate: data.birthdate ? new Date(data.birthdate) : null,
           course: data.course || '', // Set to empty string if not provided
-          rfidId: data.rfidId,
+          rfidId: data.rfidId || null, // Store RFID ID if provided
           imageUrl: data.imageUrl || null, // Store profile image if provided
           emailVerified: false,
           emailVerificationCode: verificationCode,
@@ -139,7 +139,7 @@ export class UsersService {
         lastName: data.lastName,
         birthdate: data.birthdate ? new Date(data.birthdate) : null,
         course: data.course || '', // Set to empty string if not provided
-        rfidId: data.rfidId,
+        rfidId: data.rfidId || null, // Store RFID ID if provided
         imageUrl: data.imageUrl || null, // Store profile image from Google OAuth
         emailVerified: true, // Auto-verify for OAuth
         emailVerificationCode: null,
