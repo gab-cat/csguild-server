@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ProjectStatus, MemberStatus } from '../../../generated/prisma';
+import { ProjectStatus } from '../../../generated/prisma';
 
 export class ProjectOwnerDto {
   @ApiProperty({ example: 'johndoe' })
@@ -185,6 +185,53 @@ export class UserBasicDto {
   email?: string;
 }
 
+export class ProjectMemberDto {
+  @ApiProperty({ example: 'clm7x8k9e0000v8og4n2h5k7m' })
+  id: string;
+
+  @ApiProperty({ example: 'cs-guild-mobile-app' })
+  projectSlug: string;
+
+  @ApiProperty({ example: 'johndoe' })
+  userSlug: string;
+
+  @ApiProperty({ example: 'frontend-developer' })
+  roleSlug: string;
+
+  @ApiProperty({
+    enum: ['ACTIVE', 'INACTIVE', 'REMOVED'],
+    example: 'ACTIVE',
+  })
+  status: string;
+
+  @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
+  joinedAt: string;
+
+  @ApiProperty({ type: UserBasicDto })
+  user: UserBasicDto;
+
+  @ApiProperty({
+    type: 'object',
+    properties: {
+      roleSlug: { type: 'string', example: 'frontend-developer' },
+      role: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', example: 'Frontend Developer' },
+          slug: { type: 'string', example: 'frontend-developer' },
+        },
+      },
+    },
+  })
+  projectRole: {
+    roleSlug: string;
+    role: {
+      name: string;
+      slug: string;
+    };
+  };
+}
+
 export class ProjectApplicationDto {
   @ApiProperty({ example: 'clm7x8k9e0000v8og4n2h5k7a' })
   id: string;
@@ -241,51 +288,12 @@ export class ProjectApplicationDto {
 
   @ApiProperty({ type: UserBasicDto, required: false })
   reviewer?: UserBasicDto;
-}
-
-export class ProjectMemberDto {
-  @ApiProperty({ example: 'clm7x8k9e0000v8og4n2h5k7m' })
-  id: string;
-
-  @ApiProperty({ example: 'cs-guild-mobile-app' })
-  projectSlug: string;
-
-  @ApiProperty({ example: 'johndoe' })
-  userSlug: string;
-
-  @ApiProperty({ example: 'frontend-developer' })
-  roleSlug: string;
 
   @ApiProperty({
-    enum: MemberStatus,
-    example: 'ACTIVE',
+    type: () => ProjectMemberDto,
+    required: false,
+    description:
+      'Project member data if application was approved and user became a member',
   })
-  status: MemberStatus;
-
-  @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
-  joinedAt: string;
-
-  @ApiProperty({ type: UserBasicDto })
-  user: UserBasicDto;
-
-  @ApiProperty({
-    type: 'object',
-    properties: {
-      roleSlug: { type: 'string', example: 'frontend-developer' },
-      role: {
-        type: 'object',
-        properties: {
-          name: { type: 'string', example: 'Frontend Developer' },
-          slug: { type: 'string', example: 'frontend-developer' },
-        },
-      },
-    },
-  })
-  projectRole: {
-    roleSlug: string;
-    role: {
-      name: string;
-      slug: string;
-    };
-  };
+  projectMember?: ProjectMemberDto;
 }

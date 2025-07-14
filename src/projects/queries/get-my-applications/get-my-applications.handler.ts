@@ -46,6 +46,47 @@ export class GetMyApplicationsHandler
       },
     });
 
-    return applications;
+    // Fetch project member data for approved applications
+    const applicationsWithMembers = await Promise.all(
+      applications.map(async (application) => {
+        if (application.status === 'APPROVED') {
+          const projectMember = await this.prisma.projectMember.findFirst({
+            where: {
+              projectSlug: application.projectSlug,
+              userSlug: application.userSlug,
+              roleSlug: application.roleSlug,
+            },
+            include: {
+              user: {
+                select: {
+                  username: true,
+                  firstName: true,
+                  lastName: true,
+                  imageUrl: true,
+                },
+              },
+              projectRole: {
+                include: {
+                  role: {
+                    select: {
+                      name: true,
+                      slug: true,
+                    },
+                  },
+                },
+              },
+            },
+          });
+
+          return {
+            ...application,
+            projectMember,
+          };
+        }
+        return application;
+      }),
+    );
+
+    return applicationsWithMembers;
   }
 }
