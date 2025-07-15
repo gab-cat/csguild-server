@@ -1,0 +1,603 @@
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>New Project Applications - CS Guild</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          'Inter',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        line-height: 1.6;
+        color: #ffffff;
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+        padding: 16px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 700px;
+        margin: 0 auto;
+        background: linear-gradient(
+          135deg,
+          rgba(31, 41, 55, 0.95) 0%,
+          rgba(17, 24, 39, 0.95) 100%
+        );
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow:
+          0 25px 50px -12px rgba(0, 0, 0, 0.8),
+          0 0 0 1px rgba(34, 197, 94, 0.1);
+        backdrop-filter: blur(20px);
+      }
+
+      .header {
+        background: linear-gradient(
+          135deg,
+          rgba(34, 197, 94, 0.9) 0%,
+          rgba(16, 185, 129, 0.9) 100%
+        );
+        padding: 32px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        opacity: 0.3;
+      }
+
+      .logo {
+        position: relative;
+        z-index: 1;
+        font-size: 24px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 8px;
+        font-family: 'JetBrains Mono', monospace;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .header h1 {
+        position: relative;
+        z-index: 1;
+        font-size: 20px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.95);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      .content {
+        padding: 32px;
+      }
+
+      .notification-hero {
+        text-align: center;
+        margin-bottom: 32px;
+        padding: 32px 24px;
+        background: linear-gradient(
+          135deg,
+          rgba(34, 197, 94, 0.1) 0%,
+          rgba(16, 185, 129, 0.1) 100%
+        );
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .notification-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #22c55e, #10b981, #059669, #22c55e);
+        background-size: 300% 100%;
+        animation: shimmer 3s ease infinite;
+      }
+
+      @keyframes shimmer {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+      }
+
+      .notification-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        display: block;
+        animation: bounce 2s infinite;
+      }
+
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+      }
+
+      .notification-title {
+        font-size: 28px;
+        font-weight: 700;
+        background: linear-gradient(45deg, #22c55e, #10b981, #059669);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 12px;
+        line-height: 1.2;
+      }
+
+      .notification-subtitle {
+        font-size: 18px;
+        color: rgba(34, 197, 94, 0.9);
+        font-weight: 500;
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .greeting {
+        font-size: 18px;
+        font-weight: 500;
+        color: #ffffff;
+        margin-bottom: 20px;
+      }
+
+      .description {
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 24px;
+        line-height: 1.6;
+      }
+
+      .summary-info {
+        background: linear-gradient(
+          135deg,
+          rgba(31, 41, 55, 0.6) 0%,
+          rgba(55, 65, 81, 0.6) 100%
+        );
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 32px;
+        text-align: center;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 16px;
+      }
+
+      .summary-item {
+        background: rgba(31, 41, 55, 0.5);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: 8px;
+        padding: 16px;
+      }
+
+      .summary-number {
+        font-size: 24px;
+        font-weight: 700;
+        color: #22c55e;
+        margin-bottom: 4px;
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .summary-label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 500;
+      }
+
+      .projects-section {
+        margin-bottom: 32px;
+      }
+
+      .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .section-title::before {
+        content: '📋';
+        font-size: 18px;
+      }
+
+      .project-card {
+        background: linear-gradient(
+          135deg,
+          rgba(31, 41, 55, 0.6) 0%,
+          rgba(55, 65, 81, 0.6) 100%
+        );
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 20px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .project-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #22c55e, #10b981, #059669, #22c55e);
+        background-size: 300% 100%;
+        animation: projectShift 4s ease infinite;
+      }
+
+      @keyframes projectShift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+      }
+
+      .project-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .project-name {
+        font-size: 18px;
+        font-weight: 600;
+        color: #ffffff;
+      }
+
+      .application-count {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+        padding: 4px 12px;
+        border-radius: 16px;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .applications-list {
+        margin-top: 16px;
+      }
+
+      .application-item {
+        background: rgba(31, 41, 55, 0.4);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
+      }
+
+      .application-item:hover {
+        background: rgba(31, 41, 55, 0.6);
+        border-color: rgba(34, 197, 94, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .applicant-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+      }
+
+      .applicant-name {
+        font-size: 15px;
+        font-weight: 600;
+        color: #ffffff;
+      }
+
+      .applicant-email {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .role-info {
+        font-size: 13px;
+        color: #22c55e;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+
+      .application-message {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.5;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 12px;
+        border-radius: 6px;
+        border-left: 3px solid rgba(34, 197, 94, 0.5);
+      }
+
+      .cta-section {
+        text-align: center;
+        margin: 32px 0;
+        padding: 24px;
+        background: linear-gradient(
+          135deg,
+          rgba(34, 197, 94, 0.1) 0%,
+          rgba(16, 185, 129, 0.1) 100%
+        );
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: 12px;
+      }
+
+      .cta-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 12px;
+      }
+
+      .cta-description {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 20px;
+      }
+
+      .cta-button {
+        display: inline-block;
+        background: linear-gradient(135deg, #22c55e 0%, #10b981 100%);
+        color: #ffffff;
+        padding: 12px 32px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        margin: 0 8px;
+      }
+
+      .cta-button:hover {
+        background: linear-gradient(135deg, #16a34a 0%, #059669 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+      }
+
+      .cta-button.secondary {
+        background: transparent;
+        border-color: rgba(34, 197, 94, 0.5);
+        color: #22c55e;
+      }
+
+      .cta-button.secondary:hover {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: #22c55e;
+      }
+
+      .footer {
+        background: linear-gradient(
+          135deg,
+          rgba(31, 41, 55, 0.8) 0%,
+          rgba(17, 24, 39, 0.8) 100%
+        );
+        padding: 24px 32px;
+        text-align: center;
+        border-top: 1px solid rgba(34, 197, 94, 0.2);
+      }
+
+      .footer-brand {
+        font-size: 16px;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 8px;
+      }
+
+      .footer-tagline {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 16px;
+      }
+
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 12px;
+      }
+
+      .footer-link {
+        color: rgba(34, 197, 94, 0.8);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .footer-link:hover {
+        color: #22c55e;
+      }
+
+      .footer-note {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.5);
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          margin: 8px;
+          border-radius: 10px;
+        }
+
+        .content {
+          padding: 20px;
+        }
+
+        .notification-hero {
+          padding: 24px 16px;
+        }
+
+        .notification-title {
+          font-size: 22px;
+        }
+
+        .summary-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .project-header {
+          flex-direction: column;
+          gap: 8px;
+          align-items: flex-start;
+        }
+
+        .applicant-info {
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .footer-links {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .cta-button {
+          display: block;
+          margin: 8px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <div class='header'>
+        <div class='logo'>CS Guild</div>
+        <h1>New Project Applications</h1>
+      </div>
+
+      <div class='content'>
+        <div class='notification-hero'>
+          <span class='notification-icon'>📬</span>
+          <h2 class='notification-title'>You Have New Applications!</h2>
+          <p class='notification-subtitle'>{{schedule}} Check-in</p>
+        </div>
+
+        <p class='greeting'>Hey {{firstName}},</p>
+
+        <p class='description'>
+          {{#if hasMultipleProjects}}
+            Great news! You've received <strong>{{totalApplications}}</strong> new application{{#unless (eq totalApplications 1)}}s{{/unless}} across your projects during the time window <strong>{{timeWindow}}</strong>.
+          {{else}}
+            Great news! You've received <strong>{{totalApplications}}</strong> new application{{#unless (eq totalApplications 1)}}s{{/unless}} for your project during the time window <strong>{{timeWindow}}</strong>.
+          {{/if}}
+        </p>
+
+        <div class='summary-info'>
+          <div class='summary-grid'>
+            <div class='summary-item'>
+              <div class='summary-number'>{{totalApplications}}</div>
+              <div class='summary-label'>New Application{{#unless (eq totalApplications 1)}}s{{/unless}}</div>
+            </div>
+            <div class='summary-item'>
+              <div class='summary-number'>{{projects.length}}</div>
+              <div class='summary-label'>Project{{#unless (eq projects.length 1)}}s{{/unless}}</div>
+            </div>
+            <div class='summary-item'>
+              <div class='summary-number'>{{schedule}}</div>
+              <div class='summary-label'>Report Time</div>
+            </div>
+          </div>
+        </div>
+
+        <div class='projects-section'>
+          <h3 class='section-title'>Application Details</h3>
+          
+          {{#each projects}}
+          <div class='project-card'>
+            <div class='project-header'>
+              <div class='project-name'>{{this.name}}</div>
+              <div class='application-count'>{{this.applicationCount}} new</div>
+            </div>
+            
+            <div class='applications-list'>
+              {{#each this.applications}}
+              <div class='application-item'>
+                <div class='applicant-info'>
+                  <div>
+                    <div class='applicant-name'>{{this.applicantName}}</div>
+                    <div class='applicant-email'>{{this.applicantEmail}}</div>
+                  </div>
+                </div>
+                <div class='role-info'>Applied for: {{this.roleName}}</div>
+                {{#if this.message}}
+                <div class='application-message'>
+                  "{{this.message}}"
+                </div>
+                {{/if}}
+              </div>
+              {{/each}}
+            </div>
+          </div>
+          {{/each}}
+        </div>
+
+        <div class='cta-section'>
+          <h3 class='cta-title'>Ready to Review?</h3>
+          <p class='cta-description'>
+            Don't keep your potential team members waiting! Review these applications and build amazing projects together.
+          </p>
+          <a href='{{projectsUrl}}' class='cta-button'>Review Applications</a>
+          <a href='{{dashboardUrl}}' class='cta-button secondary'>Go to Dashboard</a>
+        </div>
+
+        <p class='description'>
+          <strong>Next Steps:</strong>
+        </p>
+        <ul style="color: rgba(255, 255, 255, 0.8); margin-left: 20px; margin-bottom: 24px;">
+          <li>Review each applicant's profile and application message</li>
+          <li>Consider how their skills align with your project needs</li>
+          <li>Approve the best candidates to join your team</li>
+          <li>Send feedback to help applicants grow</li>
+        </ul>
+
+        <p class='description'>
+          Remember, building a great team is key to project success. Take your time to find the right fit, and don't hesitate to reach out to our support team at {{supportEmail}} if you need any assistance.
+        </p>
+      </div>
+
+      <div class='footer'>
+        <div class='footer-brand'>Built with ❤️ by {{organizationName}}</div>
+        <p class='footer-tagline'>Empowering collaborative development</p>
+
+        <div class='footer-links'>
+          <a href='{{projectsUrl}}' class='footer-link'>My Projects</a>
+          <a href='{{dashboardUrl}}' class='footer-link'>Dashboard</a>
+        </div>
+
+        <p class='footer-note'>
+          console.log("Happy reviewing! 🚀");
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
