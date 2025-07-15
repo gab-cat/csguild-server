@@ -74,8 +74,8 @@ export class CronService implements OnModuleInit {
     );
   }
 
-  // Run at 2:00 PM - Check applications from 8:00 AM to 2:00  | 0 14 * * *
-  @Cron('* * * * *', {
+  // Run at 2:00 PM - Check applications from 8:00 AM to 2:00 PM
+  @Cron('0 14 * * *', {
     name: 'notifyProjectOwnersAfternoon',
     timeZone: 'Asia/Manila',
   })
