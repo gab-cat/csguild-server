@@ -59,19 +59,90 @@ export class UpdateProjectHandler
           const roleSlugs = roles.map((role) => role.roleSlug);
           await this.projectUtils.validateRoleSlugs(roleSlugs);
 
-          // Delete existing roles and create new ones (simpler approach)
-          await tx.projectRole.deleteMany({
+          // Get existing project roles
+          const existingRoles = await tx.projectRole.findMany({
             where: { projectSlug: slug },
+            include: {
+              _count: {
+                select: {
+                  members: {
+                    where: {
+                      status: 'ACTIVE', // Only count active members
+                    },
+                  },
+                },
+              },
+            },
           });
 
-          await tx.projectRole.createMany({
-            data: roles.map((role) => ({
-              projectSlug: slug,
-              roleSlug: role.roleSlug,
-              maxMembers: role.maxMembers || 1,
-              requirements: role.requirements || null,
-            })),
-          });
+          // Create maps for easier processing
+          const existingRolesMap = new Map(
+            existingRoles.map((role) => [role.roleSlug, role]),
+          );
+          const newRolesMap = new Map(
+            roles.map((role) => [role.roleSlug, role]),
+          );
+
+          // Identify roles to add, update, and remove
+          const rolesToAdd = roles.filter(
+            (role) => !existingRolesMap.has(role.roleSlug),
+          );
+          const rolesToUpdate = roles.filter((role) =>
+            existingRolesMap.has(role.roleSlug),
+          );
+          const rolesToRemove = existingRoles.filter(
+            (role) => !newRolesMap.has(role.roleSlug),
+          );
+
+          // Prevent removal of roles that have active members
+          const rolesWithMembers = rolesToRemove.filter(
+            (role) => role._count.members > 0,
+          );
+          if (rolesWithMembers.length > 0) {
+            const roleNames = rolesWithMembers.map((role) => role.roleSlug);
+            throw new BadRequestException(
+              `Cannot remove roles that have active members: ${roleNames.join(', ')}. ` +
+                'Please remove all members from these roles first, or keep the roles in your update.',
+            );
+          }
+
+          // Add new roles
+          if (rolesToAdd.length > 0) {
+            await tx.projectRole.createMany({
+              data: rolesToAdd.map((role) => ({
+                projectSlug: slug,
+                roleSlug: role.roleSlug,
+                maxMembers: role.maxMembers || 1,
+                requirements: role.requirements || null,
+              })),
+            });
+          }
+
+          // Update existing roles (preserve members by updating in place)
+          for (const role of rolesToUpdate) {
+            await tx.projectRole.updateMany({
+              where: {
+                projectSlug: slug,
+                roleSlug: role.roleSlug,
+              },
+              data: {
+                maxMembers: role.maxMembers || 1,
+                requirements: role.requirements || null,
+              },
+            });
+          }
+
+          // Remove roles that don't have members (safe to delete)
+          if (rolesToRemove.length > 0) {
+            await tx.projectRole.deleteMany({
+              where: {
+                projectSlug: slug,
+                roleSlug: {
+                  in: rolesToRemove.map((role) => role.roleSlug),
+                },
+              },
+            });
+          }
         }
 
         return updatedProject;

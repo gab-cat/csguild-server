@@ -4,6 +4,7 @@ import { ProjectsQueryController } from './projects-query.controller';
 import { ProjectsCommandController } from './projects-command.controller';
 import { PrismaModule } from '../common/prisma/prisma.module';
 import { EmailModule } from '../common/email/email.module';
+import { LoggerModule } from '../common/logger/logger.module';
 import { ProjectUtils } from './utils';
 
 // Command Handlers
@@ -16,6 +17,7 @@ import {
   ReviewApplicationHandler,
   RemoveProjectMemberHandler,
   ReactivateProjectMemberHandler,
+  SendApplicationNotificationHandler,
 } from './commands';
 
 // Query Handlers
@@ -27,6 +29,7 @@ import {
   GetProjectApplicationsHandler,
   GetProjectMembersHandler,
   GetProjectBasicInfoHandler,
+  GetNewApplicationsHandler,
 } from './queries';
 
 const CommandHandlers = [
@@ -38,6 +41,7 @@ const CommandHandlers = [
   ReviewApplicationHandler,
   RemoveProjectMemberHandler,
   ReactivateProjectMemberHandler,
+  SendApplicationNotificationHandler,
 ];
 
 const QueryHandlers = [
@@ -48,10 +52,11 @@ const QueryHandlers = [
   GetProjectApplicationsHandler,
   GetProjectMembersHandler,
   GetProjectBasicInfoHandler,
+  GetNewApplicationsHandler,
 ];
 
 @Module({
-  imports: [PrismaModule, EmailModule, CqrsModule],
+  imports: [PrismaModule, EmailModule, LoggerModule, CqrsModule],
   controllers: [ProjectsQueryController, ProjectsCommandController],
   providers: [...CommandHandlers, ...QueryHandlers, ProjectUtils],
 })

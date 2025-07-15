@@ -12,3 +12,5 @@ export * from './get-project-members/get-project-members.query';
 export * from './get-project-members/get-project-members.handler';
 export * from './get-project-basic-info/get-project-basic-info.query';
 export * from './get-project-basic-info/get-project-basic-info.handler';
+export * from './get-new-applications/get-new-applications.query';
+export * from './get-new-applications/get-new-applications.handler';
