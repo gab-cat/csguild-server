@@ -165,7 +165,7 @@ The log viewer requires authentication to protect sensitive system information:
 
 ## ⏰ Automated Cron Jobs
 
-The system includes automated background tasks for facility and user management:
+The system includes automated background tasks for facility management, user management, and project notifications:
 
 ### Daily User Timeout (8 PM)
 
@@ -173,6 +173,21 @@ The system includes automated background tasks for facility and user management:
 - **Function**: Automatically times out all active users from facilities
 - **Purpose**: Ensures facilities are properly closed at end of business day
 - **Logging**: Full execution details logged for audit trail
+
+### Project Application Notifications
+
+- **Schedule**: 3 times daily at 8:00 AM, 2:00 PM, and 8:00 PM (Asia/Manila)
+- **Function**: Notifies project owners about new applications in 6-hour windows
+- **Time Windows**:
+  - 8:00 AM → Applications from 8:00 PM (previous day) to 8:00 AM
+  - 2:00 PM → Applications from 8:00 AM to 2:00 PM
+  - 8:00 PM → Applications from 2:00 PM to 8:00 PM
+- **Features**:
+  - Groups applications by project and owner
+  - Sends consolidated email for multiple projects
+  - Includes applicant details, roles, and messages
+  - Only notifies if there are new pending applications
+  - Handles timezone (Asia/Manila) properly
 
 ### Implementation
 
@@ -184,6 +199,21 @@ async timeoutUsersDaily() {
   const result = await this.usersService.timeoutAllActiveUsers();
   // Logs: "CRON timeout executed: X users timed out"
 }
+
+@Cron('0 8 * * *') // 8 AM daily
+async notifyProjectOwnersMorning() {
+  // Check applications from 8:00 PM (previous day) to 8:00 AM
+}
+
+@Cron('0 14 * * *') // 2 PM daily  
+async notifyProjectOwnersAfternoon() {
+  // Check applications from 8:00 AM to 2:00 PM
+}
+
+@Cron('0 20 * * *') // 8 PM daily
+async notifyProjectOwnersEvening() {
+  // Check applications from 2:00 PM to 8:00 PM
+}
 ```
 
 ### Monitoring Cron Jobs
@@ -191,7 +221,9 @@ async timeoutUsersDaily() {
 - View cron execution logs in the real-time log viewer
 - Check console output for cron service initialization
 - Monitor daily timeout operations in service logs
+- Monitor project application notification delivery
 - All cron activities are logged with timestamps and results
+- Email delivery failures are logged but don't stop the process
 
 ## 📚 API Documentation
 

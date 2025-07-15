@@ -36,6 +36,26 @@ interface SendApplicationRejectedParams {
   reviewMessage?: string;
 }
 
+interface SendProjectApplicationNotificationParams {
+  email: string;
+  firstName: string;
+  projects: {
+    name: string;
+    slug: string;
+    applicationCount: number;
+    applications: {
+      applicantName: string;
+      applicantEmail: string;
+      roleName: string;
+      message: string;
+      appliedAt: Date;
+    }[];
+  }[];
+  totalApplications: number;
+  timeWindow: string;
+  schedule: string;
+}
+
 @Injectable()
 export class EmailService {
   constructor(
@@ -192,6 +212,49 @@ export class EmailService {
           'FRONTEND_URL',
           'http://localhost:3000',
         )}/dashboard`,
+      },
+    });
+  }
+
+  async sendProjectApplicationNotification(
+    params: SendProjectApplicationNotificationParams,
+  ): Promise<void> {
+    const {
+      email,
+      firstName,
+      projects,
+      totalApplications,
+      timeWindow,
+      schedule,
+    } = params;
+
+    const subjectText = totalApplications !== 1 ? 's' : '';
+    const projectText = projects.length !== 1 ? 's' : '';
+
+    await this.mailerService.sendMail({
+      to: email,
+      subject: `CSGUILD - ${totalApplications} New Application${subjectText} to Your Project${projectText}`,
+      template: 'project-application-notification',
+      context: {
+        firstName,
+        projects,
+        totalApplications,
+        timeWindow,
+        schedule,
+        hasMultipleProjects: projects.length > 1,
+        organizationName: 'CSGUILD',
+        supportEmail: this.configService.get(
+          'SUPPORT_EMAIL',
+          'support@csguild.org',
+        ),
+        dashboardUrl: `${this.configService.get(
+          'FRONTEND_URL',
+          'http://localhost:3000',
+        )}/dashboard`,
+        projectsUrl: `${this.configService.get(
+          'FRONTEND_URL',
+          'http://localhost:3000',
+        )}/my-projects`,
       },
     });
   }
