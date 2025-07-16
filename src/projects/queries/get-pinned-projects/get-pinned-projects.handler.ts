@@ -2,13 +2,14 @@ import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { GetPinnedProjectsQuery } from './get-pinned-projects.query';
-import { ProjectListResponse, ProjectSummary } from '../../types/project.types';
+import { ProjectListResponse } from '../../types/project.types';
 
 @Injectable()
 @QueryHandler(GetPinnedProjectsQuery)
 export class GetPinnedProjectsHandler
-  implements IQueryHandler<GetPinnedProjectsQuery> {
-  constructor(private readonly prisma: PrismaService) { }
+  implements IQueryHandler<GetPinnedProjectsQuery>
+{
+  constructor(private readonly prisma: PrismaService) {}
 
   async execute(): Promise<ProjectListResponse> {
     // Get pinned projects ordered by the order field

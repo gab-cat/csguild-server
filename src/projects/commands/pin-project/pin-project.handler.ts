@@ -51,21 +51,21 @@ export class PinProjectHandler implements ICommandHandler<PinProjectCommand> {
     }
 
     try {
-      // Get the next order number
-      const maxOrder = await this.prisma.projectPinned.aggregate({
-        _max: { order: true },
+      const pinnedProject = await this.prisma.$transaction(async (tx) => {
+        // Get the next order number within the transaction
+        const maxOrder = await tx.projectPinned.aggregate({
+          _max: { order: true },
+        });
+        const nextOrder = (maxOrder._max.order || 0) + 1;
+        // Pin the project and return the created data
+        return await tx.projectPinned.create({
+          data: {
+            projectSlug,
+            pinnedBy: adminUsername,
+            order: nextOrder,
+          },
+        });
       });
-      const nextOrder = (maxOrder._max.order || 0) + 1;
-
-      // Pin the project and return the created data
-      const pinnedProject = await this.prisma.projectPinned.create({
-        data: {
-          projectSlug,
-          pinnedBy: adminUsername,
-          order: nextOrder,
-        },
-      });
-
       return {
         id: pinnedProject.id,
         projectSlug: pinnedProject.projectSlug,
