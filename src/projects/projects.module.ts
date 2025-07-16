@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ProjectsQueryController } from './projects-query.controller';
 import { ProjectsCommandController } from './projects-command.controller';
+import { ProjectsAdminController } from './projects-admin.controller';
 import { PrismaModule } from '../common/prisma/prisma.module';
 import { EmailModule } from '../common/email/email.module';
 import { LoggerModule } from '../common/logger/logger.module';
@@ -18,6 +19,10 @@ import {
   RemoveProjectMemberHandler,
   ReactivateProjectMemberHandler,
   SendApplicationNotificationHandler,
+  PinProjectHandler,
+  UnpinProjectHandler,
+  SaveProjectHandler,
+  UnsaveProjectHandler,
 } from './commands';
 
 // Query Handlers
@@ -30,6 +35,8 @@ import {
   GetProjectMembersHandler,
   GetProjectBasicInfoHandler,
   GetNewApplicationsHandler,
+  GetPinnedProjectsHandler,
+  GetSavedProjectsHandler,
 } from './queries';
 
 const CommandHandlers = [
@@ -42,6 +49,10 @@ const CommandHandlers = [
   RemoveProjectMemberHandler,
   ReactivateProjectMemberHandler,
   SendApplicationNotificationHandler,
+  PinProjectHandler,
+  UnpinProjectHandler,
+  SaveProjectHandler,
+  UnsaveProjectHandler,
 ];
 
 const QueryHandlers = [
@@ -53,11 +64,17 @@ const QueryHandlers = [
   GetProjectMembersHandler,
   GetProjectBasicInfoHandler,
   GetNewApplicationsHandler,
+  GetPinnedProjectsHandler,
+  GetSavedProjectsHandler,
 ];
 
 @Module({
   imports: [PrismaModule, EmailModule, LoggerModule, CqrsModule],
-  controllers: [ProjectsQueryController, ProjectsCommandController],
+  controllers: [
+    ProjectsQueryController,
+    ProjectsCommandController,
+    ProjectsAdminController,
+  ],
   providers: [...CommandHandlers, ...QueryHandlers, ProjectUtils],
 })
 export class ProjectsModule {}

@@ -30,6 +30,10 @@ import {
   ReviewApplicationResponseDto,
   RemoveProjectMemberResponseDto,
   ReactivateProjectMemberResponseDto,
+  SaveProjectResponseDto,
+  UnsaveProjectResponseDto,
+  SaveProjectErrorResponseDto,
+  UnsaveProjectErrorResponseDto,
 } from './dto';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -44,6 +48,8 @@ import {
   ReviewApplicationCommand,
   RemoveProjectMemberCommand,
   ReactivateProjectMemberCommand,
+  SaveProjectCommand,
+  UnsaveProjectCommand,
 } from './commands';
 
 // Queries
@@ -520,6 +526,102 @@ export class ProjectsCommandController {
     );
     return {
       message: 'Project member reactivated successfully',
+      statusCode: 200,
+    };
+  }
+
+  @Post(':slug/save')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Save a project',
+    description:
+      'Save a project to your personal saved projects list for easy access later.',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Project slug to save',
+    example: 'cs-guild-mobile-app',
+    type: String,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Project saved successfully',
+    type: SaveProjectResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - valid JWT token required',
+    type: SaveProjectErrorResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Project not found',
+    type: SaveProjectErrorResponseDto,
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Project is already saved by this user',
+    type: SaveProjectErrorResponseDto,
+  })
+  async saveProject(
+    @Param('slug') slug: string,
+    @CurrentUser() user: User,
+  ): Promise<SaveProjectResponseDto> {
+    const savedProject = await this.commandBus.execute(
+      new SaveProjectCommand(slug, user.username),
+    );
+
+    return {
+      message: 'Project saved successfully',
+      statusCode: 201,
+      savedProject: {
+        id: savedProject.id,
+        userSlug: savedProject.userSlug,
+        projectSlug: savedProject.projectSlug,
+        savedAt: savedProject.savedAt.toISOString(),
+      },
+    };
+  }
+
+  @Delete(':slug/unsave')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Unsave a project',
+    description: 'Remove a project from your personal saved projects list.',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Project slug to unsave',
+    example: 'cs-guild-mobile-app',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Project unsaved successfully',
+    type: UnsaveProjectResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - valid JWT token required',
+    type: UnsaveProjectErrorResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Project not found or not currently saved by this user',
+    type: UnsaveProjectErrorResponseDto,
+  })
+  async unsaveProject(
+    @Param('slug') slug: string,
+    @CurrentUser() user: User,
+  ): Promise<UnsaveProjectResponseDto> {
+    await this.commandBus.execute(
+      new UnsaveProjectCommand(slug, user.username),
+    );
+
+    return {
+      message: 'Project unsaved successfully',
       statusCode: 200,
     };
   }

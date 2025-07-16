@@ -17,6 +17,8 @@ export * from './user-role-detail-response.dto';
 export * from './project-response.dto';
 export * from './project-query-response.dto';
 export * from './user-project-response.dto';
+export * from './pin-project-response.dto';
+export * from './save-project-response.dto';
 
 // Enums
 export * from './application-decision.enum';
