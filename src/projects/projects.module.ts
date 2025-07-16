@@ -18,6 +18,10 @@ import {
   RemoveProjectMemberHandler,
   ReactivateProjectMemberHandler,
   SendApplicationNotificationHandler,
+  PinProjectHandler,
+  UnpinProjectHandler,
+  SaveProjectHandler,
+  UnsaveProjectHandler,
 } from './commands';
 
 // Query Handlers
@@ -30,6 +34,8 @@ import {
   GetProjectMembersHandler,
   GetProjectBasicInfoHandler,
   GetNewApplicationsHandler,
+  GetPinnedProjectsHandler,
+  GetSavedProjectsHandler,
 } from './queries';
 
 const CommandHandlers = [
@@ -42,6 +48,10 @@ const CommandHandlers = [
   RemoveProjectMemberHandler,
   ReactivateProjectMemberHandler,
   SendApplicationNotificationHandler,
+  PinProjectHandler,
+  UnpinProjectHandler,
+  SaveProjectHandler,
+  UnsaveProjectHandler,
 ];
 
 const QueryHandlers = [
@@ -53,6 +63,8 @@ const QueryHandlers = [
   GetProjectMembersHandler,
   GetProjectBasicInfoHandler,
   GetNewApplicationsHandler,
+  GetPinnedProjectsHandler,
+  GetSavedProjectsHandler,
 ];
 
 @Module({

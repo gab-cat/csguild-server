@@ -31,6 +31,10 @@ model Project {
   members     ProjectMember[]
   roles       ProjectRole[]
   applications ProjectApplication[]
+  
+  // New pinning and saving relations
+  pinnedProject ProjectPinned?
+  savedByUsers  ProjectSaved[]
 
   @@map("projects")
   @@index([slug])
@@ -127,4 +131,38 @@ enum ApplicationStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+// Global pinned projects (admin-managed, max 6)
+model ProjectPinned {
+  id          String   @id @default(cuid())
+  projectSlug String   @unique
+  pinnedAt    DateTime @default(now())
+  pinnedBy    String   // Admin username who pinned it
+  order       Int      // For consistent ordering (1-6)
+  
+  // Relations
+  project     Project  @relation(fields: [projectSlug], references: [slug], onDelete: Cascade)
+  admin       User     @relation("AdminProjectPinned", fields: [pinnedBy], references: [username])
+  
+  @@map("project_pinned")
+  @@index([order])
+  @@index([pinnedAt])
+}
+
+// User saved projects (unlimited per user)
+model ProjectSaved {
+  id          String   @id @default(cuid())
+  userSlug    String
+  projectSlug String
+  savedAt     DateTime @default(now())
+  
+  // Relations
+  user        User     @relation("UserProjectSaved", fields: [userSlug], references: [username], onDelete: Cascade)
+  project     Project  @relation(fields: [projectSlug], references: [slug], onDelete: Cascade)
+  
+  @@unique([userSlug, projectSlug])
+  @@map("project_saved")
+  @@index([userSlug])
+  @@index([savedAt])
 }

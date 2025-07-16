@@ -14,3 +14,7 @@ export * from './get-project-basic-info/get-project-basic-info.query';
 export * from './get-project-basic-info/get-project-basic-info.handler';
 export * from './get-new-applications/get-new-applications.query';
 export * from './get-new-applications/get-new-applications.handler';
+export * from './get-pinned-projects/get-pinned-projects.query';
+export * from './get-pinned-projects/get-pinned-projects.handler';
+export * from './get-saved-projects/get-saved-projects.query';
+export * from './get-saved-projects/get-saved-projects.handler';

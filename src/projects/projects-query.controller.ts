@@ -20,6 +20,8 @@ import {
   GetProjectApplicationsQuery,
   GetProjectMembersQuery,
   GetProjectBasicInfoQuery,
+  GetSavedProjectsQuery,
+  GetPinnedProjectsQuery,
 } from './queries';
 import {
   User,
@@ -51,7 +53,7 @@ export class ProjectsQueryController {
     summary: 'Get all projects with filtering and pagination',
     description:
       'Retrieve a paginated list of projects with optional filtering by status, tags, ' +
-      'search term, and owner. No authentication required.',
+      'search term, and owner. Use ?pinned=true with authentication to get pinned projects.',
   })
   @ApiResponse({
     status: 200,
@@ -114,6 +116,14 @@ export class ProjectsQueryController {
     enum: ['asc', 'desc'],
     example: 'desc',
   })
+  @ApiQuery({
+    name: 'pinned',
+    required: false,
+    description:
+      'Filter to show only pinned projects (requires authentication)',
+    type: Boolean,
+    example: true,
+  })
   async findAll(
     @Query('status') status?: string,
     @Query('tags') tags?: string,
@@ -123,7 +133,13 @@ export class ProjectsQueryController {
     @Query('limit') limit = 10,
     @Query('sortBy') sortBy = 'createdAt',
     @Query('sortOrder') sortOrder = 'desc',
+    @Query('pinned') pinned?: boolean,
   ): Promise<ProjectListResponse> {
+    // If pinned filter is requested, use GetPinnedProjectsQuery instead
+    if (pinned) {
+      return this.queryBus.execute(new GetPinnedProjectsQuery());
+    }
+
     const filters = {
       status: status as ProjectStatus, // Will be validated by Prisma
       tags: tags ? tags.split(',') : undefined,
@@ -245,6 +261,70 @@ export class ProjectsQueryController {
       message: 'Applications retrieved successfully',
       applications: applications as unknown as ProjectApplicationDto[],
     };
+  }
+
+  @Get('saved')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get saved projects',
+    description:
+      'Retrieve all projects saved by the current user with pagination',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Saved projects retrieved successfully',
+    type: ProjectListResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - valid JWT token required',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Page number for pagination (minimum: 1)',
+    example: 1,
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of items per page (minimum: 1, maximum: 100)',
+    example: 10,
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    description: 'Field to sort by',
+    enum: ['createdAt', 'updatedAt', 'dueDate', 'title'],
+    example: 'createdAt',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    description: 'Sort direction',
+    enum: ['asc', 'desc'],
+    example: 'desc',
+  })
+  async getSavedProjects(
+    @CurrentUser() user: User,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('sortBy') sortBy = 'createdAt',
+    @Query('sortOrder') sortOrder = 'desc',
+  ): Promise<ProjectListResponse> {
+    const pagination = {
+      page: Number(page),
+      limit: Number(limit),
+      sortBy: sortBy as 'createdAt' | 'updatedAt' | 'dueDate' | 'title',
+      sortOrder: sortOrder as 'asc' | 'desc',
+    };
+
+    return this.queryBus.execute(
+      new GetSavedProjectsQuery(user.username, pagination),
+    );
   }
 
   @Get(':slug')

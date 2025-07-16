@@ -30,9 +30,20 @@ import {
   ReviewApplicationResponseDto,
   RemoveProjectMemberResponseDto,
   ReactivateProjectMemberResponseDto,
+  PinProjectResponseDto,
+  UnpinProjectResponseDto,
+  PinProjectErrorResponseDto,
+  UnpinProjectErrorResponseDto,
+  SaveProjectResponseDto,
+  UnsaveProjectResponseDto,
+  SaveProjectErrorResponseDto,
+  UnsaveProjectErrorResponseDto,
 } from './dto';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/roles/roles.decorator';
+import { Role } from '../../generated/prisma';
 
 // Commands
 import {
@@ -44,6 +55,10 @@ import {
   ReviewApplicationCommand,
   RemoveProjectMemberCommand,
   ReactivateProjectMemberCommand,
+  PinProjectCommand,
+  UnpinProjectCommand,
+  SaveProjectCommand,
+  UnsaveProjectCommand,
 } from './commands';
 
 // Queries
@@ -520,6 +535,207 @@ export class ProjectsCommandController {
     );
     return {
       message: 'Project member reactivated successfully',
+      statusCode: 200,
+    };
+  }
+
+  @Post(':slug/pin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Pin a project (Admin only)',
+    description:
+      // eslint-disable-next-line max-len
+      'Pin a project to make it globally visible to all users. Only administrators can pin projects. Maximum of 6 projects can be pinned at once.',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Project slug to pin',
+    example: 'cs-guild-mobile-app',
+    type: String,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Project pinned successfully',
+    type: PinProjectResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - valid JWT token required',
+    type: PinProjectErrorResponseDto,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - admin privileges required',
+    type: PinProjectErrorResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Project not found',
+    type: PinProjectErrorResponseDto,
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Project is already pinned',
+    type: PinProjectErrorResponseDto,
+  })
+  @ApiResponse({
+    status: 422,
+    description: 'Maximum limit of 6 pinned projects reached',
+    type: PinProjectErrorResponseDto,
+  })
+  async pinProject(
+    @Param('slug') slug: string,
+    @CurrentUser() user: User,
+  ): Promise<PinProjectResponseDto> {
+    await this.commandBus.execute(new PinProjectCommand(slug, user.username));
+
+    return {
+      message: 'Project pinned successfully',
+      statusCode: 201,
+    };
+  }
+
+  @Delete(':slug/unpin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Unpin a project (Admin only)',
+    description:
+      'Remove a project from the globally pinned projects list. Only administrators can unpin projects.',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Project slug to unpin',
+    example: 'cs-guild-mobile-app',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Project unpinned successfully',
+    type: UnpinProjectResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - valid JWT token required',
+    type: UnpinProjectErrorResponseDto,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - admin privileges required',
+    type: UnpinProjectErrorResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Project not found or not currently pinned',
+    type: UnpinProjectErrorResponseDto,
+  })
+  async unpinProject(
+    @Param('slug') slug: string,
+    @CurrentUser() user: User,
+  ): Promise<UnpinProjectResponseDto> {
+    await this.commandBus.execute(new UnpinProjectCommand(slug, user.username));
+
+    return {
+      message: 'Project unpinned successfully',
+      statusCode: 200,
+    };
+  }
+
+  @Post(':slug/save')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Save a project',
+    description:
+      'Save a project to your personal saved projects list for easy access later.',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Project slug to save',
+    example: 'cs-guild-mobile-app',
+    type: String,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Project saved successfully',
+    type: SaveProjectResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - valid JWT token required',
+    type: SaveProjectErrorResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Project not found',
+    type: SaveProjectErrorResponseDto,
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Project is already saved by this user',
+    type: SaveProjectErrorResponseDto,
+  })
+  async saveProject(
+    @Param('slug') slug: string,
+    @CurrentUser() user: User,
+  ): Promise<SaveProjectResponseDto> {
+    const savedProject = await this.commandBus.execute(
+      new SaveProjectCommand(slug, user.username),
+    );
+
+    return {
+      message: 'Project saved successfully',
+      statusCode: 201,
+      savedProject: {
+        id: savedProject.id,
+        userSlug: savedProject.userSlug,
+        projectSlug: savedProject.projectSlug,
+        savedAt: savedProject.savedAt.toISOString(),
+      },
+    };
+  }
+
+  @Delete(':slug/unsave')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Unsave a project',
+    description: 'Remove a project from your personal saved projects list.',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Project slug to unsave',
+    example: 'cs-guild-mobile-app',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Project unsaved successfully',
+    type: UnsaveProjectResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - valid JWT token required',
+    type: UnsaveProjectErrorResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Project not found or not currently saved by this user',
+    type: UnsaveProjectErrorResponseDto,
+  })
+  async unsaveProject(
+    @Param('slug') slug: string,
+    @CurrentUser() user: User,
+  ): Promise<UnsaveProjectResponseDto> {
+    await this.commandBus.execute(
+      new UnsaveProjectCommand(slug, user.username),
+    );
+
+    return {
+      message: 'Project unsaved successfully',
       statusCode: 200,
     };
   }
