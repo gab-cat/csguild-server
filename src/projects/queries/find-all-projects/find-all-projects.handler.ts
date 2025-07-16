@@ -60,6 +60,10 @@ export class FindAllProjectsHandler
       }
     }
 
+    // Exclude pinned projects from regular results
+    // Pinned projects are queried separately when ?pinned=true is used
+    where.pinnedProject = null;
+
     // Calculate pagination
     const skip = (page - 1) * limit;
     const take = limit;

@@ -51,7 +51,7 @@
 | Method   | Endpoint                                             | Description                       | Authentication             | Request Body             | Response Body                                                                                          | Notes                                                                                                                                                   |
 | -------- | ---------------------------------------------------- | --------------------------------- | -------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `POST`   | `/projects`                                          | Create new project                | JWT Cookie                 | `CreateProjectDto`       | `201` - `ProjectCreateResponseDto` with project details including roles, owner info, and member counts | Requires title, description, tags, dueDate, and at least 1 role. Auto-generates slug.                                                                   |
-| `GET`    | `/projects`                                          | Get all projects with filters     | None/JWT Cookie (optional) | Query parameters         | `200` - `ProjectListResponse` with pagination and filtering options                                    | Supports filtering by status, tags, search, ownerSlug, pinned. Public endpoint. Max 100 items per page. Use ?pinned=true with auth for pinned projects. |
+| `GET`    | `/projects`                                          | Get all projects with filters     | None/JWT Cookie (optional) | Query parameters         | `200` - `ProjectListResponse` with pagination and filtering options                                    | Supports filtering by status, tags, search, ownerSlug, pinned. Public endpoint. Max 100 items per page. **Default behavior excludes pinned projects**. Use ?pinned=true with auth for pinned projects only. |
 | `GET`    | `/projects/my-projects`                              | Get current user's projects       | JWT Cookie                 | None                     | `200` - `MyProjectsResponseDto` with owned and member projects separated                               | Shows projects user owns or is a member of.                                                                                                             |
 | `GET`    | `/projects/my-applications`                          | Get current user's applications   | JWT Cookie                 | None                     | `200` - `MyApplicationsResponseDto` with application status and project details                        | Shows all applications user has submitted.                                                                                                              |
 | `GET`    | `/projects/saved`                                    | Get saved projects                | JWT Cookie                 | Query: pagination params | `200` - `ProjectListResponse` with saved projects and pagination                                       | Shows projects saved by current user with pagination.                                                                                                   |
@@ -66,8 +66,8 @@
 | `POST`   | `/projects/applications/review`                      | Review project application        | JWT Cookie                 | `ReviewApplicationDto`   | `200` - `ReviewApplicationResponseDto` with review details                                             | Only project owner can review. Approves/rejects apps.                                                                                                   |
 | `DELETE` | `/projects/:slug/members/:memberUserSlug`            | Remove project member             | JWT Cookie                 | None                     | `200` - `RemoveProjectMemberResponseDto` with success message                                          | Only project owner can remove members. Cannot remove self.                                                                                              |
 | `PATCH`  | `/projects/:slug/members/:memberUserSlug/reactivate` | Reactivate removed project member | JWT Cookie                 | None                     | `200` - `ReactivateProjectMemberResponseDto` with success message                                      | Only project owner can reactivate. Role must have capacity.                                                                                             |
-| `POST`   | `/projects/:slug/pin`                                | Pin project (Admin only)          | JWT Cookie + ADMIN         | None                     | `201` - `PinProjectResponseDto` with success message                                                   | Global pinning for visibility. Max 6 pinned projects.                                                                                                   |
-| `DELETE` | `/projects/:slug/unpin`                              | Unpin project (Admin only)        | JWT Cookie + ADMIN         | None                     | `200` - `UnpinProjectResponseDto` with success message                                                 | Remove from global pinned list.                                                                                                                         |
+| `POST`   | `/projects/:slug/pin`                                | Pin project (Admin only)          | JWT Cookie + ADMIN         | None                     | `201` - `PinProjectResponseDto` with success message                                                   | Global pinning for visibility. Max 6 pinned projects. Pinned projects are excluded from regular listings.                                               |
+| `DELETE` | `/projects/:slug/unpin`                              | Unpin project (Admin only)        | JWT Cookie + ADMIN         | None                     | `200` - `UnpinProjectResponseDto` with success message                                                 | Remove from global pinned list. Project will appear in regular listings again.                                                                          |
 | `POST`   | `/projects/:slug/save`                               | Save project                      | JWT Cookie                 | None                     | `201` - `SaveProjectResponseDto` with saved project details                                            | Personal save for later access.                                                                                                                         |
 | `DELETE` | `/projects/:slug/unsave`                             | Unsave project                    | JWT Cookie                 | None                     | `200` - `UnsaveProjectResponseDto` with success message                                                | Remove from personal saved list.                                                                                                                        |
 
@@ -451,10 +451,15 @@
 - `sortOrder` - Sort direction (asc, desc, default: desc)
 - `pinned` - Filter to show only pinned projects (requires authentication)
 
-**Example Request:**
+**Important Behavior:**
+- **Default behavior**: Returns all projects **excluding** pinned projects to avoid duplication
+- **With `pinned=true`**: Returns **only** globally pinned projects (requires authentication)
+- **With `pinned=false`**: Returns all projects excluding pinned projects (same as default)
+
+**Example Request (Regular Projects - Excludes Pinned):**
 `GET /projects?status=OPEN&tags=mobile,typescript&page=1&limit=5&sortBy=createdAt&sortOrder=desc`
 
-**Example Request (Pinned Projects):**
+**Example Request (Pinned Projects Only):**
 `GET /projects?pinned=true` (requires authentication)
 
 **Response:**
@@ -502,6 +507,8 @@
   "totalPages": 3
 }
 ```
+
+**Note:** This response shows regular projects only. Pinned projects are excluded from the default listing and must be requested separately using `?pinned=true`.
 
 #### Review Application (`POST /projects/applications/review`)
 
@@ -771,6 +778,29 @@
   "statusCode": 200
 }
 ```
+
+### Project Visibility Model
+
+The CS Guild platform uses a dual-visibility system for projects to provide better user experience and avoid content duplication:
+
+#### Regular Project Listings
+- **Endpoint**: `GET /projects` (without `pinned=true`)
+- **Content**: All projects **except** pinned projects
+- **Purpose**: Main project discovery and browsing
+- **Authentication**: None required (public)
+
+#### Pinned Project Listings  
+- **Endpoint**: `GET /projects?pinned=true`
+- **Content**: Only globally pinned projects (max 6)
+- **Purpose**: Showcase featured/important projects
+- **Authentication**: Required (JWT Cookie)
+- **Ordering**: Sorted by admin-defined order (1-6)
+
+#### Benefits of This Model
+1. **No Duplication**: Pinned projects don't appear in both regular and pinned results
+2. **Clear Intent**: Users get exactly what they request
+3. **Performance**: Reduced data overlap and cleaner pagination
+4. **Admin Control**: Pinned projects get dedicated visibility without cluttering regular browsing
 
 ### Authentication Methods
 

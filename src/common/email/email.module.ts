@@ -1,12 +1,35 @@
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { join } from 'path';
 import { EmailService } from './email.service';
 
+// Command Handlers
+import {
+  SendEmailVerificationHandler,
+  SendWelcomeEmailHandler,
+  SendPasswordResetHandler,
+  SendRfidRegistrationHandler,
+  SendApplicationAcceptedHandler,
+  SendApplicationRejectedHandler,
+  SendProjectApplicationNotificationHandler,
+} from './commands';
+
+const CommandHandlers = [
+  SendEmailVerificationHandler,
+  SendWelcomeEmailHandler,
+  SendPasswordResetHandler,
+  SendRfidRegistrationHandler,
+  SendApplicationAcceptedHandler,
+  SendApplicationRejectedHandler,
+  SendProjectApplicationNotificationHandler,
+];
+
 @Module({
   imports: [
+    CqrsModule,
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -35,7 +58,7 @@ import { EmailService } from './email.service';
       inject: [ConfigService],
     }),
   ],
-  providers: [EmailService],
+  providers: [EmailService, ...CommandHandlers],
   exports: [EmailService],
 })
 export class EmailModule {}

@@ -1,24 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConfigService } from '@nestjs/config';
-import { MailerService } from '@nestjs-modules/mailer';
+import { CommandBus } from '@nestjs/cqrs';
 import { EmailService } from './email.service';
+import {
+  SendEmailVerificationCommand,
+  SendWelcomeEmailCommand,
+  SendPasswordResetCommand,
+  SendRfidRegistrationCommand,
+} from './commands';
 
 describe('EmailService', () => {
   let service: EmailService;
-  let mailerService: MailerService;
+  let commandBus: CommandBus;
 
-  const mockMailerService = {
-    sendMail: jest.fn().mockResolvedValue(true),
-  };
-
-  const mockConfigService = {
-    get: jest.fn((key: string, defaultValue?: string) => {
-      const config = {
-        SUPPORT_EMAIL: 'support@csguild.org',
-        FRONTEND_URL: 'http://localhost:3000',
-      };
-      return config[key] || defaultValue;
-    }),
+  const mockCommandBus = {
+    execute: jest.fn().mockResolvedValue(true),
   };
 
   beforeEach(async () => {
@@ -26,18 +21,14 @@ describe('EmailService', () => {
       providers: [
         EmailService,
         {
-          provide: MailerService,
-          useValue: mockMailerService,
-        },
-        {
-          provide: ConfigService,
-          useValue: mockConfigService,
+          provide: CommandBus,
+          useValue: mockCommandBus,
         },
       ],
     }).compile();
 
     service = module.get<EmailService>(EmailService);
-    mailerService = module.get<MailerService>(MailerService);
+    commandBus = module.get<CommandBus>(CommandBus);
   });
 
   it('should be defined', () => {
@@ -45,7 +36,7 @@ describe('EmailService', () => {
   });
 
   describe('sendEmailVerification', () => {
-    it('should send email verification with correct parameters', async () => {
+    it('should execute SendEmailVerificationCommand with correct parameters', async () => {
       const params = {
         email: 'test@example.com',
         firstName: 'John',
@@ -54,22 +45,14 @@ describe('EmailService', () => {
 
       await service.sendEmailVerification(params);
 
-      expect(mailerService.sendMail).toHaveBeenCalledWith({
-        to: 'test@example.com',
-        subject: 'CSGUILD - Verify Your Email Address',
-        template: 'email-verification',
-        context: {
-          firstName: 'John',
-          verificationCode: '123456',
-          organizationName: 'CSGUILD',
-          supportEmail: 'support@csguild.org',
-        },
-      });
+      expect(commandBus.execute).toHaveBeenCalledWith(
+        new SendEmailVerificationCommand(params),
+      );
     });
   });
 
   describe('sendWelcomeEmail', () => {
-    it('should send welcome email with correct parameters', async () => {
+    it('should execute SendWelcomeEmailCommand with correct parameters', async () => {
       const params = {
         email: 'test@example.com',
         firstName: 'John',
@@ -78,23 +61,14 @@ describe('EmailService', () => {
 
       await service.sendWelcomeEmail(params);
 
-      expect(mailerService.sendMail).toHaveBeenCalledWith({
-        to: 'test@example.com',
-        subject: 'Welcome to CSGUILD!',
-        template: 'welcome',
-        context: {
-          firstName: 'John',
-          username: 'john_doe',
-          organizationName: 'CSGUILD',
-          supportEmail: 'support@csguild.org',
-          loginUrl: 'http://localhost:3000',
-        },
-      });
+      expect(commandBus.execute).toHaveBeenCalledWith(
+        new SendWelcomeEmailCommand(params),
+      );
     });
   });
 
   describe('sendPasswordReset', () => {
-    it('should send password reset email with correct parameters', async () => {
+    it('should execute SendPasswordResetCommand with correct parameters', async () => {
       const params = {
         email: 'test@example.com',
         firstName: 'John',
@@ -103,23 +77,14 @@ describe('EmailService', () => {
 
       await service.sendPasswordReset(params);
 
-      expect(mailerService.sendMail).toHaveBeenCalledWith({
-        to: 'test@example.com',
-        subject: 'CSGUILD - Password Reset Request',
-        template: 'password-reset',
-        context: {
-          firstName: 'John',
-          organizationName: 'CSGUILD',
-          resetUrl:
-            'http://localhost:3000/reset-password?token=reset-token-123',
-          supportEmail: 'support@csguild.org',
-        },
-      });
+      expect(commandBus.execute).toHaveBeenCalledWith(
+        new SendPasswordResetCommand(params),
+      );
     });
   });
 
   describe('sendRfidRegistrationSuccess', () => {
-    it('should send RFID registration success email with correct parameters', async () => {
+    it('should execute SendRfidRegistrationCommand with correct parameters', async () => {
       const params = {
         email: 'test@example.com',
         firstName: 'John',
@@ -128,17 +93,9 @@ describe('EmailService', () => {
 
       await service.sendRfidRegistrationSuccess(params);
 
-      expect(mailerService.sendMail).toHaveBeenCalledWith({
-        to: 'test@example.com',
-        subject: 'CSGUILD - RFID Registration Successful',
-        template: 'rfid-registration',
-        context: {
-          firstName: 'John',
-          rfidId: 'RFID123456',
-          organizationName: 'CSGUILD',
-          supportEmail: 'support@csguild.org',
-        },
-      });
+      expect(commandBus.execute).toHaveBeenCalledWith(
+        new SendRfidRegistrationCommand(params),
+      );
     });
   });
 });
