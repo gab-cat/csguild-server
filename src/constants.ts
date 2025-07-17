@@ -73,7 +73,7 @@ export const RATE_LIMITING = {
     },
     LOGIN_ATTEMPTS: {
       TTL: 900000, // 15 minutes
-      LIMIT: 5, // 5 failed attempts per 15 minutes
+      LIMIT: 10, // 5 failed attempts per 15 minutes
     },
   },
 } as const;
