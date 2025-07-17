@@ -24,9 +24,9 @@ WORKDIR /app
 
 # Set environment variables for proper logging in Docker
 ENV NODE_ENV=production
-ENV LOG_FORMAT=json
+ENV LOG_FORMAT=false
 ENV LOG_LEVEL=info
-ENV LOG_COLORS=false
+ENV LOG_COLORS=true
 ENV DOCKER_CONTAINER=true
 
 COPY --from=builder /app/package.json ./package.json
@@ -43,4 +43,4 @@ COPY --from=builder --chown=nestjs:nodejs /app/src/common/email/templates ./dist
 EXPOSE 3001
 
 # Ensure logs go to stdout/stderr for Docker logging
-CMD ["bun", "--bun", "dist/main.js"]
+ENTRYPOINT [ "bun", "--bun", "dist/main.js" ]

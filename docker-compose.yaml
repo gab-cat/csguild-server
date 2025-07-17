@@ -1,10 +1,10 @@
 services:
   # Application
   app:
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
-    image: gabcat/csguild-server:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # image: gabcat/csguild-server:latest
     ports:
       - '3001:3001'
     environment:
