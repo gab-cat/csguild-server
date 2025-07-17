@@ -24,7 +24,6 @@ WORKDIR /app
 
 # Set environment variables for proper logging in Docker
 ENV NODE_ENV=production
-ENV LOG_FORMAT=false
 ENV LOG_LEVEL=info
 ENV LOG_COLORS=true
 ENV DOCKER_CONTAINER=true

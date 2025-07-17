@@ -3,14 +3,15 @@ services:
     image: gabcat/csguild-server:latest
     container_name: csguild-server
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
+      # Override any .env settings for logging
       - NODE_ENV=production
       - LOG_FORMAT=json
       - LOG_LEVEL=info
       - LOG_COLORS=false
       - DOCKER_CONTAINER=true
-    env_file:
-      - .env
     networks:
       - system
     # Add logging configuration for Docker
@@ -19,6 +20,10 @@ services:
       options:
         max-size: '10m'
         max-file: '3'
+    # Add stdout/stderr for debugging
+    tty: true
+    # Ensure container stays attached to stdout
+    stdin_open: true
 
   client:
     image: gabcat/csguild-client:latest

@@ -43,10 +43,18 @@ export class LoggerService {
   };
 
   constructor(private readonly configService: ConfigService) {
-    this.isJsonFormat = this.configService.get('LOG_FORMAT') === 'json';
+    // Fix LOG_FORMAT parsing - should check for 'json' or 'true', handle comments
+    const logFormat = (this.configService.get('LOG_FORMAT') || 'false')
+      .toString()
+      .trim()
+      .split('#')[0]
+      .trim();
+    this.isJsonFormat = logFormat === 'json' || logFormat === 'true';
+
     this.logLevel = this.configService.get('LOG_LEVEL') || 'info';
     this.serviceName =
-      this.configService.get('SERVICE_NAME') || 'auth-template';
+      this.configService.get('SERVICE_NAME') || 'CS Guild Server';
+
     // In Docker/production environments, disable colors unless explicitly enabled
     // Check for Docker environment indicators
     const isDocker =
@@ -54,9 +62,11 @@ export class LoggerService {
       !process.stdout.isTTY ||
       process.env.DOCKER_CONTAINER === 'true';
 
+    // Fix color logic - respect LOG_COLORS environment variable
+    const logColors = this.configService.get('LOG_COLORS');
     this.enableColors =
-      this.configService.get('LOG_COLORS') === 'true' ||
-      (this.configService.get('LOG_COLORS') !== 'false' &&
+      logColors === 'true' ||
+      (logColors !== 'false' &&
         !isDocker &&
         process.stdout.isTTY &&
         !this.isJsonFormat);
@@ -64,10 +74,12 @@ export class LoggerService {
     // Initialize NestJS Logger with service name
     this.logger = new Logger(this.serviceName);
 
-    // Log the logger configuration for debugging
-    console.log(
-      `Logger initialized: JSON=${this.isJsonFormat}, Level=${this.logLevel}, Colors=${this.enableColors}, Service=${this.serviceName}`,
-    );
+    // Always log configuration for debugging - use console.log to ensure it appears
+    const configMsg = `Logger init: JSON=${this.isJsonFormat}, Level=${this.logLevel}, Colors=${this.enableColors}, Docker=${isDocker}`;
+    console.log(configMsg);
+
+    // Also ensure it goes to stdout/stderr for Docker
+    process.stdout.write(configMsg + '\n');
   }
 
   private getColorForLevel(level: string): string {
