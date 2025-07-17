@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
+import { MailgunService } from '../../mailgun.service';
 import { SendEmailVerificationCommand } from './send-email-verification.command';
 
 @Injectable()
@@ -10,14 +10,14 @@ export class SendEmailVerificationHandler
   implements ICommandHandler<SendEmailVerificationCommand>
 {
   constructor(
-    private readonly mailerService: MailerService,
+    private readonly mailgunService: MailgunService,
     private readonly configService: ConfigService,
   ) {}
 
   async execute(command: SendEmailVerificationCommand): Promise<void> {
     const { email, firstName, verificationCode } = command.params;
 
-    await this.mailerService.sendMail({
+    await this.mailgunService.sendMail({
       to: email,
       subject: 'CSGUILD - Verify Your Email Address',
       template: 'email-verification',

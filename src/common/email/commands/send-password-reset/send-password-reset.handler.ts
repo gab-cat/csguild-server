@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
+import { MailgunService } from '../../mailgun.service';
 import { SendPasswordResetCommand } from './send-password-reset.command';
 
 @Injectable()
@@ -10,14 +10,14 @@ export class SendPasswordResetHandler
   implements ICommandHandler<SendPasswordResetCommand>
 {
   constructor(
-    private readonly mailerService: MailerService,
+    private readonly mailgunService: MailgunService,
     private readonly configService: ConfigService,
   ) {}
 
   async execute(command: SendPasswordResetCommand): Promise<void> {
     const { email, firstName, resetToken } = command.params;
 
-    await this.mailerService.sendMail({
+    await this.mailgunService.sendMail({
       to: email,
       subject: 'CSGUILD - Password Reset Request',
       template: 'password-reset',

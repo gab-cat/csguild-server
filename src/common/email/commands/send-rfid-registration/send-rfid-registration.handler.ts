@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
+import { MailgunService } from '../../mailgun.service';
 import { SendRfidRegistrationCommand } from './send-rfid-registration.command';
 
 @Injectable()
@@ -10,14 +10,14 @@ export class SendRfidRegistrationHandler
   implements ICommandHandler<SendRfidRegistrationCommand>
 {
   constructor(
-    private readonly mailerService: MailerService,
+    private readonly mailgunService: MailgunService,
     private readonly configService: ConfigService,
   ) {}
 
   async execute(command: SendRfidRegistrationCommand): Promise<void> {
     const { email, firstName, rfidId } = command.params;
 
-    await this.mailerService.sendMail({
+    await this.mailgunService.sendMail({
       to: email,
       subject: 'CSGUILD - RFID Registration Successful',
       template: 'rfid-registration',

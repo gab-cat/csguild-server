@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
+import { MailgunService } from '../../mailgun.service';
 import { SendApplicationRejectedCommand } from './send-application-rejected.command';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class SendApplicationRejectedHandler
   implements ICommandHandler<SendApplicationRejectedCommand>
 {
   constructor(
-    private readonly mailerService: MailerService,
+    private readonly mailgunService: MailgunService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -18,7 +18,7 @@ export class SendApplicationRejectedHandler
     const { email, firstName, projectName, roleName, reviewMessage } =
       command.params;
 
-    await this.mailerService.sendMail({
+    await this.mailgunService.sendMail({
       to: email,
       subject: `CSGUILD - Application Update for ${projectName}`,
       template: 'application-rejected',
