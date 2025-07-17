@@ -5,10 +5,20 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+      - LOG_FORMAT=json
+      - LOG_LEVEL=info
+      - LOG_COLORS=false
+      - DOCKER_CONTAINER=true
     env_file:
       - .env
     networks:
       - system
+    # Add logging configuration for Docker
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
 
   client:
     image: gabcat/csguild-client:latest

@@ -1,29 +1,13 @@
 services:
   # Application
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    image: gabcat/csguild-server:latest
     ports:
-      - '3000:3000'
+      - '3001:3001'
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://username:password@postgres:5432/csguild
-    depends_on:
-      - postgres
     env_file:
       - .env
-
-  # Database
-  postgres:
-    image: postgres:17-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: csguild
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:

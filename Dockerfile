@@ -22,6 +22,13 @@ RUN bun run build
 FROM base AS runner
 WORKDIR /app
 
+# Set environment variables for proper logging in Docker
+ENV NODE_ENV=production
+ENV LOG_FORMAT=json
+ENV LOG_LEVEL=info
+ENV LOG_COLORS=false
+ENV DOCKER_CONTAINER=true
+
 COPY --from=builder /app/package.json ./package.json
 RUN bun install --production --frozen-lockfile
 
@@ -33,7 +40,7 @@ COPY --from=builder --chown=nestjs:nodejs /app/public ./public
 # Copy the templates folder
 COPY --from=builder --chown=nestjs:nodejs /app/src/common/email/templates ./dist/templates
 
-
 EXPOSE 3001
 
+# Ensure logs go to stdout/stderr for Docker logging
 CMD ["bun", "--bun", "dist/main.js"]

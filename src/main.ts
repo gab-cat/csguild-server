@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, LogLevel } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { HttpLoggingInterceptor } from './common/logger/http-logging.interceptor';
 import { configureSwagger, SERVER, showStartupMessages } from './constants';
@@ -10,7 +10,19 @@ import helmet from 'helmet';
 import { NextFunction, Request, Response } from 'express';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  // Configure logger for Docker/production environments
+  const loggerConfig = {
+    // Use console transport for Docker environments
+    logger:
+      process.env.NODE_ENV === 'production'
+        ? (['error', 'warn', 'log'] as LogLevel[]) // Only essential logs in production
+        : (['error', 'warn', 'log', 'debug', 'verbose'] as LogLevel[]), // All logs in development
+  };
+
+  const app = await NestFactory.create<NestExpressApplication>(
+    AppModule,
+    loggerConfig,
+  );
 
   // Enable CORS
   app.enableCors({
@@ -70,7 +82,9 @@ async function bootstrap() {
 
   app.disable('x-powered-by');
 
+  console.log(`Starting server on port ${SERVER.PORT}...`);
   await app.listen(SERVER.PORT);
+  console.log(`Server is running on port ${SERVER.PORT}`);
 
   showStartupMessages();
 }

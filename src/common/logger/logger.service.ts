@@ -47,14 +47,27 @@ export class LoggerService {
     this.logLevel = this.configService.get('LOG_LEVEL') || 'info';
     this.serviceName =
       this.configService.get('SERVICE_NAME') || 'auth-template';
-    // Enable colors by default unless explicitly disabled or not a TTY
+    // In Docker/production environments, disable colors unless explicitly enabled
+    // Check for Docker environment indicators
+    const isDocker =
+      process.env.NODE_ENV === 'production' ||
+      !process.stdout.isTTY ||
+      process.env.DOCKER_CONTAINER === 'true';
+
     this.enableColors =
-      this.configService.get('LOG_COLORS') !== 'false' &&
-      process.stdout.isTTY &&
-      !this.isJsonFormat;
+      this.configService.get('LOG_COLORS') === 'true' ||
+      (this.configService.get('LOG_COLORS') !== 'false' &&
+        !isDocker &&
+        process.stdout.isTTY &&
+        !this.isJsonFormat);
 
     // Initialize NestJS Logger with service name
     this.logger = new Logger(this.serviceName);
+
+    // Log the logger configuration for debugging
+    console.log(
+      `Logger initialized: JSON=${this.isJsonFormat}, Level=${this.logLevel}, Colors=${this.enableColors}, Service=${this.serviceName}`,
+    );
   }
 
   private getColorForLevel(level: string): string {
@@ -137,39 +150,61 @@ export class LoggerService {
     category: 'service' | 'route' = 'service',
   ): void {
     if (this.shouldLog('error')) {
-      // Always use NestJS Logger to ensure production compatibility
-      if (this.isJsonFormat) {
-        // For JSON format, create structured log entry
-        const logEntry = {
-          message,
-          context,
-          service: service || this.serviceName,
-          category,
-        };
-        this.logger.error(JSON.stringify(logEntry));
-      } else {
-        // For formatted output, use our custom formatting
-        const formattedMessage = this.formatLog(
-          'error',
-          message,
-          context,
-          service,
-          category,
-        );
-        this.logger.error(formattedMessage);
-      }
+      try {
+        // Always use NestJS Logger to ensure production compatibility
+        if (this.isJsonFormat) {
+          // For JSON format, create structured log entry
+          const logEntry = {
+            message,
+            context,
+            service: service || this.serviceName,
+            category,
+          };
+          this.logger.error(JSON.stringify(logEntry));
+        } else {
+          // For formatted output, use our custom formatting
+          const formattedMessage = this.formatLog(
+            'error',
+            message,
+            context,
+            service,
+            category,
+          );
+          this.logger.error(formattedMessage);
+        }
 
-      // Emit to WebSocket if available
-      if (this.logEmitter) {
-        const logEntry = {
-          timestamp: new Date().toISOString(),
-          level: 'ERROR',
-          message,
-          ...(context && { context }),
-          ...(service && { service }),
-          category,
-        };
-        this.logEmitter.emit('log', logEntry);
+        // Fallback: Also write directly to stderr for Docker environments
+        const fallbackMessage = this.isJsonFormat
+          ? JSON.stringify({
+              level: 'ERROR',
+              message,
+              context,
+              service: service || this.serviceName,
+              category,
+              timestamp: new Date().toISOString(),
+            })
+          : `[ERROR] ${service || this.serviceName} ${message} ${
+              context ? JSON.stringify(context) : ''
+            }`;
+
+        process.stderr.write(fallbackMessage + '\n');
+
+        // Emit to WebSocket if available
+        if (this.logEmitter) {
+          const logEntry = {
+            timestamp: new Date().toISOString(),
+            level: 'ERROR',
+            message,
+            ...(context && { context }),
+            ...(service && { service }),
+            category,
+          };
+          this.logEmitter.emit('log', logEntry);
+        }
+      } catch (error) {
+        // Fallback to console.error if everything else fails
+        console.error('Error in logger:', error);
+        console.error('Original message:', message);
       }
     }
   }
@@ -225,39 +260,61 @@ export class LoggerService {
     category: 'service' | 'route' = 'service',
   ): void {
     if (this.shouldLog('info')) {
-      // Always use NestJS Logger to ensure production compatibility
-      if (this.isJsonFormat) {
-        // For JSON format, create structured log entry
-        const logEntry = {
-          message,
-          context,
-          service: service || this.serviceName,
-          category,
-        };
-        this.logger.log(JSON.stringify(logEntry));
-      } else {
-        // For formatted output, use our custom formatting
-        const formattedMessage = this.formatLog(
-          'info',
-          message,
-          context,
-          service,
-          category,
-        );
-        this.logger.log(formattedMessage);
-      }
+      try {
+        // Always use NestJS Logger to ensure production compatibility
+        if (this.isJsonFormat) {
+          // For JSON format, create structured log entry
+          const logEntry = {
+            message,
+            context,
+            service: service || this.serviceName,
+            category,
+          };
+          this.logger.log(JSON.stringify(logEntry));
+        } else {
+          // For formatted output, use our custom formatting
+          const formattedMessage = this.formatLog(
+            'info',
+            message,
+            context,
+            service,
+            category,
+          );
+          this.logger.log(formattedMessage);
+        }
 
-      // Emit to WebSocket if available
-      if (this.logEmitter) {
-        const logEntry = {
-          timestamp: new Date().toISOString(),
-          level: 'INFO',
-          message,
-          ...(context && { context }),
-          ...(service && { service }),
-          category,
-        };
-        this.logEmitter.emit('log', logEntry);
+        // Fallback: Also write directly to stdout for Docker environments
+        const fallbackMessage = this.isJsonFormat
+          ? JSON.stringify({
+              level: 'INFO',
+              message,
+              context,
+              service: service || this.serviceName,
+              category,
+              timestamp: new Date().toISOString(),
+            })
+          : `[INFO] ${service || this.serviceName} ${message} ${
+              context ? JSON.stringify(context) : ''
+            }`;
+
+        process.stdout.write(fallbackMessage + '\n');
+
+        // Emit to WebSocket if available
+        if (this.logEmitter) {
+          const logEntry = {
+            timestamp: new Date().toISOString(),
+            level: 'INFO',
+            message,
+            ...(context && { context }),
+            ...(service && { service }),
+            category,
+          };
+          this.logEmitter.emit('log', logEntry);
+        }
+      } catch (error) {
+        // Fallback to console.log if everything else fails
+        console.error('Error in logger:', error);
+        console.log('Original message:', message);
       }
     }
   }
