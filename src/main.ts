@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe, LogLevel } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { HttpLoggingInterceptor } from './common/logger/http-logging.interceptor';
 import { configureSwagger, SERVER, showStartupMessages } from './constants';
@@ -8,11 +8,15 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import helmet from 'helmet';
 import { NextFunction, Request, Response } from 'express';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger: ['error', 'warn', 'log', 'debug', 'verbose', 'fatal'] as LogLevel[], // Adjust log levels based on environment
+    bufferLogs: true, // Buffer logs until Pino logger is ready
   });
+
+  // Use Pino logger globally
+  app.useLogger(app.get(Logger));
 
   // Enable CORS
   app.enableCors({
@@ -72,10 +76,13 @@ async function bootstrap() {
 
   app.disable('x-powered-by');
 
-  console.log(`Starting server on port ${SERVER.PORT}...`);
-  await app.listen(SERVER.PORT);
-  console.log(`Server is running on port ${SERVER.PORT}`);
+  // Use the Pino logger for startup messages
+  const logger = app.get(Logger);
+  logger.log(`Starting server on port ${SERVER.PORT}...`);
 
+  await app.listen(SERVER.PORT);
+
+  logger.log(`Server is running on port ${SERVER.PORT}`);
   showStartupMessages();
 }
 
