@@ -129,6 +129,12 @@ export class LogGateway
       if (email && password) {
         try {
           const user = await this.authService.verifyUser(email, password);
+          console.log(user.roles);
+          if (!user.roles.includes('ADMIN') || !user.roles.includes('STAFF')) {
+            throw new UnauthorizedException(
+              'You do not have permission to access the log viewer',
+            );
+          }
           return user;
         } catch (error) {
           this.loggerService.debug(

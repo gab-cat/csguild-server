@@ -22,7 +22,6 @@ export class CronService implements OnModuleInit {
       'CronService initialized - cron jobs are now active',
       {
         jobs: [
-          'Every 5 seconds: User timeout check',
           'Daily at 8 PM: User timeout cleanup',
           'Daily at 8 AM, 2 PM, 8 PM: Project application notifications',
         ],
@@ -36,6 +35,11 @@ export class CronService implements OnModuleInit {
     timeZone: 'Asia/Manila',
   })
   async timeoutUsersDaily() {
+    this.logger.info(
+      '[Daily 8PM] Starting user timeout cleanup',
+      {},
+      'CronService',
+    );
     try {
       const result = await this.usersService.timeoutAllActiveUsers();
 
@@ -67,6 +71,8 @@ export class CronService implements OnModuleInit {
     const endTime = new Date(now);
     endTime.setHours(8, 0, 0, 0); // 8:00 AM today
 
+    this.startLogJob(startTime, endTime, '8:00 AM');
+
     await this.notifyProjectOwnersAboutNewApplications(
       startTime,
       endTime,
@@ -86,6 +92,8 @@ export class CronService implements OnModuleInit {
 
     const endTime = new Date(now);
     endTime.setHours(14, 0, 0, 0); // 2:00 PM
+
+    this.startLogJob(startTime, endTime, '2:00 PM');
 
     await this.notifyProjectOwnersAboutNewApplications(
       startTime,
@@ -107,10 +115,29 @@ export class CronService implements OnModuleInit {
     const endTime = new Date(now);
     endTime.setHours(20, 0, 0, 0); // 8:00 PM
 
+    this.startLogJob(startTime, endTime, '8:00 PM');
+
     await this.notifyProjectOwnersAboutNewApplications(
       startTime,
       endTime,
       '8:00 PM',
+    );
+  }
+
+  private startLogJob(startTime: Date, endTime: Date, schedule: string) {
+    this.logger.info(
+      `[${schedule}] Starting notification for applications from ${startTime.toLocaleString(
+        'en-US',
+        {
+          hour: '2-digit',
+          minute: '2-digit',
+        },
+      )} to ${endTime.toLocaleString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })}`,
+      {},
+      'CronService',
     );
   }
 

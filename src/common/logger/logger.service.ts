@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 export interface LogContext {
@@ -25,6 +25,7 @@ export class LoggerService {
   private readonly serviceName: string;
   private readonly enableColors: boolean;
   private logEmitter: LogEmitter | null = null;
+  private readonly logger: Logger;
 
   // ANSI color codes
   private readonly colors = {
@@ -51,6 +52,9 @@ export class LoggerService {
       this.configService.get('LOG_COLORS') !== 'false' &&
       process.stdout.isTTY &&
       !this.isJsonFormat;
+
+    // Initialize NestJS Logger with service name
+    this.logger = new Logger(this.serviceName);
   }
 
   private getColorForLevel(level: string): string {
@@ -81,42 +85,19 @@ export class LoggerService {
     service?: string,
     category: 'service' | 'route' = 'service',
   ): string {
-    const timestamp = this.isJsonFormat
-      ? new Date().toISOString()
-      : new Date().toLocaleString('en-US', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        });
-
-    const logEntry: LogEntry = {
-      timestamp,
-      level: level.toUpperCase(),
-      message,
-      ...(context && { context }),
-      ...(service && { service }),
-      category,
-    };
-
-    // Emit to WebSocket if available
-    if (this.logEmitter) {
-      this.logEmitter.emit('log', logEntry);
-    }
-
     if (this.isJsonFormat) {
+      const logEntry = {
+        level: level.toUpperCase(),
+        message,
+        ...(context && { context }),
+        ...(service && { service }),
+        category,
+      };
       return JSON.stringify(logEntry);
     } else {
       const color = this.getColorForLevel(level);
       const reset = this.enableColors ? this.colors.reset : '';
-      const dimColor = this.enableColors ? this.colors.white : '';
       const brightColor = this.enableColors ? this.colors.bright : '';
-
-      const coloredTimestamp = this.enableColors
-        ? `${dimColor}${timestamp}${reset}`
-        : timestamp;
 
       const coloredLevel = this.enableColors
         ? `${color}${brightColor}[${level.toUpperCase()}]${reset}`
@@ -138,7 +119,7 @@ export class LoggerService {
           : ` - ${JSON.stringify(context)}`
         : '';
 
-      return `${coloredTimestamp} ${coloredLevel} ${coloredService}${coloredMessage}${contextStr}`;
+      return `${coloredLevel} ${coloredService}${coloredMessage}${contextStr}`;
     }
   }
 
@@ -156,9 +137,40 @@ export class LoggerService {
     category: 'service' | 'route' = 'service',
   ): void {
     if (this.shouldLog('error')) {
-      console.error(
-        this.formatLog('error', message, context, service, category),
-      );
+      // Always use NestJS Logger to ensure production compatibility
+      if (this.isJsonFormat) {
+        // For JSON format, create structured log entry
+        const logEntry = {
+          message,
+          context,
+          service: service || this.serviceName,
+          category,
+        };
+        this.logger.error(JSON.stringify(logEntry));
+      } else {
+        // For formatted output, use our custom formatting
+        const formattedMessage = this.formatLog(
+          'error',
+          message,
+          context,
+          service,
+          category,
+        );
+        this.logger.error(formattedMessage);
+      }
+
+      // Emit to WebSocket if available
+      if (this.logEmitter) {
+        const logEntry = {
+          timestamp: new Date().toISOString(),
+          level: 'ERROR',
+          message,
+          ...(context && { context }),
+          ...(service && { service }),
+          category,
+        };
+        this.logEmitter.emit('log', logEntry);
+      }
     }
   }
 
@@ -169,7 +181,40 @@ export class LoggerService {
     category: 'service' | 'route' = 'service',
   ): void {
     if (this.shouldLog('warn')) {
-      console.warn(this.formatLog('warn', message, context, service, category));
+      // Always use NestJS Logger to ensure production compatibility
+      if (this.isJsonFormat) {
+        // For JSON format, create structured log entry
+        const logEntry = {
+          message,
+          context,
+          service: service || this.serviceName,
+          category,
+        };
+        this.logger.warn(JSON.stringify(logEntry));
+      } else {
+        // For formatted output, use our custom formatting
+        const formattedMessage = this.formatLog(
+          'warn',
+          message,
+          context,
+          service,
+          category,
+        );
+        this.logger.warn(formattedMessage);
+      }
+
+      // Emit to WebSocket if available
+      if (this.logEmitter) {
+        const logEntry = {
+          timestamp: new Date().toISOString(),
+          level: 'WARN',
+          message,
+          ...(context && { context }),
+          ...(service && { service }),
+          category,
+        };
+        this.logEmitter.emit('log', logEntry);
+      }
     }
   }
 
@@ -180,7 +225,40 @@ export class LoggerService {
     category: 'service' | 'route' = 'service',
   ): void {
     if (this.shouldLog('info')) {
-      console.log(this.formatLog('info', message, context, service, category));
+      // Always use NestJS Logger to ensure production compatibility
+      if (this.isJsonFormat) {
+        // For JSON format, create structured log entry
+        const logEntry = {
+          message,
+          context,
+          service: service || this.serviceName,
+          category,
+        };
+        this.logger.log(JSON.stringify(logEntry));
+      } else {
+        // For formatted output, use our custom formatting
+        const formattedMessage = this.formatLog(
+          'info',
+          message,
+          context,
+          service,
+          category,
+        );
+        this.logger.log(formattedMessage);
+      }
+
+      // Emit to WebSocket if available
+      if (this.logEmitter) {
+        const logEntry = {
+          timestamp: new Date().toISOString(),
+          level: 'INFO',
+          message,
+          ...(context && { context }),
+          ...(service && { service }),
+          category,
+        };
+        this.logEmitter.emit('log', logEntry);
+      }
     }
   }
 
@@ -191,7 +269,40 @@ export class LoggerService {
     category: 'service' | 'route' = 'service',
   ): void {
     if (this.shouldLog('debug')) {
-      console.log(this.formatLog('debug', message, context, service, category));
+      // Always use NestJS Logger to ensure production compatibility
+      if (this.isJsonFormat) {
+        // For JSON format, create structured log entry
+        const logEntry = {
+          message,
+          context,
+          service: service || this.serviceName,
+          category,
+        };
+        this.logger.debug(JSON.stringify(logEntry));
+      } else {
+        // For formatted output, use our custom formatting
+        const formattedMessage = this.formatLog(
+          'debug',
+          message,
+          context,
+          service,
+          category,
+        );
+        this.logger.debug(formattedMessage);
+      }
+
+      // Emit to WebSocket if available
+      if (this.logEmitter) {
+        const logEntry = {
+          timestamp: new Date().toISOString(),
+          level: 'DEBUG',
+          message,
+          ...(context && { context }),
+          ...(service && { service }),
+          category,
+        };
+        this.logEmitter.emit('log', logEntry);
+      }
     }
   }
 
