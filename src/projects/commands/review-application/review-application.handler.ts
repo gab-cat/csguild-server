@@ -1,4 +1,4 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import {
   BadRequestException,
   ForbiddenException,
@@ -6,9 +6,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
-import { EmailService } from '../../../common/email/email.service';
 import { ReviewApplicationCommand } from './review-application.command';
 import { ApplicationStatus, MemberStatus } from '../../../../generated/prisma';
+import {
+  SendApplicationAcceptedCommand,
+  SendApplicationRejectedCommand,
+} from 'src/common/email/commands';
 
 @Injectable()
 @CommandHandler(ReviewApplicationCommand)
@@ -17,7 +20,7 @@ export class ReviewApplicationHandler
 {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly emailService: EmailService,
+    private readonly commandBus: CommandBus,
   ) {}
 
   async execute(command: ReviewApplicationCommand) {
@@ -88,21 +91,25 @@ export class ReviewApplicationHandler
       // Send email notification after successful database update
       try {
         if (decision === 'APPROVED') {
-          await this.emailService.sendApplicationAccepted({
-            email: updatedApplication.user.email,
-            firstName: updatedApplication.user.firstName,
-            projectName: updatedApplication.project.title,
-            roleName: updatedApplication.projectRole.role.name,
-            reviewMessage: reviewMessage,
-          });
+          await this.commandBus.execute(
+            new SendApplicationAcceptedCommand({
+              email: updatedApplication.user.email,
+              firstName: updatedApplication.user.firstName,
+              projectName: updatedApplication.project.title,
+              roleName: updatedApplication.projectRole.role.name,
+              reviewMessage: reviewMessage,
+            }),
+          );
         } else {
-          await this.emailService.sendApplicationRejected({
-            email: updatedApplication.user.email,
-            firstName: updatedApplication.user.firstName,
-            projectName: updatedApplication.project.title,
-            roleName: updatedApplication.projectRole.role.name,
-            reviewMessage: reviewMessage,
-          });
+          await this.commandBus.execute(
+            new SendApplicationRejectedCommand({
+              email: updatedApplication.user.email,
+              firstName: updatedApplication.user.firstName,
+              projectName: updatedApplication.project.title,
+              roleName: updatedApplication.projectRole.role.name,
+              reviewMessage: reviewMessage,
+            }),
+          );
         }
       } catch (emailError) {
         // Log email error but don't fail the transaction
