@@ -17,8 +17,9 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest<Request>();
     const response = context.switchToHttp().getResponse<Response>();
 
-    const { method, url, ip, headers } = request;
+    const { method, url, headers } = request;
     const userAgent = headers['user-agent'] || 'Unknown';
+    const ip = headers['x-forwarded-for'] || request.ip || 'Unknown IP';
     const startTime = Date.now();
 
     return next.handle().pipe(

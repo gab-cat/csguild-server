@@ -37,17 +37,11 @@ import { AuthModule } from '../../auth/auth.module';
             // Ensure logs go to stdout/stderr in Docker
             stream: process.stdout,
             serializers: {
-              req: (req: any) => ({
-                method: req.method,
-                url: req.url,
-                headers: {
-                  'user-agent': req.headers['user-agent'],
-                  'content-type': req.headers['content-type'],
-                },
-              }),
-              res: (res: any) => ({
-                statusCode: res.statusCode,
-              }),
+              req: (): undefined => undefined,
+              res: (): undefined => undefined,
+              err: (): undefined => undefined,
+              reqId: (): undefined => undefined,
+              responseTime: (): undefined => undefined,
             },
           },
         };
