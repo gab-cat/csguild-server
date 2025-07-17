@@ -8,15 +8,20 @@ import {
 import { hash } from 'bcryptjs';
 import { CreateUserRequest, SignupMethod } from './dto/create-user.request';
 import { PrismaService } from '../common/prisma/prisma.service';
-import { EmailService } from '../common/email/email.service';
 import { Role, User, Prisma } from '../../generated/prisma';
 import { UpdateUserRequest } from './dto/update-user.request';
+import { CommandBus } from '@nestjs/cqrs';
+import {
+  SendEmailVerificationCommand,
+  SendRfidRegistrationCommand,
+  SendWelcomeEmailCommand,
+} from 'src/common/email/commands';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly emailService: EmailService,
+    private readonly commandBus: CommandBus,
   ) {}
 
   async create(data: CreateUserRequest): Promise<void> {
@@ -70,11 +75,13 @@ export class UsersService {
       });
 
       // Send verification email
-      this.emailService.sendEmailVerification({
-        email: user.email,
-        firstName: user.firstName ?? '',
-        verificationCode,
-      });
+      await this.commandBus.execute(
+        new SendEmailVerificationCommand({
+          email: user.email,
+          firstName: user.firstName ?? '',
+          verificationCode,
+        }),
+      );
     });
   }
 
@@ -148,11 +155,13 @@ export class UsersService {
       },
     });
     try {
-      await this.emailService.sendWelcomeEmail({
-        email: newUser.email,
-        firstName: newUser.firstName ?? '',
-        username: newUser.username,
-      });
+      await this.commandBus.execute(
+        new SendWelcomeEmailCommand({
+          email: newUser.email,
+          firstName: newUser.firstName ?? '',
+          username: newUser.username,
+        }),
+      );
     } catch (error) {
       console.error(error);
     }
@@ -190,11 +199,13 @@ export class UsersService {
       { emailVerificationCode: verificationCode },
     );
 
-    await this.emailService.sendEmailVerification({
-      email: user.email,
-      firstName: user.firstName ?? '',
-      verificationCode,
-    });
+    await this.commandBus.execute(
+      new SendEmailVerificationCommand({
+        email: user.email,
+        firstName: user.firstName ?? '',
+        verificationCode,
+      }),
+    );
   }
 
   async verifyEmail(email: string, verificationCode: string): Promise<void> {
@@ -220,11 +231,13 @@ export class UsersService {
     );
 
     // Send welcome email
-    await this.emailService.sendWelcomeEmail({
-      email: user.email,
-      firstName: user.firstName ?? '',
-      username: user.username,
-    });
+    await this.commandBus.execute(
+      new SendWelcomeEmailCommand({
+        email: user.email,
+        firstName: user.firstName ?? '',
+        username: user.username,
+      }),
+    );
   }
 
   async registerRfid(rfidId: string, email?: string): Promise<User> {
@@ -252,11 +265,13 @@ export class UsersService {
     }
 
     // Send RFID registration success email
-    await this.emailService.sendRfidRegistrationSuccess({
-      email: user.email,
-      firstName: user.firstName ?? '',
-      rfidId,
-    });
+    await this.commandBus.execute(
+      new SendRfidRegistrationCommand({
+        email: user.email,
+        firstName: user.firstName ?? '',
+        rfidId,
+      }),
+    );
 
     return user;
   }

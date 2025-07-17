@@ -11,9 +11,10 @@ import { UsersService } from '../users/users.service';
 import { Response } from 'express';
 import { TokenPayload } from './token-payload.interface';
 import { User } from 'generated/prisma/client';
-import { EmailService } from '../common/email/email.service';
 import { randomBytes } from 'crypto';
 import { LoggerService } from 'src/common/logger/logger.service';
+import { CommandBus } from '@nestjs/cqrs';
+import { SendPasswordResetCommand } from 'src/common/email/commands';
 
 @Injectable()
 export class AuthService {
@@ -21,8 +22,8 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
-    private readonly emailService: EmailService,
     private readonly logger: LoggerService,
+    private readonly commandBus: CommandBus,
   ) {}
 
   async login(user: User, response: Response, redirect = false) {
@@ -261,11 +262,13 @@ export class AuthService {
       );
 
       // Send email with unhashed token as URL parameter
-      await this.emailService.sendPasswordReset({
-        email: user.email,
-        firstName: user.firstName || 'User',
-        resetToken: resetToken,
-      });
+      await this.commandBus.execute(
+        new SendPasswordResetCommand({
+          email: user.email,
+          firstName: user.firstName || 'User',
+          resetToken: resetToken,
+        }),
+      );
     } catch (error) {
       // For security reasons, we don't reveal whether the email exists or not
       // We silently succeed even if the user doesn't exist

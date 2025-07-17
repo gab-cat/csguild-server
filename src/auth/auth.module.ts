@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from 'src/users/users.module';
@@ -12,7 +13,7 @@ import { FailedLoginThrottleGuard } from './guards/failed-login-throttle.guard';
 import { EmailModule } from '../common/email/email.module';
 
 @Module({
-  imports: [UsersModule, PassportModule, JwtModule, EmailModule],
+  imports: [CqrsModule, UsersModule, PassportModule, JwtModule, EmailModule],
   controllers: [AuthController],
   providers: [
     AuthService,
