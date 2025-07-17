@@ -10,19 +10,9 @@ import helmet from 'helmet';
 import { NextFunction, Request, Response } from 'express';
 
 async function bootstrap() {
-  // Configure logger for Docker/production environments
-  const loggerConfig = {
-    // Use console transport for Docker environments
-    logger:
-      process.env.NODE_ENV === 'production'
-        ? (['error', 'warn', 'log'] as LogLevel[]) // Only essential logs in production
-        : (['error', 'warn', 'log', 'debug', 'verbose'] as LogLevel[]), // All logs in development
-  };
-
-  const app = await NestFactory.create<NestExpressApplication>(
-    AppModule,
-    loggerConfig,
-  );
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: ['error', 'warn', 'log', 'debug', 'verbose', 'fatal'] as LogLevel[], // Adjust log levels based on environment
+  });
 
   // Enable CORS
   app.enableCors({
