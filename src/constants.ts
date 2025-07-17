@@ -62,7 +62,7 @@ export const COOKIE_AUTH = {
 
 export const RATE_LIMITING = {
   FAILED_LOGIN: {
-    MAX_ATTEMPTS: 5,
+    MAX_ATTEMPTS: 10,
     WINDOW_MS: 15 * 60 * 1000, // 15 minutes
     BLOCK_DURATION_MS: 15 * 60 * 1000, // 15 minutes
   },
