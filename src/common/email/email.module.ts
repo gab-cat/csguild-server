@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { ConfigModule } from '@nestjs/config';
 
 // Services
 import { MailgunService } from './mailgun.service';
@@ -27,7 +26,7 @@ const CommandHandlers = [
 ];
 
 @Module({
-  imports: [CqrsModule, ConfigModule],
+  imports: [CqrsModule],
   providers: [MailgunService, ...CommandHandlers],
   exports: [MailgunService],
 })

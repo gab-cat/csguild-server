@@ -1,16 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import formData from 'form-data';
 import Mailgun from 'mailgun.js';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
-import { compile } from 'handlebars';
+import {
+  compile,
+  TemplateDelegate as HandlebarsTemplateDelegate,
+} from 'handlebars';
+import * as Handlebars from 'handlebars';
 
 export interface MailgunSendOptions {
   to: string;
   subject: string;
   template?: string;
-  context?: Record<string, any>;
+  context?: Record<string, string | number | boolean | object>;
   html?: string;
   text?: string;
 }
@@ -21,7 +25,7 @@ export interface MailgunResponse {
 }
 
 @Injectable()
-export class MailgunService {
+export class MailgunService implements OnModuleInit {
   private readonly logger = new Logger(MailgunService.name);
   private readonly mailgun: any;
   private readonly domain: string;
@@ -30,6 +34,10 @@ export class MailgunService {
     string,
     HandlebarsTemplateDelegate
   >();
+
+  onModuleInit() {
+    Handlebars.registerHelper('eq', (a: unknown, b: unknown) => a === b);
+  }
 
   constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.getOrThrow<string>('MAILGUN_API_KEY');
@@ -90,7 +98,7 @@ export class MailgunService {
 
   private async renderTemplate(
     templateName: string,
-    context: Record<string, any>,
+    context: Record<string, string | number | boolean | object>,
   ): Promise<{ html: string; text: string }> {
     try {
       // Get or compile the template
@@ -103,11 +111,6 @@ export class MailgunService {
           `${templateName}.hbs`,
         );
         const templateContent = await readFile(templatePath, 'utf-8');
-
-        // Register Handlebars helpers
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const Handlebars = require('handlebars');
-        Handlebars.registerHelper('eq', (a: any, b: any) => a === b);
 
         template = compile(templateContent);
         this.templatesCache.set(templateName, template);
@@ -125,22 +128,6 @@ export class MailgunService {
     } catch (error) {
       this.logger.error(`Failed to render template ${templateName}:`, error);
       throw error;
-    }
-  }
-
-  /**
-   * Test the Mailgun connection
-   */
-  async testConnection(): Promise<boolean> {
-    try {
-      const response = await this.mailgun.domains.get(this.domain);
-      this.logger.log(
-        `Mailgun connection test successful for domain: ${response.name}`,
-      );
-      return true;
-    } catch (error) {
-      this.logger.error('Mailgun connection test failed:', error);
-      return false;
     }
   }
 }
