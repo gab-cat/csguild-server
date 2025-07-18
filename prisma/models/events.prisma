@@ -1,0 +1,123 @@
+// Event Management Models
+
+enum EventType {
+  IN_PERSON
+  VIRTUAL
+  HYBRID
+  OTHERS
+}
+
+model Event {
+  id                    String   @id @default(cuid())
+  title                 String
+  slug                  String   @unique
+  type                  EventType @default(IN_PERSON)
+  imageUrl              String?  
+  description           String?  // Short description, max 250 chars (validated at application level)
+  details               String?  // Longer detailed description
+  startDate             DateTime
+  endDate               DateTime?
+  tags                  String[] @default([])
+  isPinned              Boolean  @default(false)
+  organizedBy           String
+  minimumAttendanceMinutes Int?  // Minimum attendance duration required for certification
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  organizer         User                    @relation("EventOrganizer", fields: [organizedBy], references: [username], onDelete: Cascade)
+  attendees         EventAttendee[]
+  feedbackForms     EventFeedbackForm[]
+
+  @@map("events")
+  @@index([startDate])
+  @@index([endDate])
+  @@index([isPinned])
+  @@index([organizedBy])
+  @@index([tags])
+  @@index([slug])
+}
+
+model EventSession {
+  id           String    @id @default(cuid())
+  attendeeId   String
+  startedAt    DateTime  @default(now())
+  endedAt      DateTime?
+  duration     Int?      // Duration in minutes, calculated when checking out
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relations
+  attendee     EventAttendee @relation(fields: [attendeeId], references: [id], onDelete: Cascade)
+
+  @@map("event_sessions")
+  @@index([attendeeId])
+  @@index([startedAt])
+  @@index([endedAt])
+}
+
+model EventAttendee {
+  id                  String  @id @default(cuid())
+  eventId             String
+  userId              String
+  totalDuration       Int     @default(0) // Total attendance duration in minutes
+  isEligible          Boolean @default(false) // Eligibility for completion/certification
+  notifiedFeedback    Boolean @default(false) // Whether feedback notification was sent
+  registeredAt        DateTime @default(now())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  event               Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user                User    @relation("EventAttendeeUser", fields: [userId], references: [username], onDelete: Cascade)
+  sessions            EventSession[]
+  feedbackResponses   EventFeedbackResponse[]
+
+  @@unique([eventId, userId]) // One attendance record per user per event
+  @@map("event_attendees")
+  @@index([eventId])
+  @@index([userId])
+  @@index([isEligible])
+  @@index([notifiedFeedback])
+}
+
+model EventFeedbackForm {
+  id        String   @id @default(cuid())
+  eventId   String
+  title     String   @default("Event Feedback")
+  fields    Json     // JSON schema for form questions/structure
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  responses EventFeedbackResponse[]
+
+  @@map("event_feedback_forms")
+  @@index([eventId])
+  @@index([isActive])
+}
+
+model EventFeedbackResponse {
+  id          String    @id @default(cuid())
+  formId      String
+  userId      String
+  attendeeId  String
+  responses   Json      // JSON object containing answers to form fields
+  submittedAt DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  form        EventFeedbackForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+  user        User              @relation("EventFeedbackUser", fields: [userId], references: [username], onDelete: Cascade)
+  attendee    EventAttendee     @relation(fields: [attendeeId], references: [id], onDelete: Cascade)
+
+  @@unique([formId, userId]) // One response per user per form
+  @@map("event_feedback_responses")
+  @@index([formId])
+  @@index([userId])
+  @@index([attendeeId])
+  @@index([submittedAt])
+}
