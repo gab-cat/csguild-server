@@ -13,6 +13,7 @@ import {
   SendApplicationAcceptedHandler,
   SendApplicationRejectedHandler,
   SendProjectApplicationNotificationHandler,
+  SendFeedbackNotificationHandler,
 } from './commands';
 
 const CommandHandlers = [
@@ -23,6 +24,7 @@ const CommandHandlers = [
   SendApplicationAcceptedHandler,
   SendApplicationRejectedHandler,
   SendProjectApplicationNotificationHandler,
+  SendFeedbackNotificationHandler,
 ];
 
 @Module({
