@@ -1,0 +1,64 @@
+model User {
+  id                     String         @id @default(cuid())
+  email                  String         @unique
+  username               String         @unique
+  password               String?
+  firstName              String?
+  lastName               String?
+  birthdate              DateTime?
+  course                 String?
+  emailVerified          Boolean        @default(false)
+  emailVerificationCode  String?
+  passwordResetToken     String?
+  passwordResetExpiresAt DateTime?
+  rfidId                 String?        @unique
+  roles                  Role[]
+  userRoles              UserRole[]
+  refreshToken           String?        @db.Text
+  imageUrl               String?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  signupMethod           SignupMethod?  @default(EMAIL)
+  currentFacilityId      String?
+
+  // Relations
+  facilityUsages         FacilityUsage[]
+  currentFacility        Facility?      @relation(fields: [currentFacilityId], references: [id])
+  
+  // Project relations
+  ownedProjects          Project[]      @relation("ProjectOwner")
+  projectMemberships     ProjectMember[] @relation("ProjectMember")
+  projectApplications    ProjectApplication[] @relation("ProjectApplication")
+  reviewedApplications   ProjectApplication[] @relation("ProjectApplicationReviewer")
+  
+  // New pinning and saving relations
+  projectsPinned         ProjectPinned[] @relation("AdminProjectPinned")
+  projectsSaved          ProjectSaved[]  @relation("UserProjectSaved")
+  
+  // Event relations
+  organizedEvents        Event[]         @relation("EventOrganizer")
+  eventAttendances       EventAttendee[] @relation("EventAttendeeUser")
+  eventFeedbackResponses EventFeedbackResponse[] @relation("EventFeedbackUser")
+  eventOrganizerRatings  EventOrganizerRating[]  @relation("EventOrganizerRatingUser")
+
+  @@map("users")
+  @@index([email])
+  @@index([username])
+  @@index([rfidId])
+  
+}
+
+enum SignupMethod {
+  GOOGLE
+  EMAIL
+  FACEBOOK
+  APPLE
+}
+
+
+enum Role {
+  STUDENT
+  USER
+  STAFF
+  ADMIN
+}

@@ -8,6 +8,7 @@ import { EmailModule } from './common/email/email.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ProjectsModule } from './projects/projects.module';
+import { EventsModule } from './events/events.module';
 import { RolesModule } from './roles/roles.module';
 import { FacilitiesModule } from './facilities/facilities.module';
 import { CronModule } from './common/cron/cron.module';
@@ -35,6 +36,7 @@ import { UtilsModule } from './common/utils/utils.module';
     AuthModule,
     UsersModule,
     ProjectsModule,
+    EventsModule,
     RolesModule,
     FacilitiesModule,
     CronModule,

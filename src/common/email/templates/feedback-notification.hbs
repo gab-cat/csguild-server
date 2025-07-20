@@ -1,0 +1,543 @@
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Event Feedback Request - {{eventTitle}}</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          'Inter',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        line-height: 1.6;
+        color: #ffffff;
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+        padding: 16px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 700px;
+        margin: 0 auto;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+      }
+
+      .header {
+        background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+        padding: 24px 32px 20px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.1) 50%,
+          transparent 100%
+        );
+        transform: translateX(-100%);
+        animation: shine 3s ease-in-out infinite;
+      }
+
+      @keyframes shine {
+        0% {
+          transform: translateX(-100%);
+        }
+        50% {
+          transform: translateX(100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .logo::before {
+        content: '</>';
+        font-size: 20px;
+        background: linear-gradient(45deg, #f472b6, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .header h1 {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 16px;
+        font-weight: 400;
+        margin: 0;
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .header h1::before {
+        content: '// ';
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .content {
+        padding: 32px;
+      }
+
+      .feedback-hero {
+        background: linear-gradient(
+          135deg,
+          rgba(34, 197, 94, 0.15) 0%,
+          rgba(139, 92, 246, 0.15) 100%
+        );
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 12px;
+        padding: 32px;
+        margin-bottom: 24px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .feedback-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #22c55e, #8b5cf6, #a855f7, #22c55e);
+        background-size: 300% 100%;
+        animation: feedbackShift 3s ease infinite;
+      }
+
+      @keyframes feedbackShift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      .feedback-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        display: block;
+        animation: celebrate 3s ease infinite;
+      }
+
+      @keyframes celebrate {
+        0%,
+        100% {
+          transform: scale(1) rotate(0deg);
+        }
+        25% {
+          transform: scale(1.05) rotate(-3deg);
+        }
+        50% {
+          transform: scale(1.02) rotate(0deg);
+        }
+        75% {
+          transform: scale(1.05) rotate(3deg);
+        }
+      }
+
+      .feedback-title {
+        font-size: 28px;
+        font-weight: 700;
+        background: linear-gradient(45deg, #22c55e, #8b5cf6, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 12px;
+        line-height: 1.2;
+      }
+
+      .feedback-subtitle {
+        font-size: 18px;
+        color: rgba(34, 197, 94, 0.9);
+        font-weight: 500;
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .event-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 8px;
+        background: linear-gradient(
+          135deg,
+          rgba(139, 92, 246, 0.1) 0%,
+          rgba(236, 72, 153, 0.1) 100%
+        );
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: 8px;
+        padding: 16px;
+        text-align: center;
+      }
+
+      .greeting {
+        font-size: 18px;
+        font-weight: 500;
+        color: #ffffff;
+        margin-bottom: 20px;
+      }
+
+      .description {
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 24px;
+        line-height: 1.6;
+      }
+
+      .highlight {
+        background: linear-gradient(
+          135deg,
+          rgba(34, 197, 94, 0.1) 0%,
+          rgba(139, 92, 246, 0.1) 100%
+        );
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 12px;
+        padding: 24px;
+        margin: 24px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .highlight::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #22c55e, #8b5cf6, #a855f7, #22c55e);
+        background-size: 300% 100%;
+        animation: highlightShift 4s ease infinite;
+      }
+
+      @keyframes highlightShift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      .highlight h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .highlight h3::before {
+        content: '💡';
+        font-size: 16px;
+      }
+
+      .cta-section {
+        background: linear-gradient(
+          135deg,
+          #22c55e 0%,
+          #8b5cf6 50%,
+          #a855f7 100%
+        );
+        border-radius: 12px;
+        padding: 24px;
+        text-align: center;
+        margin: 24px 0;
+        color: #ffffff;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          45deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.1) 50%,
+          transparent 70%
+        );
+        transform: translateX(-100%);
+        animation: ctaShine 4s ease-in-out infinite;
+      }
+
+      @keyframes ctaShine {
+        0% {
+          transform: translateX(-100%);
+        }
+        50% {
+          transform: translateX(100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      .cta-button {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        padding: 12px 32px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        position: relative;
+        z-index: 1;
+      }
+
+      .cta-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+      }
+
+      .organizer-info {
+        background: linear-gradient(
+          135deg,
+          rgba(31, 41, 55, 0.6) 0%,
+          rgba(55, 65, 81, 0.6) 100%
+        );
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 24px 0;
+        text-align: center;
+      }
+
+      .organizer-info p {
+        margin: 8px 0;
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .organizer-name {
+        font-weight: 600;
+        color: rgba(34, 197, 94, 0.9);
+      }
+
+      .security-note {
+        background: linear-gradient(
+          135deg,
+          rgba(245, 158, 11, 0.1) 0%,
+          rgba(139, 92, 246, 0.1) 100%
+        );
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 8px;
+        padding: 16px;
+        margin: 20px 0;
+        font-size: 14px;
+        color: rgba(245, 158, 11, 0.9);
+        text-align: center;
+      }
+
+      .security-note::before {
+        content: '🔒 ';
+        margin-right: 6px;
+      }
+
+      .footer {
+        background: linear-gradient(
+          135deg,
+          rgba(31, 41, 55, 0.8) 0%,
+          rgba(17, 24, 39, 0.8) 100%
+        );
+        padding: 24px 32px;
+        text-align: center;
+        border-top: 1px solid rgba(139, 92, 246, 0.2);
+      }
+
+      .footer-brand {
+        font-size: 16px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 6px;
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .footer-brand::before {
+        content: '// ';
+        color: rgba(34, 197, 94, 0.8);
+      }
+
+      .footer-note {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 16px;
+      }
+
+      .footer-contact {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.5);
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .footer-contact a {
+        color: rgba(34, 197, 94, 0.8);
+        text-decoration: none;
+      }
+
+      .footer-contact a:hover {
+        color: #22c55e;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          margin: 8px;
+          border-radius: 10px;
+        }
+
+        .content {
+          padding: 20px;
+        }
+
+        .feedback-hero {
+          padding: 24px 16px;
+        }
+
+        .feedback-title {
+          font-size: 22px;
+        }
+
+        .cta-section {
+          padding: 20px 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <div class='header'>
+        <div class='logo'>CS Guild</div>
+        <h1>Event Feedback Request</h1>
+      </div>
+
+      <div class='content'>
+        <div class='feedback-hero'>
+          <span class='feedback-icon'>🎉</span>
+          <h2 class='feedback-title'>Thank You for Attending!</h2>
+          <p class='feedback-subtitle'>Your feedback shapes our future</p>
+        </div>
+
+        <div class='event-title'>{{eventTitle}}</div>
+
+        <p class='greeting'>Hi {{firstName}},</p>
+
+        <p class='description'>
+          Thank you for attending
+          <strong>{{eventTitle}}</strong>! We hope you found the event valuable,
+          engaging, and worth your time.
+        </p>
+
+        <div class='highlight'>
+          <h3>Your Voice Matters</h3>
+          <p class='description'>
+            As you've met the minimum attendance requirement, we'd love to hear
+            about your experience. Your feedback helps us improve future events
+            and create better experiences for our community of developers and
+            learners.
+          </p>
+        </div>
+
+        <p class='description'>
+          Please take a few minutes to share your thoughts by clicking the
+          button below. Your insights will help us:
+        </p>
+
+        <ul
+          style='color: rgba(255, 255, 255, 0.8); margin: 16px 0 24px 20px; line-height: 1.8;'
+        >
+          <li>📈 Improve future event content and format</li>
+          <li>🎯 Better understand what our community values</li>
+          <li>🚀 Plan more engaging workshops and sessions</li>
+          <li>🤝 Foster stronger connections within our developer community</li>
+        </ul>
+
+        <div class='cta-section'>
+          <a href='{{feedbackUrl}}' class='cta-button'>
+            🎯 Provide Feedback
+          </a>
+        </div>
+
+        <div class='organizer-info'>
+          <p>This feedback form was created by
+            <span class='organizer-name'>{{organizerName}}</span>
+            and is specifically tailored for this event.</p>
+        </div>
+
+        <div class='security-note'>
+          This feedback link is unique to you and this event. Please do not
+          share it with others.
+        </div>
+
+        <p class='description'>
+          Thank you again for being part of our community and contributing to
+          the learning environment we're building together!
+        </p>
+
+        <p class='description'>
+          <strong>Best regards,</strong><br />
+          The
+          {{organizationName}}
+          Team
+        </p>
+      </div>
+
+      <div class='footer'>
+        <div class='footer-brand'>Built with ❤️ by {{organizationName}}</div>
+        <p class='footer-note'>Empowering the next generation of developers</p>
+        <p class='footer-contact'>
+          Need help? Contact us at
+          <a href='mailto:{{supportEmail}}'>{{supportEmail}}</a>
+        </p>
+        <br />
+        <p class='footer-contact'>
+          console.log("Thanks for your feedback! 🚀");
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
