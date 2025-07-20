@@ -39,6 +39,7 @@ model User {
   organizedEvents        Event[]         @relation("EventOrganizer")
   eventAttendances       EventAttendee[] @relation("EventAttendeeUser")
   eventFeedbackResponses EventFeedbackResponse[] @relation("EventFeedbackUser")
+  eventOrganizerRatings  EventOrganizerRating[]  @relation("EventOrganizerRatingUser")
 
   @@map("users")
   @@index([email])

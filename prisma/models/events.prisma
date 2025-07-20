@@ -28,6 +28,7 @@ model Event {
   organizer         User                    @relation("EventOrganizer", fields: [organizedBy], references: [username], onDelete: Cascade)
   attendees         EventAttendee[]
   feedbackForms     EventFeedbackForm[]
+  organizerRatings  EventOrganizerRating[]
 
   @@map("events")
   @@index([startDate])
@@ -119,5 +120,27 @@ model EventFeedbackResponse {
   @@index([formId])
   @@index([userId])
   @@index([attendeeId])
+  @@index([submittedAt])
+}
+
+model EventOrganizerRating {
+  id          String    @id @default(cuid())
+  eventId     String
+  userId      String    // The attendee who is rating
+  rating      Int       // Rating value from 1-5
+  comment     String?   // Optional comment about the organizer
+  submittedAt DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user        User      @relation("EventOrganizerRatingUser", fields: [userId], references: [username], onDelete: Cascade)
+
+  @@unique([eventId, userId]) // One rating per user per event
+  @@map("event_organizer_ratings")
+  @@index([eventId])
+  @@index([userId])
+  @@index([rating])
   @@index([submittedAt])
 }
