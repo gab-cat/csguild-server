@@ -7,7 +7,9 @@ export * from './unpin-event/unpin-event.command';
 export * from './toggle-session/toggle-session.command';
 export * from './register-to-event/register-to-event.command';
 export * from './create-feedback-form/create-feedback-form.command';
+export * from './update-feedback-form/update-feedback-form.command';
 export * from './submit-feedback-response/submit-feedback-response.command';
+export * from './submit-organizer-rating/submit-organizer-rating.command';
 
 // Command Handlers
 export * from './create-event/create-event.handler';
@@ -18,4 +20,6 @@ export * from './unpin-event/unpin-event.handler';
 export * from './toggle-session/toggle-session.handler';
 export * from './register-to-event/register-to-event.handler';
 export * from './create-feedback-form/create-feedback-form.handler';
+export * from './update-feedback-form/update-feedback-form.handler';
 export * from './submit-feedback-response/submit-feedback-response.handler';
+export * from './submit-organizer-rating/submit-organizer-rating.handler';

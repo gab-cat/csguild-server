@@ -184,6 +184,7 @@ export class ToggleSessionHandler
         event.id,
         user.username,
         feedbackForm.id,
+        event.slug,
       );
 
       // Send feedback notification email

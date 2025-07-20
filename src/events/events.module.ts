@@ -20,7 +20,9 @@ import {
   ToggleSessionHandler,
   RegisterToEventHandler,
   CreateFeedbackFormHandler,
+  UpdateFeedbackFormHandler,
   SubmitFeedbackResponseHandler,
+  SubmitOrganizerRatingHandler,
 } from './commands';
 
 // Query Handlers
@@ -33,6 +35,9 @@ import {
   GetEventSessionsHandler,
   GetFeedbackFormHandler,
   GetEventAttendeesHandler,
+  CheckFeedbackResponseHandler,
+  GetEventFeedbackResponsesHandler,
+  GetOrganizerStatisticsHandler,
 } from './queries';
 
 const CommandHandlers = [
@@ -44,7 +49,9 @@ const CommandHandlers = [
   ToggleSessionHandler,
   RegisterToEventHandler,
   CreateFeedbackFormHandler,
+  UpdateFeedbackFormHandler,
   SubmitFeedbackResponseHandler,
+  SubmitOrganizerRatingHandler,
 ];
 
 const QueryHandlers = [
@@ -56,6 +63,9 @@ const QueryHandlers = [
   GetEventSessionsHandler,
   GetFeedbackFormHandler,
   GetEventAttendeesHandler,
+  CheckFeedbackResponseHandler,
+  GetEventFeedbackResponsesHandler,
+  GetOrganizerStatisticsHandler,
 ];
 
 @Module({

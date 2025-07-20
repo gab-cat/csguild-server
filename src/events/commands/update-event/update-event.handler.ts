@@ -70,14 +70,6 @@ export class UpdateEventHandler implements ICommandHandler<UpdateEventCommand> {
         updateEventDto.minimumAttendanceMinutes;
     }
 
-    if (updateEventDto.startDate !== undefined) {
-      const startDate = new Date(updateEventDto.startDate);
-      if (startDate < new Date()) {
-        throw new BadRequestException('Start date cannot be in the past');
-      }
-      updateData.startDate = startDate;
-    }
-
     if (updateEventDto.endDate !== undefined) {
       const endDate = updateEventDto.endDate
         ? new Date(updateEventDto.endDate)

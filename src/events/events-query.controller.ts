@@ -20,6 +20,8 @@ import {
   GetPinnedEventsQuery,
   GetEventSessionsQuery,
   GetEventAttendeesQuery,
+  CheckFeedbackResponseQuery,
+  GetOrganizerStatisticsQuery,
 } from './queries';
 import { User } from '../../generated/prisma';
 import {
@@ -28,7 +30,12 @@ import {
   EventListResponse,
   EventDetailResponse,
 } from './types/event.types';
-import { EventListResponseDto, EventDetailResponseDto } from './dto/response';
+import {
+  EventListResponseDto,
+  EventDetailResponseDto,
+  OrganizerStatisticsResponseDto,
+} from './dto/response';
+import { FeedbackStatusResponseDto } from './dto/response/feedback';
 
 @ApiTags('Events')
 @Controller('events')
@@ -142,39 +149,6 @@ export class EventsQueryController {
     };
 
     return this.queryBus.execute(new FindAllEventsQuery(filters, pagination));
-  }
-
-  @Get(':slug')
-  @ApiOperation({
-    summary: 'Get an event by slug',
-    description: 'Retrieve detailed information about a specific event',
-  })
-  @ApiParam({
-    name: 'slug',
-    description: 'Event slug',
-    example: 'cs-guild-tech-talk-advanced-react-patterns',
-    type: String,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Event retrieved successfully',
-    type: EventDetailResponseDto,
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Event not found',
-    examples: {
-      notFound: {
-        summary: 'Event not found',
-        value: {
-          message: 'Event not found',
-          statusCode: 404,
-        },
-      },
-    },
-  })
-  async findOne(@Param('slug') slug: string): Promise<EventDetailResponse> {
-    return this.queryBus.execute(new FindEventBySlugQuery(slug));
   }
 
   @Get('my-attended')
@@ -447,9 +421,40 @@ export class EventsQueryController {
     return this.queryBus.execute(new GetEventSessionsQuery(slug));
   }
 
+  @Get(':slug')
+  @ApiOperation({
+    summary: 'Get an event by slug',
+    description: 'Retrieve detailed information about a specific event',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Event slug',
+    example: 'cs-guild-tech-talk-advanced-react-patterns',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Event retrieved successfully',
+    type: EventDetailResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Event not found',
+    examples: {
+      notFound: {
+        summary: 'Event not found',
+        value: {
+          message: 'Event not found',
+          statusCode: 404,
+        },
+      },
+    },
+  })
+  async findOne(@Param('slug') slug: string): Promise<EventDetailResponse> {
+    return this.queryBus.execute(new FindEventBySlugQuery(slug));
+  }
+
   @Get(':eventId/attendees')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get event attendees',
     description:
@@ -533,5 +538,63 @@ export class EventsQueryController {
         limit: Number(limit),
       }),
     );
+  }
+
+  @Get(':slug/feedback/status')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Check if user has submitted feedback for an event',
+    description:
+      'Check if the current user has already submitted feedback for a specific event.',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Event slug',
+    example: 'my-event',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Feedback status retrieved successfully',
+    type: FeedbackStatusResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - valid JWT token required',
+  })
+  async checkFeedbackResponse(
+    @Param('slug') slug: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.queryBus.execute(
+      new CheckFeedbackResponseQuery(slug, user.username),
+    );
+  }
+
+  @Get('organizer/:username/statistics')
+  @ApiOperation({
+    summary: 'Get organizer statistics',
+    description:
+      'Retrieve comprehensive statistics for an event organizer including total events, ratings, and recent events.',
+  })
+  @ApiParam({
+    name: 'username',
+    description: 'Username of the organizer',
+    example: 'john_doe',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Organizer statistics retrieved successfully',
+    type: OrganizerStatisticsResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Organizer not found',
+  })
+  async getOrganizerStatistics(
+    @Param('username') username: string,
+  ): Promise<OrganizerStatisticsResponseDto> {
+    return this.queryBus.execute(new GetOrganizerStatisticsQuery(username));
   }
 }

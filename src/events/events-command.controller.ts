@@ -27,18 +27,21 @@ import {
   DeleteEventCommand,
   ToggleSessionCommand,
   RegisterToEventCommand,
+  SubmitOrganizerRatingCommand,
 } from './commands';
 import { User } from '../../generated/prisma';
 import {
   CreateEventDto,
   UpdateEventDto,
   ToggleSessionDto,
+  SubmitOrganizerRatingDto,
 } from './dto/request';
 import {
   EventCreateResponseDto,
   EventUpdateResponseDto,
   EventDeleteResponseDto,
   EventRegistrationResponseDto,
+  OrganizerRatingResponseDto,
 } from './dto/response';
 
 @ApiTags('Events')
@@ -273,6 +276,61 @@ export class EventsCommandController {
         },
       },
     };
+  }
+
+  @Post(':slug/rate-organizer')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Rate event organizer',
+    description:
+      'Submit a rating for the event organizer. Only eligible attendees can rate.',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Event slug',
+    example: 'cs-guild-tech-talk-advanced-react-patterns',
+    type: String,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Organizer rating submitted successfully',
+    type: OrganizerRatingResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid rating or already submitted',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - valid JWT token required',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Forbidden - Not an eligible attendee or trying to rate yourself',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Event or user not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'You have already rated the organizer for this event',
+  })
+  async rateOrganizer(
+    @Param('slug') slug: string,
+    @Body() submitOrganizerRatingDto: SubmitOrganizerRatingDto,
+    @CurrentUser() user: User,
+  ): Promise<OrganizerRatingResponseDto> {
+    return this.commandBus.execute(
+      new SubmitOrganizerRatingCommand({
+        eventSlug: slug,
+        username: user.username,
+        rating: submitOrganizerRatingDto.rating,
+        comment: submitOrganizerRatingDto.comment,
+      }),
+    );
   }
 
   @Post('sessions/toggle')

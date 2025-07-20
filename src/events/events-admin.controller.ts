@@ -2,12 +2,14 @@ import {
   Controller,
   Post,
   Delete,
+  Get,
   Param,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ApiTags,
   ApiOperation,
@@ -23,15 +25,25 @@ import { Role } from '../../generated/prisma';
 
 // Commands
 import { PinEventCommand, UnpinEventCommand } from './commands';
+// Queries
+import { GetEventFeedbackResponsesQuery } from './queries';
 import { User } from '../../generated/prisma';
-import { EventPinResponseDto, EventUnpinResponseDto } from './dto/response';
+import {
+  EventPinResponseDto,
+  EventUnpinResponseDto,
+  EventFeedbackResponsesDto,
+} from './dto/response';
+import { FeedbackResponsesQueryDto } from './dto/request';
 
 @ApiTags('Events Admin')
 @Controller('admin/events')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class EventsAdminController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Post(':slug/pin')
   @Roles(Role.ADMIN, Role.STAFF)
@@ -83,6 +95,8 @@ export class EventsAdminController {
         title: event.title,
         imageUrl: event.imageUrl,
         description: event.description,
+        details: event.details,
+        type: event.type,
         startDate: event.startDate.toISOString(),
         endDate: event.endDate?.toISOString() || null,
         tags: event.tags,
@@ -145,6 +159,8 @@ export class EventsAdminController {
         title: event.title,
         imageUrl: event.imageUrl,
         description: event.description,
+        details: event.details,
+        type: event.type,
         startDate: event.startDate.toISOString(),
         endDate: event.endDate?.toISOString() || null,
         tags: event.tags,
@@ -154,5 +170,53 @@ export class EventsAdminController {
         updatedAt: event.updatedAt.toISOString(),
       },
     };
+  }
+
+  @Get(':slug/feedback/responses')
+  @Roles(Role.ADMIN, Role.STAFF)
+  @ApiOperation({
+    summary: 'Get event feedback responses',
+    description:
+      'Get all feedback responses for an event with statistics and insights. Only admins and staff can access this.',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Event slug',
+    example: 'cs-guild-tech-talk-advanced-react-patterns',
+    type: String,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Feedback responses retrieved successfully',
+    type: EventFeedbackResponsesDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - valid JWT token required',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - admin/staff role required',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Event not found',
+  })
+  async getEventFeedbackResponses(
+    @Param('slug') slug: string,
+    @Query() queryParams: FeedbackResponsesQueryDto,
+  ): Promise<EventFeedbackResponsesDto> {
+    const { page, limit, search, sortBy, sortOrder } = queryParams;
+
+    return await this.queryBus.execute(
+      new GetEventFeedbackResponsesQuery(
+        slug,
+        page,
+        limit,
+        search,
+        sortBy,
+        sortOrder,
+      ),
+    );
   }
 }

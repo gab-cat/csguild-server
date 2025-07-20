@@ -1,4 +1,4 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, CommandBus } from '@nestjs/cqrs';
 import {
   BadRequestException,
   Injectable,
@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { RegisterToEventCommand } from './register-to-event.command';
+import { SendEventRegistrationConfirmationCommand } from '../../../common/email/commands';
 import { EventAttendee, Prisma } from '../../../../generated/prisma';
 
 @Injectable()
@@ -14,7 +15,10 @@ import { EventAttendee, Prisma } from '../../../../generated/prisma';
 export class RegisterToEventHandler
   implements ICommandHandler<RegisterToEventCommand>
 {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly commandBus: CommandBus,
+  ) {}
 
   async execute(command: RegisterToEventCommand): Promise<EventAttendee> {
     const { eventSlug, username } = command;
@@ -84,6 +88,19 @@ export class RegisterToEventHandler
           },
         },
       });
+
+      // Send confirmation email
+      await this.commandBus.execute(
+        new SendEventRegistrationConfirmationCommand({
+          email: attendee.user.email,
+          firstName: attendee.user.firstName,
+          username: attendee.user.username,
+          eventTitle: attendee.event.title,
+          eventSlug: attendee.event.slug,
+          eventStartDate: attendee.event.startDate,
+          eventEndDate: attendee.event.endDate,
+        }),
+      );
 
       return attendee;
     } catch (error) {

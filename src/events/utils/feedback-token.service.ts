@@ -41,13 +41,37 @@ export class FeedbackTokenService {
   /**
    * Generate a unique feedback URL for an attendee
    */
-  generateFeedbackUrl(eventId: string, userId: string, formId: string): string {
+  generateFeedbackUrl(
+    eventId: string,
+    userId: string,
+    formId: string,
+    slug: string,
+  ): string {
     const token = this.generateFeedbackToken({ eventId, userId, formId });
     const frontendUrl = this.configService.get(
       'FRONTEND_URL',
       'http://localhost:3000',
     );
 
-    return `${frontendUrl}/feedback/${eventId}?token=${token}&userId=${userId}`;
+    return `${frontendUrl}/events/${slug}/feedback/public?token=${token}&userId=${userId}`;
+  }
+
+  /**
+   * Generate a combined feedback and rating URL for an attendee
+   * This URL can be used for both feedback submission and organizer rating
+   */
+  generateFeedbackAndRatingUrl(
+    eventId: string,
+    userId: string,
+    formId: string,
+    slug: string,
+  ): string {
+    const token = this.generateFeedbackToken({ eventId, userId, formId });
+    const frontendUrl = this.configService.get(
+      'FRONTEND_URL',
+      'http://localhost:3000',
+    );
+
+    return `${frontendUrl}/events/${slug}/feedback-and-rating?token=${token}&userId=${userId}`;
   }
 }

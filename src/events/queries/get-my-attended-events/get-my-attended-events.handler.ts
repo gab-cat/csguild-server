@@ -20,7 +20,9 @@ export class GetMyAttendedEventsHandler
     const whereClause: Prisma.EventWhereInput = {
       attendees: {
         some: {
-          userId: userSlug,
+          user: {
+            username: userSlug,
+          },
         },
       },
     };

@@ -109,9 +109,7 @@ export class CreateEventDto {
   @ArrayMaxSize(10)
   @Transform(({ value }) =>
     Array.isArray(value)
-      ? value
-          .map((tag) => tag.toLowerCase().trim())
-          .filter((tag) => tag.length > 0)
+      ? value.map((tag) => tag.trim()).filter((tag) => tag.length > 0)
       : [],
   )
   tags?: string[];
